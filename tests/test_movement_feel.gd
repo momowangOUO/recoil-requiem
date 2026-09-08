@@ -13,6 +13,27 @@ func make_player(parent: Node, at: Vector2, initial_weapon: int = 0) -> PlayerCo
 
 func run() -> void:
 	var samples := {}
+	var lift_world := Node2D.new()
+	root.add_child(lift_world)
+	var lift_player := make_player(lift_world, Vector2.ZERO, 1)
+	var lift_input := frame_for(lift_player, Vector2.DOWN)
+	lift_input.fire_pressed = true
+	lift_player.velocity.y = -545
+	await physics_frame
+	lift_player.step(lift_input, 1.0 / 60)
+	var first_lift := -lift_player.last_recoil.y
+	check(-lift_player.velocity.y < 720, "jump-speed plus shotgun remains below air lift ceiling")
+	lift_input.fire_pressed = false
+	for tick in 90:
+		await physics_frame
+		lift_player.step(frame_for(lift_player, Vector2.DOWN), 1.0 / 60)
+	lift_player.velocity.y = -545
+	lift_input = frame_for(lift_player, Vector2.DOWN)
+	lift_input.fire_pressed = true
+	lift_player.step(lift_input, 1.0 / 60)
+	check(-lift_player.last_recoil.y < first_lift * 0.25, "same-airtime lift fades even after firing cooldown ends")
+	samples.first_and_late_lift = [first_lift, -lift_player.last_recoil.y]
+	lift_world.free()
 	var world := Node2D.new()
 	root.add_child(world)
 	var p := make_player(world, Vector2.ZERO)

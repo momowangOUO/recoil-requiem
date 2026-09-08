@@ -34,9 +34,3 @@ func _draw() -> void:
 		ReloadFeedback.draw_ring(self, target, progress)
 	elif completion_time > 0.0:
 		ReloadFeedback.draw_ring(self, target, 1.0)
-	if measurement:
-		var origin := player.aim_origin()
-		var end := origin - player.aim_direction * 18
-		draw_line(origin - player.aim_direction * 8, end, Color("69c9c7"), 1)
-		draw_line(end, end + player.aim_direction.rotated(0.6) * 5, Color("69c9c7"), 1)
-		draw_line(end, end + player.aim_direction.rotated(-0.6) * 5, Color("69c9c7"), 1)

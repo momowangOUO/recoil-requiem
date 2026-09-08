@@ -24,6 +24,8 @@ var coyote_time := 0.0
 var jump_buffer_time := 0.0
 var visual: PlayerVisual
 var move_intent_x := 0.0
+var air_lift_age := 0.0
+var air_lift_started := false
 
 func _ready() -> void:
 	collision_layer = 2
@@ -56,6 +58,11 @@ func _physics_process(delta: float) -> void:
 		step(input_source.call(), delta)
 
 func step(frame: InputFrame, delta: float) -> void:
+	if is_on_floor():
+		air_lift_age = 0.0
+		air_lift_started = false
+	elif air_lift_started:
+		air_lift_age += delta
 	invulnerability = maxf(0.0, invulnerability - delta)
 	flash_time = maxf(0.0, flash_time - delta)
 	drop_time = maxf(0.0, drop_time - delta)
@@ -92,6 +99,16 @@ func step(frame: InputFrame, delta: float) -> void:
 	var weapon := weapons.advance(delta, frame)
 	if weapon:
 		last_recoil = -aim_direction * weapon.recoil_impulse
+		last_recoil.x *= tuning.horizontal_recoil_scale
+		if tuning.air_lift_speed > 0.0 and last_recoil.y < 0.0 and (not is_on_floor() or velocity.y < 0.0):
+			# Braking descent stays effective. Added ascent saturates smoothly and
+			# fades during this airborne episode; switching/reloading cannot renew it.
+			air_lift_started = true
+			var braking := minf(maxf(velocity.y, 0.0), -last_recoil.y)
+			var lift := -last_recoil.y - braking
+			var headroom := maxf(0.0, tuning.air_lift_speed - maxf(-velocity.y, 0.0))
+			var fade := exp(-air_lift_age * 1.2)
+			last_recoil.y = -braking - headroom * (1.0 - exp(-lift / tuning.air_lift_speed)) * fade
 		if is_on_floor() and velocity.y >= 0.0:
 			# Ground contact absorbs horizontal kick, never the upward launch impulse.
 			last_recoil.x *= tuning.ground_recoil_scale

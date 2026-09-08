@@ -25,6 +25,8 @@ const PLAYER_FIELDS := [
 	["air_max_speed", "Air input speed", 50.0, 900.0, 10.0, 220.0],
 	["air_deceleration", "Air release brake", 0.0, 1200.0, 10.0, 180.0],
 	["ground_recoil_scale", "Ground kick X", 0.0, 1.0, 0.05, 0.45],
+	["horizontal_recoil_scale", "Horizontal kick", 0.0, 2.0, 0.05, 1.0],
+	["air_lift_speed", "Air lift ceiling (0=GDD)", 0.0, 1200.0, 10.0, 0.0],
 	["terminal_velocity", "Fall terminal", 100.0, 2000.0, 25.0, 900.0],
 	["soft_cap_x", "Soft cap X", 100.0, 2000.0, 25.0, 760.0],
 	["soft_cap_y", "Soft cap Y", 100.0, 2000.0, 25.0, 900.0],
