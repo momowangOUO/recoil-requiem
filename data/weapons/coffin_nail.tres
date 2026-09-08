@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/core/weapon_data.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"shotgun"
+display_name = "COFFIN-NAIL"
+magazine_size = 2
+fire_rate = 0.82
+damage = 11.0
+recoil_impulse = 720.0
+enemy_knockback = 520.0
+reload_time = 0.62
+projectile_speed = 1150.0
+pellet_count = 7
+spread_degrees = 15.0
+per_shell = true
+color = Color(0.96, 0.41, 0.36, 1)

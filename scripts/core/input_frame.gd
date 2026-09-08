@@ -1,0 +1,11 @@
+class_name InputFrame
+extends RefCounted
+
+var move := Vector2.ZERO
+var aim_world := Vector2.ZERO
+var fire_pressed := false
+var fire_held := false
+var reload_pressed := false
+var switch_pressed := false
+var drop_pressed := false
+var jump_pressed := false

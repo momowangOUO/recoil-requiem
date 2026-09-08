@@ -1,0 +1,8 @@
+.godot/
+artifacts/
+*.tmp
+.env
+.env.*
+!.env.example
+export_credentials.cfg
+.DS_Store

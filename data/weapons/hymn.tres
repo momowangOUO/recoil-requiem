@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/core/weapon_data.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"smg"
+display_name = "HYMN"
+magazine_size = 24
+fire_rate = 12.0
+damage = 7.0
+recoil_impulse = 92.0
+enemy_knockback = 38.0
+reload_time = 1.55
+projectile_speed = 1250.0
+spread_degrees = 4.0
+automatic = true
+color = Color(0.41, 0.84, 0.79, 1)
