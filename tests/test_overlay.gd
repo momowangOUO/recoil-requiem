@@ -25,7 +25,7 @@ func _run() -> void:
 			{"id":"shotgun", "display_name":"BREACH", "magazine_size":2, "fire_rate":0.82, "recoil_impulse":720.0, "reload_time":0.62},
 			{"id":"smg", "display_name":"STATIC", "magazine_size":24, "fire_rate":12.0, "recoil_impulse":92.0, "reload_time":1.55}
 		],
-		"loadout": [0, 1], "measurement": true, "shake": false,
+		"active_weapon": 0, "measurement": true, "shake": false,
 		"target_mode": true, "turn_speed": 110.0, "custom_root": "keep"
 	}
 	overlay.setup(config)
@@ -48,24 +48,35 @@ func _run() -> void:
 	var air_y = overlay.find_child("Player_air_control_y", true, false)
 	gravity.value = 200.0
 	air_y.value = 1900.0
-	var first = overlay.find_child("Slot0", true, false)
-	first.select(1)
-	first.item_selected.emit(1)
 	overlay.find_child("Apply", true, false).pressed.emit()
 	_check(captured.size() == 1, "Apply must emit exactly one configuration")
 	if not captured.is_empty():
 		var edited: Dictionary = captured[0]
 		_check(edited.custom_root == "keep" and edited.player.custom_physics == 17 and edited.weapons[0].damage == 30, "Unexposed settings must survive Apply")
 		_check(edited.weapons[0].magazine_size == 137, "Unsupported magazine tuning must preserve the original configuration exactly")
-		_check(edited.loadout[0] != edited.loadout[1], "Equipped slots must remain distinct")
+		_check(not edited.has("loadout"), "Applied config has no separate quick-gun loadout")
 		_check(edited.player.air_control_y < edited.player.gravity, "Air vertical control must remain below gravity")
 		_check(is_equal_approx(edited.player.air_control_y, 160.0), "Gravity 200 must clamp air control Y to the shared 80% boundary of 160")
 		_check(edited.measurement and not edited.shake, "Applied measurement config must always suppress shake")
-		_check(config.player.gravity == 1500.0 and config.loadout == [0, 1], "Editing must never mutate the supplied configuration")
+		_check(config.player.gravity == 1500.0 and config.active_weapon == 0, "Editing must never mutate the supplied configuration")
 	_check(overlay.process_mode == Node.PROCESS_MODE_ALWAYS, "Panel must work while simulation is paused")
 	paused = true
-	overlay.update_hud({"velocity": Vector2(30, -120), "health": 5, "ammo": 4, "magazine":6, "reload_progress":0.5})
+	var inventory := [
+		{"occupied": true, "id": "revolver", "ammo": 4},
+		{"occupied": true, "id": "shotgun", "ammo": 2},
+		{"occupied": true, "id": "smg", "ammo": 19},
+		{"occupied": false}, {"occupied": false}, {"occupied": false}
+	]
+	overlay.update_hud({"velocity": Vector2(30, -120), "health": 5, "weapon_id": "smg", "active_slot": 2, "inventory": inventory, "ammo": 19, "magazine":24, "reload_progress":0.5})
 	var status = overlay.find_child("ReloadStatus", true, false)
+	var all_slots_exist := true
+	for number in range(1, 7):
+		all_slots_exist = all_slots_exist and overlay.find_child("WeaponSlot%d" % number, true, false) != null
+	_check(all_slots_exist, "HUD exposes all six numbered inventory slots")
+	var selected_slot = overlay.find_child("WeaponSlot3", true, false)
+	var empty_slot = overlay.find_child("WeaponSlot6", true, false)
+	_check(selected_slot != null and selected_slot.text.begins_with("["), "HUD highlights the current weapon slot")
+	_check(empty_slot != null and "-" in empty_slot.text, "HUD distinguishes empty weapon slots")
 	_check(status != null, "HUD has explicit reload status")
 	if status != null:
 		_check("50%" in status.text, "HUD reload label follows current weapon progress")

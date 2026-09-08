@@ -45,7 +45,7 @@ static func baseline_config() -> Dictionary:
 	var weapons: Array = []
 	for definition in WeaponData.baselines():
 		weapons.append(definition.to_dict())
-	return {"player": PlayerTuning.gdd_baseline().to_dict(), "weapons": weapons, "loadout": [0, 1], "measurement": true, "shake": false, "target_mode": false, "turn_speed": 110.0}
+	return {"player": PlayerTuning.gdd_baseline().to_dict(), "weapons": weapons, "active_weapon": 0, "measurement": true, "shake": false, "target_mode": false, "turn_speed": 110.0}
 
 static func responsive_config() -> Dictionary:
 	var result := baseline_config()
@@ -67,8 +67,7 @@ func apply_config(values: Dictionary) -> void:
 	config.player = tuning.to_dict()
 	if config.measurement:
 		config.shake = false
-	if config.loadout[0] == config.loadout[1]:
-		config.loadout[1] = (config.loadout[0] + 1) % 3
+	config.active_weapon = clampi(int(config.get("active_weapon", 0)), 0, WeaponController.SLOT_COUNT - 1)
 	reset_trial(preset)
 	overlay.show_notice("TUNING APPLIED / NEW TRIAL")
 
@@ -103,7 +102,7 @@ func reset_trial(index: int) -> void:
 	player = PlayerController.new()
 	player.position = environment.spawn
 	player.tuning.apply_dict(config.player)
-	player.weapons.configure(definitions, config.loadout)
+	player.weapons.configure(definitions, int(config.get("active_weapon", 0)))
 	player.input_source = func(): return input_adapter.sample(get_global_mouse_position())
 	player.shot_fired.connect(_fire)
 	player.died.connect(_request_reset)
@@ -132,9 +131,9 @@ func reset_trial(index: int) -> void:
 	input_adapter.suppress()
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CONFINED_HIDDEN
-	var hints := ["SPACE JUMP + AIM DOWN / FIRE TO BOOST", "S DROP   |   TAB: EQUIP HYMN FOR SLOW FALL", "JUMP + RECOIL / CROSS BEHIND THE SHIELD"]
+	var hints := ["SPACE JUMP + AIM DOWN / FIRE TO BOOST", "3: HYMN   |   S DROP   |   FIRE DOWN TO SLOW FALL", "JUMP + RECOIL / CROSS BEHIND THE SHIELD"]
 	overlay.show_notice(hints[preset])
-	print("TRIAL %d RESET loadout=%s gravity=%.1f" % [preset + 1, str(config.loadout), player.tuning.gravity])
+	print("TRIAL %d RESET weapon_slot=%d gravity=%.1f" % [preset + 1, player.weapons.active_slot + 1, player.tuning.gravity])
 
 func _request_reset() -> void:
 	if not reset_pending:
@@ -192,13 +191,14 @@ func _physics_process(delta: float) -> void:
 	if player.position.y > environment.bounds.end.y + 96:
 		_request_reset()
 	var weapon := player.weapons.current()
+	config.active_weapon = player.weapons.active_slot
 	if weapon.reloading and not last_reload:
 		audio.play("reload")
 	last_reload = weapon.reloading
 	var hit_text := last_hit
 	if preset == 1:
 		hit_text = "DROP %.0f PX   TIME %.2f S" % [player.position.y - environment.spawn.y, elapsed]
-	overlay.update_hud({"preset": preset, "title": TITLES[preset], "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "secondary_id": player.weapons.slots[1 - player.weapons.active_slot].data.id, "secondary_ammo": player.weapons.slots[1 - player.weapons.active_slot].ammo, "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "secondary_name": player.weapons.slots[1 - player.weapons.active_slot].data.display_name, "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
+	overlay.update_hud({"preset": preset, "title": TITLES[preset], "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
 	queue_redraw()
 
 func _update_camera(delta: float) -> void:

@@ -26,7 +26,7 @@ func build(index: int) -> void:
 			bounds = Rect2(0, 0, 448, 2432)
 			_platform(Rect2(48, 128, 192, 8))
 			_solid(Rect2(0, 2304, 448, 128))
-			labels = [[Vector2(62, 67), "02 / DESCENT CHAMBER"], [Vector2(62, 83), "S: DROP   |   TAB: EQUIP HYMN"], [Vector2(92, 2286), "2176 PX / LANDING ZONE"]]
+			labels = [[Vector2(62, 67), "02 / DESCENT CHAMBER"], [Vector2(62, 83), "3: HYMN   |   S: DROP"], [Vector2(92, 2286), "2176 PX / LANDING ZONE"]]
 			for y in range(256, 2304, 256):
 				labels.append([Vector2(26, y), "%04d PX" % (y - 128)])
 		2:

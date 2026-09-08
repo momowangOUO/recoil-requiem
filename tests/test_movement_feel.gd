@@ -1,14 +1,14 @@
 extends "res://tests/run_tests.gd"
 ## Measures live controller behavior; desired grip fixes are regression gates.
 
-func make_player(parent: Node, at: Vector2, loadout: Array = [0, 1]) -> PlayerController:
-	var player := super.make_player(parent, at, loadout)
+func make_player(parent: Node, at: Vector2, initial_weapon: int = 0) -> PlayerController:
+	var player := super.make_player(parent, at, initial_weapon)
 	player.tuning = PlayerTuning.responsive()
 	var config := RecoilLab.responsive_config()
 	var definitions := WeaponData.baselines()
 	for i in 3:
 		definitions[i].apply_dict(config.weapons[i])
-	player.weapons.configure(definitions, loadout)
+	player.weapons.configure(definitions, initial_weapon)
 	return player
 
 func run() -> void:
@@ -61,7 +61,7 @@ func run() -> void:
 	for mode in 3:
 		world = Node2D.new()
 		root.add_child(world)
-		p = make_player(world, Vector2.ZERO, [2, 0])
+		p = make_player(world, Vector2.ZERO, 2)
 		for tick in 120:
 			await physics_frame
 			var f := frame_for(p, Vector2.DOWN)
@@ -75,7 +75,7 @@ func run() -> void:
 	check(drops[2] > 0, "responsive SMG plus W still has net descent")
 	world = Node2D.new()
 	root.add_child(world)
-	p = make_player(world, Vector2.ZERO, [1, 0])
+	p = make_player(world, Vector2.ZERO, 1)
 	var flight := frame_for(p, Vector2.LEFT)
 	flight.move.x = 1
 	flight.fire_pressed = true
@@ -91,7 +91,7 @@ func run() -> void:
 		world = Node2D.new()
 		root.add_child(world)
 		make_floor(world, Rect2(-4000, 0, 8000, 32))
-		p = make_player(world, Vector2.ZERO, [index, (index + 1) % 3])
+		p = make_player(world, Vector2.ZERO, index)
 		for tick in 15:
 			await physics_frame
 			var f := frame_for(p)

@@ -32,6 +32,7 @@ func run() -> void:
 	quit(1 if failures else 0)
 
 func test_runtime() -> void:
+	KeyboardInput.install_actions()
 	var data_script = load("res://scripts/core/weapon_data.gd")
 	var runtime_script = load("res://scripts/core/weapon_runtime.gd")
 	var defs: Array = data_script.baselines()
@@ -59,7 +60,14 @@ func test_runtime() -> void:
 	shotgun.tick(0.01, true)
 	check(shotgun.ammo == 2 and not shotgun.reloading, "second shell loads from full interval")
 	var controller := WeaponController.new()
-	controller.configure(defs, [0, 1])
+	controller.configure(defs, 0)
+	check(controller.slots.size() == 6, "arsenal always exposes six numbered weapon slots")
+	check(controller.slots[0] != null and controller.slots[1] != null and controller.slots[2] != null, "slots 1-3 contain the three prototype guns")
+	check(controller.slots[3] == null and controller.slots[4] == null and controller.slots[5] == null, "slots 4-6 are explicit empty inventory slots")
+	check(not "quick_slots" in controller, "weapon controller has no separate quick-gun concept")
+	check(controller.has_method("select_weapon"), "weapon controller exposes centralized direct selection")
+	for number in range(1, 7):
+		check(InputMap.has_action("weapon_%d" % number), "keyboard action exists for weapon %d" % number)
 	var f := InputFrame.new()
 	f.fire_pressed = true
 	controller.advance(0, f)
@@ -67,11 +75,31 @@ func test_runtime() -> void:
 	f.reload_pressed = true
 	controller.advance(0.1, f)
 	f.reload_pressed = false
-	f.switch_pressed = true
+	f.weapon_slot_pressed = 1
 	controller.advance(0.1, f)
+	f.weapon_slot_pressed = 0
 	controller.advance(0.1, f)
 	check(controller.current().ammo == 5 and controller.current().reloading, "switching back restarts interrupted partial reload")
 	check(controller.current().reload_elapsed == 0, "returning partial reload starts from zero progress")
+	if controller.has_method("select_weapon"):
+		controller.select_weapon(2)
+		check(controller.current().data.id == &"smg", "number 3 directly selects SMG")
+		controller.current().ammo = 7
+		controller.current().cooldown = 0.25
+		controller.select_weapon(0)
+		controller.select_weapon(2)
+		check(controller.current().ammo == 7 and controller.current().cooldown == 0.25, "direct switching preserves weapon ammo and cooldown")
+		controller.select_weapon(5)
+		check(controller.current().data.id == &"smg", "unassigned number slot leaves current weapon unchanged")
+		f.weapon_slot_pressed = -1
+		f.switch_pressed = true
+		controller.advance(0, f)
+		check(controller.current().data.id == &"revolver", "Q cycles slot 3 to the next occupied slot 1")
+		controller.advance(0, f)
+		check(controller.current().data.id == &"shotgun", "Q cycles slot 1 to occupied slot 2")
+		controller.advance(0, f)
+		check(controller.current().data.id == &"smg", "Q cycles through every occupied slot before wrapping")
+		f.switch_pressed = false
 	controller.free()
 
 func frame_for(player: PlayerController, direction := Vector2.RIGHT) -> InputFrame:
@@ -79,13 +107,13 @@ func frame_for(player: PlayerController, direction := Vector2.RIGHT) -> InputFra
 	frame.aim_world = player.aim_origin() + direction * 100
 	return frame
 
-func make_player(parent: Node, at: Vector2, loadout: Array = [0, 1]) -> PlayerController:
+func make_player(parent: Node, at: Vector2, initial_weapon: int = 0) -> PlayerController:
 	var player := PlayerController.new()
 	# Historical acceptance measurements explicitly exercise the restorable GDD profile.
 	player.tuning = PlayerTuning.gdd_baseline()
 	player.position = at
 	player.manual_control = true
-	player.weapons.configure(WeaponData.baselines(), loadout)
+	player.weapons.configure(WeaponData.baselines(), initial_weapon)
 	parent.add_child(player)
 	return player
 
@@ -127,7 +155,7 @@ func test_player() -> void:
 	p.update_aim(p.aim_origin() + Vector2(-1, 1))
 	check(p.aim_direction == previous_aim, "aim center deadzone retains last direction")
 	p.free()
-	p = make_player(world, Vector2.ZERO, [1, 0])
+	p = make_player(world, Vector2.ZERO, 1)
 	for index in 3:
 		await physics_frame
 		p.step(frame_for(p), 1.0 / 60)
@@ -148,7 +176,7 @@ func test_player() -> void:
 	for mode in 3:
 		world = Node2D.new()
 		root.add_child(world)
-		p = make_player(world, Vector2.ZERO, [2, 0])
+		p = make_player(world, Vector2.ZERO, 2)
 		f = frame_for(p, Vector2.DOWN)
 		f.fire_held = mode > 0
 		f.move.y = -1 if mode == 2 else 0
@@ -165,7 +193,7 @@ func test_player() -> void:
 	make_floor(world, Rect2(-200, 128, 400, 32))
 	var platform := make_floor(world, Rect2(-60, -16, 120, 8), 1024)
 	platform.get_child(0).one_way_collision = true
-	p = make_player(world, Vector2(0, 128), [1, 0])
+	p = make_player(world, Vector2(0, 128), 1)
 	for index in 3:
 		await physics_frame
 		p.step(frame_for(p), 1.0 / 60)
@@ -351,12 +379,12 @@ func test_lab() -> void:
 	check(not is_instance_valid(original_world), "previous trial container is destroyed")
 	var config: Dictionary = lab.config.duplicate(true)
 	config.player.gravity = 1200.0
-	config.loadout = [1, 2]
+	config.active_weapon = 1
 	config.weapons[1].recoil_impulse = 800.0
 	config.weapons[1].fire_rate = 1.0
 	config.weapons[1].reload_time = 0.8
 	lab.apply_config(config)
-	check(lab.player.tuning.gravity == 1200 and lab.player.weapons.current().data.id == &"shotgun", "Apply rebuilds trial with runtime tuning/loadout")
+	check(lab.player.tuning.gravity == 1200 and lab.player.weapons.current().data.id == &"shotgun", "Apply rebuilds trial with runtime tuning and selected numbered slot")
 	check(lab.player.weapons.current().data.recoil_impulse == 800 and lab.player.weapons.current().data.fire_rate == 1 and lab.player.weapons.current().data.reload_time == 0.8, "all three weapon tuning fields reach active runtime")
 	check(PlayerTuning.new().gravity == 1500 and WeaponData.baselines()[1].recoil_impulse == 720, "runtime changes leave baselines immutable")
 	lab.pause_trial()
@@ -372,7 +400,7 @@ func test_lab() -> void:
 	check(lab.player.weapons.current().ammo == ammo, "held UI fire input is suppressed on resume")
 	Input.action_release("fire")
 	lab.restore_baseline()
-	check(lab.player.tuning.gravity == 1500 and lab.config.loadout == [0, 1], "Restore GDD restores baseline and default slots")
+	check(lab.player.tuning.gravity == 1500 and lab.config.active_weapon == 0, "Restore GDD restores baseline and slot 1")
 	var old_player = lab.player
 	lab.player.receive_damage(5, Vector2.ZERO)
 	await process_frame
@@ -395,7 +423,7 @@ func test_jump() -> void:
 		var world := Node2D.new()
 		root.add_child(world)
 		make_floor(world, Rect2(-2000, 0, 4000, 32))
-		var p := make_player(world, Vector2.ZERO, [1, 0])
+		var p := make_player(world, Vector2.ZERO, 1)
 		for tick in 3:
 			await physics_frame
 			p.step(frame_for(p), 1.0 / 60)

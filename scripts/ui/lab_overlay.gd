@@ -35,7 +35,6 @@ const PLAYER_FIELDS := [
 var _config: Dictionary = {}
 var _fields: Dictionary = {}
 var _weapon_fields: Array[Dictionary] = []
-var _slot_controls: Array[OptionButton] = []
 var _toggles: Dictionary = {}
 var _root: Control
 var _panel: Control
@@ -43,7 +42,7 @@ var _title: Label
 var _health: Label
 var _speed: Label
 var _weapon: Label
-var _secondary: Label
+var _inventory_slots: Array[Label] = []
 var _hit: Label
 var _notice: Label
 var _reload: ProgressBar
@@ -93,7 +92,15 @@ func update_hud(metrics: Dictionary) -> void:
 	_speed.visible = bool(metrics.get("measurement", true))
 	var short_names := {"revolver": "REVOLVER", "shotgun": "SHOTGUN", "smg": "SMG"}
 	_weapon.text = "[%d] %s  %02d/%02d" % [int(metrics.get("active_slot", 0)) + 1, short_names.get(str(metrics.get("weapon_id", "revolver")), "REVOLVER"), int(metrics.get("ammo", 6)), int(metrics.get("magazine", 6))]
-	_secondary.text = "[Q] %s %d" % [short_names.get(str(metrics.get("secondary_id", "shotgun")), "SHOTGUN"), int(metrics.get("secondary_ammo", 2))]
+	var inventory: Array = metrics.get("inventory", [])
+	var abbreviations := {"revolver": "R", "shotgun": "S", "smg": "M"}
+	var active := int(metrics.get("active_slot", 0))
+	for i in _inventory_slots.size():
+		var item: Dictionary = inventory[i] if i < inventory.size() else {"occupied": false}
+		var occupied := bool(item.get("occupied", false))
+		var mark := str(abbreviations.get(str(item.get("id", "")), "?")) if occupied else "-"
+		_inventory_slots[i].text = "[%d%s]" % [i + 1, mark] if i == active else " %d%s " % [i + 1, mark]
+		_inventory_slots[i].add_theme_color_override("font_color", CYAN if i == active else (BONE if occupied else Color("53606a")))
 	_hit.text = str(metrics.get("last_hit", ""))
 	var progress := float(metrics.get("reload_progress", -1))
 	_reload.visible = progress >= 0
@@ -202,9 +209,15 @@ func _build() -> void:
 	_speed = _label(_root, "", CYAN)
 	_place(_speed, Rect2(6, 14, 260, 11))
 	_weapon = _label(_root, "", BONE)
-	_place(_weapon, Rect2(6, 146, 195, 11))
-	_secondary = _label(_root, "", MUTED)
-	_place(_secondary, Rect2(216, 146, 100, 11))
+	_weapon.name = "CurrentWeapon"
+	_place(_weapon, Rect2(6, 146, 144, 11))
+	for i in WeaponController.SLOT_COUNT:
+		var slot := _label(_root, " %d- " % (i + 1), Color("53606a"))
+		slot.name = "WeaponSlot%d" % (i + 1)
+		slot.add_theme_font_size_override("font_size", 7)
+		slot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_place(slot, Rect2(151 + i * 27, 146, 27, 10))
+		_inventory_slots.append(slot)
 	_reload = ProgressBar.new()
 	_reload.max_value = 1
 	_reload.show_percentage = false
@@ -220,11 +233,11 @@ func _build() -> void:
 		var cell := ColorRect.new()
 		cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_root.add_child(cell)
-		_place(cell, Rect2(160 + i * 6, 160, 4, 5))
+		_place(cell, Rect2(160 + i * 6, 166, 4, 3))
 		_ammo_cells.append(cell)
 	_hit = _label(_root, "", RED)
 	_place(_hit, Rect2(6, 137, 300, 11))
-	var hint := _label(_root, "WASD move / SPACE jump / LMB fire / R load / Q swap / TAB", MUTED)
+	var hint := _label(_root, "WASD move / SPACE jump / LMB fire / 1-6 select / Q cycle / TAB", MUTED)
 	_place(hint, Rect2(6, 170, 308, 10))
 	hint.add_theme_font_size_override("font_size", 7)
 	_notice = _label(_root, "", CYAN)
@@ -273,17 +286,8 @@ func _build() -> void:
 		fields["reload_time"] = _number(weapons, "Reload seconds", 0.1, 10, 0.01)
 		_weapon_fields.append(fields)
 	var trial := _tab(tabs, "Trial")
-	for i in range(2):
-		var row := HBoxContainer.new()
-		trial.add_child(row)
-		var caption := _label(row, "Equipped slot %d" % (i + 1))
-		caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var option := OptionButton.new()
-		option.name = "Slot%d" % i
-		option.custom_minimum_size.x = 120
-		row.add_child(option)
-		option.item_selected.connect(func(index: int): _slot_changed(i, index))
-		_slot_controls.append(option)
+	_label(trial, "Arsenal: 1 REVOLVER / 2 SHOTGUN / 3 SMG / 4-6 EMPTY", CYAN)
+	_label(trial, "1-6 select a slot. Q / wheel cycles occupied slots.", MUTED)
 	for item in [["measurement", "Show velocity / rise"], ["shake", "Camera shake"], ["target_mode", "Fixed target (off = live)"]]:
 		var checkbox := CheckBox.new()
 		checkbox.text = item[1]
@@ -338,24 +342,10 @@ func _load_form() -> void:
 			continue
 		for key in _weapon_fields[i]:
 			_weapon_fields[i][key].value = weapons[i].get(key, 1)
-	for i in range(2):
-		var option := _slot_controls[i]
-		option.clear()
-		for weapon in weapons:
-			option.add_item(str(weapon.get("display_name", weapon.get("id", "Weapon"))))
-		var slots: Array = _config.get("loadout", [0, 1])
-		option.select(clampi(int(slots[i]), 0, maxi(0, weapons.size() - 1)))
 	for key in _toggles:
 		_toggles[key].button_pressed = bool(_config.get(key, true))
 	_sync_measurement_shake()
 	_turn_speed.value = float(_config.get("turn_speed", 110))
-	if _slot_controls[0].selected == _slot_controls[1].selected:
-		_slot_changed(0, _slot_controls[0].selected)
-
-func _slot_changed(slot: int, index: int) -> void:
-	var other := _slot_controls[1 - slot]
-	if other.selected == index and other.item_count > 1:
-		other.select((index + 1) % other.item_count)
 
 func _sync_measurement_shake() -> void:
 	var measuring: bool = _toggles["measurement"].button_pressed
@@ -378,7 +368,6 @@ func _apply() -> void:
 	for i in range(mini(weapons.size(), _weapon_fields.size())):
 		for key in _weapon_fields[i]:
 			weapons[i][key] = _weapon_fields[i][key].value
-	result["loadout"] = [_slot_controls[0].selected, _slot_controls[1].selected]
 	for key in _toggles:
 		result[key] = _toggles[key].button_pressed
 	if result["measurement"]:

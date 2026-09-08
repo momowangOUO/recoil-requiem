@@ -7,6 +7,8 @@ var wheel_switch := false
 
 static func install_actions() -> void:
 	var mapping := {"move_left": KEY_A, "move_right": KEY_D, "move_up": KEY_W, "move_down": KEY_S, "reload": KEY_R, "switch_weapon": KEY_Q, "jump": KEY_SPACE}
+	for index in 6:
+		mapping["weapon_%d" % (index + 1)] = [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6][index]
 	for action in mapping:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
@@ -38,5 +40,9 @@ func sample(mouse_world: Vector2) -> InputFrame:
 	if not Input.is_action_pressed("jump"):
 		blocked_jump = false
 	frame.jump_pressed = Input.is_action_just_pressed("jump") and not blocked_jump
+	for index in 6:
+		if Input.is_action_just_pressed("weapon_%d" % (index + 1)):
+			frame.weapon_slot_pressed = index
+			break
 	wheel_switch = false
 	return frame

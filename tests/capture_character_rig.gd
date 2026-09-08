@@ -27,7 +27,7 @@ func run() -> void:
 		var example: Array = cases[i]
 		var player := PlayerController.new()
 		player.manual_control = true
-		player.weapons.configure(WeaponData.baselines(), [int(example[4]), (int(example[4]) + 1) % 3])
+		player.weapons.configure(WeaponData.baselines(), int(example[4]))
 		player.position = Vector2(30 + (i % 5) * 64, 68 + (i / 5) * 86)
 		stage.add_child(player)
 		player.update_aim(player.aim_origin() + Vector2.from_angle(example[3]) * 100)
