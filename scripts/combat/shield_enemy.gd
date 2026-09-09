@@ -19,6 +19,7 @@ var hurtbox: Area2D
 var weakpoint: Area2D
 var body_shape: CollisionShape2D
 var knockback_velocity := Vector2.ZERO
+var visual: ShieldVisual
 
 func _ready() -> void:
 	collision_layer = 4
@@ -32,6 +33,9 @@ func _ready() -> void:
 	hurtbox = _area(Vector2(30, 48), Vector2(0, -24), false)
 	weakpoint = _area(Vector2(9, 12), Vector2(16, -18), true)
 	_sync_weakpoint()
+	visual = ShieldVisual.new()
+	visual.actor = self
+	add_child(visual)
 
 func _area(size: Vector2, at: Vector2, weak: bool) -> Area2D:
 	var area := Area2D.new()
@@ -142,19 +146,9 @@ func receive_hit(shot: ShotContext, point: Vector2, weak: bool = false) -> Dicti
 
 func _draw() -> void:
 	if state == State.DEAD:
-		draw_rect(Rect2(-20, -6, 39, 6), Color("596778"))
 		return
 	var facing := signf(cos(facing_angle))
-	var armor := Color("8496a5") if hit_flash <= 0 else Color("ffffff")
-	draw_colored_polygon(PackedVector2Array([Vector2(-12, -36), Vector2(13, -36), Vector2(17, -5), Vector2(-15, -5)]), Color("424f69"))
-	draw_rect(Rect2(-7, -45, 15, 12), Color("e6d6c9"))
-	draw_rect(Rect2(-10, -48, 20, 5), armor)
-	draw_rect(Rect2(-10, -5, 8, 5), armor)
-	draw_rect(Rect2(4, -5, 8, 5), armor)
-	draw_rect(Rect2(facing * 16 - 5, -44, 10, 42), armor)
-	draw_line(Vector2(facing * 16, -40), Vector2(facing * 16, -9), Color("dce7dd"), 2)
 	draw_circle(Vector2(-facing * 16, -19), 4 if weakpoint_open() else 2, Color("ff6d79") if weakpoint_open() else Color("873746"))
-	draw_line(Vector2(0, -58), Vector2(0, -58) + forward_vector() * 19, Color("62cdc9"), 1)
 	draw_rect(Rect2(-18, -54, 36, 2), Color("272a3d"))
 	draw_rect(Rect2(-18, -54, 36 * health / 120.0, 2), Color("e56766"))
 	if state == State.WINDUP:

@@ -1,5 +1,9 @@
 # Recoil Requiem project guidance
 
+- Every enemy, including elites and bosses, must be a recognizable adult anime beautiful girl with a visible face. Never substitute a faceless helmeted knight. Read `docs/ENEMY_ART_ANIMATION_STANDARD.md` before enemy work.
+- Enemy animation must use articulated parts or authored animation frames: independent limbs, held shield/weapon, readable windup/attack/recovery/hurt/death. A translated static illustration is not an animation deliverable.
+- Enemy art must match the accepted player sprite's pixel density, head/body proportions, outlines and shading. Verify player and enemy together in an in-game screenshot; a different detailed illustration style is not acceptable.
+
 - Read `docs/ART_STANDARD.md` before creating or changing character, environment, weapon, FX or UI art. It defines this project's pixel-art contract and rig/animation breakdown.
 - The user has revised the original no-jump prototype: Space now jumps and combines with recoil. W remains air correction. See `docs/jump-update.md`.
 - Use imagegen for authored character body artwork. Keep source assets and provenance inside the project; do not replace accepted sprites with geometric placeholder bodies.

@@ -1,5 +1,7 @@
 # 反冲挽歌 反冲手感实验室
 
+正式关卡开发安排见 [序章开发排期](docs/LEVEL_ROADMAP.md)。盾兵采用露脸美少女拆件角色，独立控制头发、躯干、四肢和盾牌；敌人统一画风与动作要求见 [敌人开发标准](docs/ENEMY_ART_ANIMATION_STANDARD.md)。运行 tests/capture_enemy.gd 可生成主角同屏与各动作检查图。
+
 Godot 4.7.2 / GDScript / Windows 键鼠灰盒原型。三把枪分别验证单发修正、爆发位移和持续缓降；银盾祷姬验证绕背、弱点和击退。
 
 用 Godot 4.7.2 打开 `project.godot`，按 **F5**。项目直接进入实验室，不需要安装插件或下载素材。主角使用 imagegen 生成的像素精灵，场景保留灰盒；枪声在运行时合成。
