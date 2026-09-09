@@ -1,6 +1,6 @@
 # 反冲挽歌 反冲手感实验室
 
-正式关卡开发安排见 [序章开发排期](docs/LEVEL_ROADMAP.md)。盾兵采用露脸美少女拆件角色，独立控制头发、躯干、四肢和盾牌；敌人统一画风与动作要求见 [敌人开发标准](docs/ENEMY_ART_ANIMATION_STANDARD.md)。运行 tests/capture_enemy.gd 可生成主角同屏与各动作检查图。
+正式关卡开发安排见 [序章开发排期](docs/LEVEL_ROADMAP.md)。盾兵 v3 采用与主角同风格的露脸美少女完整动作帧，已替换扭曲的 v2 拆件；行走、盾击和倒地共 12 帧。敌人统一画风与动作要求见 [敌人开发标准](docs/ENEMY_ART_ANIMATION_STANDARD.md)。运行 tests/capture_enemy.gd 可生成主角同屏与各动作检查图。
 
 Godot 4.7.2 / GDScript / Windows 键鼠灰盒原型。三把枪分别验证单发修正、爆发位移和持续缓降；银盾祷姬验证绕背、弱点和击退。
 
