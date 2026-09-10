@@ -19,6 +19,7 @@ func frames(count: int) -> void:
 
 func run() -> void:
 	var room = load("res://scenes/crimson_slice.tscn").instantiate()
+	room.connected_map = false
 	root.add_child(room)
 	room.player.manual_control = true
 	await frames(3)

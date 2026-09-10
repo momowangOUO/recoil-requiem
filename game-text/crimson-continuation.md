@@ -165,3 +165,25 @@
 ~~~~text
 转运门已打开 · 本次样段结束
 ~~~~
+
+## connected_monastery.room_title
+~~~~text
+猩红修道院
+~~~~
+
+## connected_monastery.objective_hint
+~~~~text
+放下警钟，调查账簿，开启两侧闸门
+~~~~
+
+## system.connected_route
+~~~~text
+东庭、外廊、警钟塔、禁书室与庭院连成一张地图，可沿原路返回。
+死亡后回到最近到达的检查点；已开启的机关和已击败的敌人保留。Backspace 重置整张地图。
+J 查看已发现的线索。
+~~~~
+
+## system.editor_connected
+~~~~text
+打开整张修道院地图
+~~~~

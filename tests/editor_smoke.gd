@@ -77,5 +77,10 @@ func run(plugin: EditorPlugin) -> void:
 		plugin.get_tree().root.get_texture().get_image().save_png("res://artifacts/map_editor.png")
 	history.undo()
 	history.undo()
+	EditorInterface.open_scene_from_path("res://scenes/rooms/connected_monastery.tscn")
+	for i in 8: await plugin.get_tree().process_frame
+	var composed := EditorInterface.get_edited_scene_root()
+	check(composed is ConnectedMonastery and composed.has_node("Sections"), "editor opens the full connected map with reusable section instances")
+	check(plugin._validate() and plugin.x_input.max_value == 4800, "editor validates full map bounds and supports placement throughout it")
 	print("MAP EDITOR RESULT: %d checks, %d failures" % [checks, failures])
 	plugin.get_tree().quit(1 if failures else 0)

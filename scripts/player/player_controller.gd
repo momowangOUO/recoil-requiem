@@ -26,6 +26,9 @@ var visual: PlayerVisual
 var move_intent_x := 0.0
 var air_lift_age := 0.0
 var air_lift_started := false
+var hurt_stun := 0.0
+var hit_flash := 0.0
+var last_hit_direction := Vector2.RIGHT
 
 func _ready() -> void:
 	collision_layer = 2
@@ -64,9 +67,22 @@ func step(frame: InputFrame, delta: float) -> void:
 	elif air_lift_started:
 		air_lift_age += delta
 	invulnerability = maxf(0.0, invulnerability - delta)
+	hit_flash = maxf(0.0, hit_flash - delta)
 	flash_time = maxf(0.0, flash_time - delta)
 	drop_time = maxf(0.0, drop_time - delta)
 	set_collision_mask_value(11, drop_time <= 0.0)
+	if hurt_stun > 0.0:
+		hurt_stun = maxf(0.0, hurt_stun - delta)
+		clear_jump_buffer()
+		coyote_time = 0.0
+		move_intent_x = 0.0
+		# Cooldowns and an existing reload keep real time, but hits cannot buffer a shot.
+		weapons.advance(delta, InputFrame.new())
+		velocity.y = minf(tuning.terminal_velocity, velocity.y + tuning.gravity * delta)
+		velocity.x = move_toward(velocity.x, 0, 300 * delta)
+		move_and_slide()
+		visual.update_pose(delta)
+		return
 	coyote_time = COYOTE_SECONDS if is_on_floor() and drop_time <= 0.0 else maxf(0.0, coyote_time - delta)
 	jump_buffer_time = JUMP_BUFFER_SECONDS if frame.jump_pressed else maxf(0.0, jump_buffer_time - delta)
 	update_aim(frame.aim_world)
@@ -142,6 +158,10 @@ func receive_damage(amount: int, push: Vector2) -> void:
 		return
 	health = maxi(0, health - amount)
 	invulnerability = 0.55
+	hurt_stun = 0.18
+	hit_flash = 0.09
+	last_hit_direction = push.normalized()
+	clear_jump_buffer()
 	velocity += push
 	hurt.emit()
 	if health == 0:

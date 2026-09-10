@@ -120,6 +120,7 @@ func _room_reset() -> void:
 	yaw_offset = 0
 	camera_distance = camera_profile().near
 	_update_camera(1.0)
+	_update_actor_window()
 
 func _material(region: Rect2, color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
@@ -206,36 +207,18 @@ func _build_room() -> void:
 			piece.visible = module.active
 			pieces.append(piece)
 		platform_visuals[module] = pieces
-	# Rear architecture and real front columns occupy separate depth planes.
-	for x in [0.25, 3.25, 6.25, 9.4]:
-		_box(Vector3(x, -1.52, -1.5), Vector3(0.24, 4, 0.35), dark, "RearPillar")
-		_box(Vector3(x, -3.36, -1.5), Vector3(0.4, 0.32, 0.5), dark, "PillarFoot")
-		_prop(PaperStage.COLUMN_REGION, Vector3(x, -3.5, -1.27), 0.004, Color("a59aaa"))
-	for x in [-0.45, 10.05]:
+	var room_root := scenery
+	for section in game.environment.visual_sections:
+		var group := Node3D.new()
+		group.name = "SectionArchitecture"
+		group.position = to_stage(section.offset)
+		room_root.add_child(group)
+		scenery = group
+		_build_backdrop(dark, gold)
+		_build_room_identity(dark, gold, stone, section.architecture)
+		scenery = room_root
+	for x in [-0.45, game.environment.bounds.end.x * PIXEL + 0.45]:
 		_box(Vector3(x, -1.5, 1.0), Vector3(0.38, 4.2, 0.5), dark, "ForegroundPillar")
-	# Rear railing is behind the actors and does not cover their hands or targets.
-	for x in range(0, 49):
-		_box(Vector3(x * 0.2, -3.3, -0.85), Vector3(0.025, 0.4, 0.025), dark, "RearRailing")
-	_box(Vector3(4.8, -3.09, -0.85), Vector3(9.6, 0.035, 0.05), gold, "RailingCap")
-	var background := Sprite3D.new()
-	background.name = "DistantWindows"
-	background.texture = preload("res://assets/environments/crimson/skyline_v2.png")
-	background.pixel_size = 0.008
-	background.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	background.position = Vector3(4.8, -4.7, -4)
-	background.modulate = Color("9c9aad")
-	background.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	scenery.add_child(background)
-	for x in [0.6, 3.35, 6.0, 8.6]:
-		_prop(PaperStage.CANDLE_REGION, Vector3(x, -3.52, -0.38), 0.0013, Color.WHITE)
-		var light := OmniLight3D.new()
-		light.name = "CandleLight"
-		light.position = Vector3(x, -2.92, -0.15)
-		light.light_color = Color("ffb573")
-		light.light_energy = 1.45
-		light.omni_range = 1.55
-		light.shadow_enabled = true
-		scenery.add_child(light)
 	door_material = _material(Rect2(), Color("211a25"))
 	door_material.emission_enabled = true
 	door_material.emission = Color("080308")
@@ -246,7 +229,6 @@ func _build_room() -> void:
 		_box(door_origin + Vector3(side * 0.235, 0.35, 0), Vector3(0.065, 0.7, 0.12), dark, "DoorFrame")
 	_box(door_origin + Vector3(0, 0.72, 0), Vector3(0.54, 0.075, 0.14), gold, "DoorLintel")
 	_box(door_origin + Vector3(0.12, 0.3, 0.08), Vector3(0.03, 0.08, 0.025), gold, "DoorHandle")
-	_build_room_identity(dark, gold, stone)
 	for action in game.environment.actions:
 		_build_action(action, dark, gold)
 	var shadow_image := Image.create(32, 16, false, Image.FORMAT_RGBA8)
@@ -271,6 +253,36 @@ func _build_room() -> void:
 		scenery.add_child(shadow)
 		shadow_cards.append(shadow)
 
+func _build_backdrop(dark: Material, gold: Material) -> void:
+	# Rear architecture and real front columns occupy separate depth planes.
+	for x in [0.25, 3.25, 6.25, 9.4]:
+		_box(Vector3(x, -1.52, -1.5), Vector3(0.24, 4, 0.35), dark, "RearPillar")
+		_box(Vector3(x, -3.36, -1.5), Vector3(0.4, 0.32, 0.5), dark, "PillarFoot")
+		_prop(PaperStage.COLUMN_REGION, Vector3(x, -3.5, -1.27), 0.004, Color("a59aaa"))
+	# Rear railing is behind the actors and does not cover their hands or targets.
+	for x in range(0, 49):
+		_box(Vector3(x * 0.2, -3.3, -0.85), Vector3(0.025, 0.4, 0.025), dark, "RearRailing")
+	_box(Vector3(4.8, -3.09, -0.85), Vector3(9.6, 0.035, 0.05), gold, "RailingCap")
+	var background := Sprite3D.new()
+	background.name = "DistantWindows"
+	background.texture = preload("res://assets/environments/crimson/skyline_v2.png")
+	background.pixel_size = 0.008
+	background.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	background.position = Vector3(4.8, -4.7, -4)
+	background.modulate = Color("9c9aad")
+	background.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	scenery.add_child(background)
+	for x in [0.6, 3.35, 6.0, 8.6]:
+		_prop(PaperStage.CANDLE_REGION, Vector3(x, -3.52, -0.38), 0.0013, Color.WHITE)
+		var light := OmniLight3D.new()
+		light.name = "CandleLight"
+		light.position = Vector3(x, -2.92, -0.15)
+		light.light_color = Color("ffb573")
+		light.light_energy = 1.45
+		light.omni_range = 1.55
+		light.shadow_enabled = true
+		scenery.add_child(light)
+
 func _cylinder(at: Vector3, bottom: float, top: float, height: float, material: Material, label: String) -> MeshInstance3D:
 	var mesh := CylinderMesh.new()
 	mesh.bottom_radius = bottom
@@ -285,8 +297,8 @@ func _cylinder(at: Vector3, bottom: float, top: float, height: float, material: 
 	scenery.add_child(node)
 	return node
 
-func _build_room_identity(dark: Material, gold: Material, stone: Material) -> void:
-	match game.environment.architecture:
+func _build_room_identity(dark: Material, gold: Material, stone: Material, section_architecture: int) -> void:
+	match section_architecture:
 		1:
 			# A real bell, beams and ropes create depth without painting fake platforms.
 			_box(Vector3(6.9, 0.1, -1.2), Vector3(2.1, 0.18, 0.3), dark, "BellCrossbeam")
@@ -413,6 +425,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if not frozen_camera:
 		_update_camera(delta)
+	_update_actor_window()
 	for module in platform_visuals:
 		for piece in platform_visuals[module]: piece.visible = module.active
 	for action in action_visuals:
@@ -424,7 +437,7 @@ func _physics_process(delta: float) -> void:
 		elif action.kind == RoomAction.Kind.SUPPLY:
 			visual.piece.visible = not action.activated
 	if is_instance_valid(alarm_light):
-		var ringing: bool = not game.environment.objectives_complete()
+		var ringing: bool = game.environment.alarm_active()
 		alarm_light.light_energy = (0.8 + sin(game.elapsed * 4) * 0.3) if ringing else 0.0
 		bell_clapper.rotation.z = sin(game.elapsed * 4) * 0.12 if ringing else 0.0
 	muzzle_light.visible = game.player.flash_time > 0
@@ -444,7 +457,7 @@ func _physics_process(delta: float) -> void:
 
 func _update_camera(delta: float) -> void:
 	var target_2d := game.player.position + Vector2(game.player.aim_direction.x * 20, -minf(52, camera_distance * 10))
-	target_2d.x = clampf(target_2d.x, 150, 810)
+	target_2d.x = clampf(target_2d.x, 150, game.environment.bounds.end.x - 150)
 	target_2d.y = clampf(target_2d.y, -20, 350)
 	camera_target = camera_target.lerp(to_stage(target_2d), 1 - exp(-delta / 0.16))
 	# A small, bounded dolly angle reveals side faces during movement, without orbit controls.
@@ -455,3 +468,9 @@ func _update_camera(delta: float) -> void:
 	camera_distance = lerpf(camera_distance, desired_distance, 1 - exp(-delta / 0.24))
 	camera.position = camera_target + Vector3(yaw_offset, CAMERA_RISE, camera_distance)
 	camera.look_at(camera_target, Vector3.UP)
+
+func _update_actor_window() -> void:
+	# Keep the actor render target fixed-size as the continuous world grows.
+	var center_x := roundf(clampf(camera.position.x / PIXEL, 480, game.environment.bounds.end.x - 480))
+	actors.position = to_stage(Vector2(center_x, 144))
+	simulation.canvas_transform = Transform2D(Vector2(RENDER_SCALE, 0), Vector2(0, RENDER_SCALE), Vector2((480 - center_x) * RENDER_SCALE, 128 * RENDER_SCALE))

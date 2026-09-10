@@ -18,6 +18,8 @@ func run() -> void:
 	var app = load("res://scenes/game.tscn").instantiate()
 	root.add_child(app)
 	var game: RecoilLab = app.stage.game
+	game.connected_map = false
+	game.reset_trial(3)
 	game.player.manual_control = true
 	await frames(3)
 	game.enemy.fixed_target = true

@@ -3,6 +3,9 @@ extends Node2D
 
 const TITLES := ["RECOIL STEP", "DESCENT", "BLIND SIDE", "CRIMSON MONASTERY"]
 @export var visual_slice := false
+var connected_map := true
+var checkpoint_position := Vector2.ZERO
+var checkpoint_index := 0
 signal trial_reset
 var presentation_host: Node
 var projected_aim: Callable
@@ -12,7 +15,7 @@ const CAMPAIGN_ROOMS := ["res://scenes/rooms/crimson_environment.tscn", "res://s
 var journal: Dictionary = {}
 var reading := false
 const ROOM_NAMES := ["东庭", "钟楼外廊", "警钟塔", "禁书室", "血蔷薇庭院"]
-const ROOM_TEXT := {"exit_open": "通路已打开，前往出口", "health_full": "生命已满，血瓶留在这里。", "complete": "转运门已打开 · 本次样段结束"}
+const ROOM_TEXT := {"exit_open": "通路已打开，前往出口", "health_full": "生命已满，血瓶留在这里。", "complete": "转运门已打开 · 本次样段结束", "connected_route": "东庭、外廊、警钟塔、禁书室与庭院连成一张地图，可沿原路返回。\n死亡后回到最近到达的检查点；已开启的机关和已击败的敌人保留。Backspace 重置整张地图。\nJ 查看已发现的线索。", "editor_connected": "打开整张修道院地图"}
 var visited_rooms: Dictionary = {}
 var completed_rooms: Dictionary = {}
 var room_index := 0
@@ -125,9 +128,12 @@ func reset_trial(index: int) -> void:
 	world.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(world)
 	var room_path: String = editor_room_path if not editor_room_path.is_empty() else CAMPAIGN_ROOMS[room_index]
+	if visual_slice and connected_map and editor_room_path.is_empty(): room_path = "res://scenes/rooms/connected_monastery.tscn"
 	environment = load(room_path).instantiate() if visual_slice else LabEnvironment.new()
 	world.add_child(environment)
 	environment.build(preset)
+	checkpoint_position = environment.spawn
+	checkpoint_index = 0
 	projectiles = Node2D.new()
 	projectiles.name = "Projectiles"
 	world.add_child(projectiles)
@@ -140,8 +146,8 @@ func reset_trial(index: int) -> void:
 	player.weapons.configure(definitions, int(config.get("active_weapon", 0)))
 	player.input_source = func(): return input_adapter.sample(projected_aim.call() if projected_aim.is_valid() else get_global_mouse_position())
 	player.shot_fired.connect(_fire)
-	player.died.connect(_request_reset)
-	player.hurt.connect(func(): overlay.show_notice("HIT / %d HP" % player.health))
+	player.died.connect(_request_respawn)
+	player.hurt.connect(_player_hurt)
 	world.add_child(player)
 	reticle = LabReticle.new()
 	reticle.player = player
@@ -200,6 +206,37 @@ func _request_reset() -> void:
 	if not reset_pending:
 		reset_pending = true
 		reset_trial.call_deferred(preset)
+
+func _request_respawn() -> void:
+	if not environment is ConnectedMonastery:
+		_request_reset()
+		return
+	if not reset_pending:
+		reset_pending = true
+		_respawn.call_deferred()
+
+func _respawn() -> void:
+	reset_pending = false
+	player.position = checkpoint_position
+	player.velocity = Vector2.ZERO
+	player.health = 5
+	player.invulnerability = 0.55
+	player.clear_jump_buffer()
+	player.drop_time = 0
+	player.hurt_stun = 0
+	player.hit_flash = 0
+	player.flash_time = 0
+	player.coyote_time = 0
+	player.air_lift_age = 0
+	player.air_lift_started = false
+	player.start_y = checkpoint_position.y
+	player.max_rise = 0
+	player.weapons.configure(definitions, player.weapons.active_slot)
+	for projectile in projectiles.get_children(): projectile.free()
+	for effect in world.get_children():
+		if effect is HurtFX or effect is ImpactFX: effect.free()
+	input_adapter.suppress()
+	shake_time = 0
 
 func pause_trial() -> void:
 	if paused or not is_instance_valid(player):
@@ -273,7 +310,7 @@ func _physics_process(delta: float) -> void:
 	shake_time = maxf(0, shake_time - delta)
 	_update_camera(delta)
 	if player.position.y > environment.bounds.end.y + 96:
-		_request_reset()
+		_request_respawn()
 	var weapon := player.weapons.current()
 	config.active_weapon = player.weapons.active_slot
 	if weapon.reloading and not last_reload:
@@ -281,7 +318,7 @@ func _physics_process(delta: float) -> void:
 	last_reload = weapon.reloading
 	var hit_text := last_hit
 	if visual_slice:
-		if environment.architecture == 1 and not environment.objectives_complete():
+		if environment.alarm_active():
 			alarm_countdown -= delta
 			if alarm_countdown <= 0:
 				audio.play("bell")
@@ -292,7 +329,7 @@ func _physics_process(delta: float) -> void:
 		if environment.exit_open and player.position.distance_to(environment.exit_position) < 32 and player.is_on_floor() and not slice_complete:
 			slice_complete = true
 			if editor_room_path.is_empty(): completed_rooms[room_index] = true
-			if editor_room_path.is_empty() and room_index + 1 < CAMPAIGN_ROOMS.size():
+			if not environment is ConnectedMonastery and editor_room_path.is_empty() and room_index + 1 < CAMPAIGN_ROOMS.size():
 				room_index += 1
 				_request_reset()
 			else:
@@ -301,9 +338,18 @@ func _physics_process(delta: float) -> void:
 			hit_text = ROOM_TEXT.exit_open if environment.exit_open else environment.progress_text()
 		var nearby := nearby_action()
 		if nearby != null: hit_text = "[E] " + nearby.title
+		if environment is ConnectedMonastery:
+			var region := clampi(int(player.position.x / 960), 0, 4)
+			visited_rooms[region] = true
+			for index in range(checkpoint_index + 1, environment.checkpoints.size()):
+				if player.is_on_floor() and player.position.distance_to(environment.checkpoints[index]) < 38:
+					checkpoint_position = environment.checkpoints[index]
+					checkpoint_index = index
 	if preset == 1:
 		hit_text = "DROP %.0f PX   TIME %.2f S" % [player.position.y - environment.spawn.y, elapsed]
-	overlay.update_hud({"preset": room_index if visual_slice else preset, "title": environment.room_title if visual_slice else TITLES[preset], "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
+	var hud_title: String = environment.room_title if visual_slice else TITLES[preset]
+	if environment is ConnectedMonastery: hud_title += " · " + ROOM_NAMES[clampi(int(player.position.x / 960), 0, 4)]
+	overlay.update_hud({"preset": room_index if visual_slice else preset, "title": hud_title, "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
 	queue_redraw()
 
 func _update_camera(delta: float) -> void:
@@ -365,7 +411,7 @@ func interact() -> void:
 	_update_exit()
 	if action.kind == RoomAction.Kind.SWITCH:
 		audio.play("lever")
-		if environment.architecture == 1 and environment.objectives_complete(): audio.stop_key("bell")
+		if not environment.alarm_active(): audio.stop_key("bell")
 	if action.kind == RoomAction.Kind.NOTE:
 		journal[action.action_id] = action.title + "\n" + action.description
 		show_story(action.title, action.description)
@@ -384,9 +430,10 @@ func show_route() -> void:
 		return
 	var lines := PackedStringArray()
 	for index in ROOM_NAMES.size():
-		var status := "当前" if index == room_index else ("已通过" if completed_rooms.has(index) else ("已到达" if visited_rooms.has(index) else "未到达"))
+		var current := clampi(int(player.position.x / 960), 0, 4) if environment is ConnectedMonastery else room_index
+		var status := "当前" if index == current else ("已通过" if completed_rooms.has(index) else ("已到达" if visited_rooms.has(index) else "未到达"))
 		lines.append("%d  %s · %s" % [index + 1, ROOM_NAMES[index], status])
-	lines.append("\n沿东门前进；每间房都是检查点。\n记录与高处支路可选，J 查看已发现的线索。")
+	lines.append("\n" + ROOM_TEXT.connected_route if environment is ConnectedMonastery else "\n沿东门前进；每间房都是检查点。\n记录与高处支路可选，J 查看已发现的线索。")
 	show_story("猩红修道院 · 当前路线", "\n".join(lines))
 
 func _fire(context: ShotContext, data: WeaponData) -> void:
@@ -411,7 +458,20 @@ func _fire(context: ShotContext, data: WeaponData) -> void:
 		projectile.impact.connect(_impact)
 		projectiles.add_child(projectile)
 
+func _player_hurt() -> void:
+	overlay.show_notice("HIT / %d HP" % player.health)
+	_hurt_effect(player.aim_origin(), player.last_hit_direction, false)
+	shake_time = 0.07
+
+func _hurt_effect(point: Vector2, direction: Vector2, shield: bool) -> void:
+	var effect := HurtFX.new()
+	effect.position = point
+	effect.direction = direction
+	effect.shield = shield
+	world.add_child(effect)
+
 func _enemy_hit(result: Dictionary) -> void:
+	_hurt_effect(result.point, result.get("direction", Vector2.RIGHT), result.zone == "FRONT")
 	last_hit = "%s  %.1f DMG  /  %.1f HP" % [result.zone, result.damage, result.hp]
 	hit_display_time = 1.5
 	audio.play("weak" if result.zone in ["BACK", "WEAK"] else "hit")

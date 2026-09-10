@@ -8,6 +8,7 @@ func run() -> void:
 	root.add_child(app)
 	var stage: CrimsonStage3D = app.stage
 	var game := stage.game
+	game.connected_map = false
 	game.room_index = 1
 	game.reset_trial(3)
 	stage.frozen_camera = true

@@ -20,6 +20,34 @@ var weakpoint: Area2D
 var body_shape: CollisionShape2D
 var knockback_velocity := Vector2.ZERO
 var visual: ShieldVisual
+var hurt_stun := 0.0
+var stun_guard := 0.0
+var last_hit_direction := Vector2.RIGHT
+
+func apply_hit_reaction(direction: Vector2, frontal_shield: bool) -> void:
+	last_hit_direction = direction
+	hit_flash = 0.09
+	# One blast gets one reaction. SMG and pellets cannot renew it indefinitely.
+	if stun_guard <= 0.0:
+		hurt_stun = 0.055 if frontal_shield else 0.18
+		stun_guard = 0.38
+		if not frontal_shield and state in [State.WINDUP, State.ATTACK]:
+			_enter(State.RECOVERY)
+
+func advance_hurt(delta: float) -> bool:
+	hit_flash = maxf(0, hit_flash - delta)
+	stun_guard = maxf(0, stun_guard - delta)
+	if hurt_stun <= 0: return false
+	hurt_stun = maxf(0, hurt_stun - delta)
+	knockback_velocity.x = move_toward(knockback_velocity.x, 0, 480 * delta)
+	knockback_velocity.y += 1500 * delta
+	velocity = knockback_velocity
+	move_and_slide()
+	if is_on_floor(): knockback_velocity.y = 0
+	if is_on_wall(): knockback_velocity.x = 0
+	_sync_weakpoint()
+	queue_redraw()
+	return true
 
 func _ready() -> void:
 	collision_layer = 4
@@ -65,7 +93,7 @@ func _sync_weakpoint() -> void:
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
-	hit_flash = maxf(0, hit_flash - delta)
+	if advance_hurt(delta): return
 	state_time += delta
 	var walk := 0.0
 	if not fixed_target and is_instance_valid(target):
@@ -135,8 +163,8 @@ func receive_hit(shot: ShotContext, point: Vector2, weak: bool = false) -> Dicti
 	var damage := shot.damage * multiplier
 	health = maxf(0, health - damage)
 	knockback_velocity += shot.direction * shot.knockback / mass
-	hit_flash = 0.10
-	var result := {"zone": zone, "damage": damage, "point": point, "hp": health}
+	apply_hit_reaction(shot.direction, zone == "FRONT")
+	var result := {"zone": zone, "damage": damage, "point": point, "hp": health, "direction": shot.direction}
 	hit_received.emit(result)
 	if health <= 0.0001:
 		health = 0

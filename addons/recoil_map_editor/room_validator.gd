@@ -2,6 +2,13 @@
 extends RefCounted
 ## Shared by editor validation and headless tests; room dimensions are intentional.
 static func validate(room: Node) -> PackedStringArray:
+	if room is ConnectedMonastery and room.has_node("Sections"):
+		# Validate the same composed coordinates the game actually loads.
+		var copy := room.duplicate()
+		copy.compose_sections()
+		var result := validate(copy)
+		copy.free()
+		return result
 	var errors := PackedStringArray()
 	if room == null or not room.has_node("Gameplay"):
 		errors.append("Open a room scene containing Gameplay first.")
@@ -19,8 +26,8 @@ static func validate(room: Node) -> PackedStringArray:
 			if not node.unlock_action.is_empty(): unlocks.append(node.unlock_action)
 			if node.width < 16 or node.collision_depth <= 0:
 				errors.append("%s: width >= 16 and collision depth > 0 required." % node.name)
-			if node.position.x < 0 or node.position.x + node.width > 960 or node.position.y < -128 or node.position.y > 400:
-				errors.append("%s: outside the supported 960 x 544 room." % node.name)
+			if node.position.x < 0 or node.position.x + node.width > room.room_width or node.position.y < -128 or node.position.y > 400:
+				errors.append("%s: outside the configured room bounds." % node.name)
 			surfaces.append(Rect2(node.position, Vector2(node.width, node.collision_depth)))
 			if node.unlock_action.is_empty():
 				initial_surfaces.append(surfaces[-1])

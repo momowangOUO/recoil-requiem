@@ -5,6 +5,8 @@ extends LabEnvironment
 @export_enum("Court", "Bell", "Archive", "Garden") var architecture := 0
 @export var require_clear := true
 @export var objective_hint := "CLEAR GUARDS / EAST DOOR"
+@export var room_width := 960.0
+var visual_sections: Array[Dictionary] = []
 var actions: Array[RoomAction] = []
 var stage: PaperStage
 var modules: Array[PaperPlatform] = []
@@ -15,7 +17,8 @@ var exit_open := false
 func build(_index: int) -> void:
 	preset = 3
 	spawn = Vector2(80, 352)
-	bounds = Rect2(0, -128, 960, 544)
+	bounds = Rect2(0, -128, room_width, 544)
+	if visual_sections.is_empty(): visual_sections.append({"offset": Vector2.ZERO, "architecture": architecture})
 	stage = PaperStage.new()
 	stage.name = "RoomVisuals"
 	add_child(stage)
@@ -36,14 +39,17 @@ func build(_index: int) -> void:
 				blocks.append(rect)
 	# Room seals have no fake visible standing tops.
 	_collision(Rect2(-16, -144, 16, 560), false)
-	_collision(Rect2(960, -144, 16, 560), false)
-	_collision(Rect2(0, -144, 960, 16), false)
+	_collision(Rect2(room_width, -144, 16, 560), false)
+	_collision(Rect2(0, -144, room_width, 16), false)
 	queue_redraw()
 
 func objectives_complete() -> bool:
 	for action in actions:
 		if action.required and not action.activated: return false
 	return true
+
+func alarm_active() -> bool:
+	return architecture == 1 and not objectives_complete()
 
 func activate(action: RoomAction) -> void:
 	action.activated = true

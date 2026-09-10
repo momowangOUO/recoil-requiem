@@ -43,6 +43,11 @@ func _ready() -> void:
 		cached_regions[action] = regions
 
 func _physics_process(delta: float) -> void:
+	material.set_shader_parameter("hit_flash", 0.0 if actor.state == ShieldEnemy.State.DEAD else clampf(actor.hit_flash / 0.06, 0, 1))
+	position = Vector2.ZERO if actor.state == ShieldEnemy.State.DEAD else (actor.last_hit_direction * minf(2.0, actor.hurt_stun * 12)).snapped(Vector2(0.5, 0.5))
+	if actor.hurt_stun > 0 and actor.state != ShieldEnemy.State.DEAD:
+		queue_redraw()
+		return
 	if actor.state != previous_state:
 		if actor.state == ShieldEnemy.State.DEAD:
 			death_time = 0.0

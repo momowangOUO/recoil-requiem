@@ -18,6 +18,7 @@ func run() -> void:
 	root.add_child(app)
 	var stage: CrimsonStage3D = app.stage
 	var game := stage.game
+	game.connected_map = false
 	for index in [2, 3, 4]:
 		game.room_index = index
 		game.reset_trial(3)

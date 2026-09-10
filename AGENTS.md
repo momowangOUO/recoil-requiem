@@ -1,6 +1,7 @@
 # Recoil Requiem project guidance
 
-- Current body artwork: player v3 idle/run, Aegis v3, riflewoman v1. The user explicitly requested finer protagonist detail to match enemies; compare all three in `artifacts/character_lineup_v3.png`. Keep authored body sources and independent player aiming arms.
+- Current body artwork: player v5 sleeveless Gothic/steampunk vampire torso, Aegis v3, riflewoman v1. Use `requiem_*_v5_socket.png` with independently authored right-trigger and left-support parts. Bodies must have no sleeves; complete sleeves belong to upper arms. Fix shoulders to the torso, rotate upper/forearm around authored joints, and keep hand/gun registration. Never rotate the entire sleeved arm around the gun or duplicate a right hand as a left hand. Fit artwork on the whole character before splitting. See `assets/characters/requiem/GOTHIC_RIG_SOURCE.md` and `docs/screenshots/gothic_rig.png`.
+- Main gameplay is one 4800px connected map, `scenes/rooms/connected_monastery.tscn`; the five former rooms are reusable editing sections, not separate room-load boundaries. Preserve two-way traversal and continuous world/camera state.
 - Rooms are authored in `scenes/rooms/*.tscn` using PaperPlatform and RoomMarker; use the bundled Recoil Map editor and `docs/MAP_EDITOR.md`. New room gameplay and 3D geometry must share this data.
 - During this work the user requested periodic account-usage checks, wrapping up with records and GitHub sync if remaining quota falls below 80%. Usage percentages are account limits, not exact token counts.
 

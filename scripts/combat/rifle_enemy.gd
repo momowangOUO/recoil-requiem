@@ -24,8 +24,8 @@ func muzzle() -> Vector2:
 
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD: return
-	hit_flash = maxf(0, hit_flash - delta)
 	shot_line = maxf(0, shot_line - delta)
+	if advance_hurt(delta): return
 	state_time += delta
 	if not fixed_target and is_instance_valid(target):
 		match state:
@@ -79,8 +79,8 @@ func receive_hit(shot: ShotContext, point: Vector2, _weak: bool = false) -> Dict
 	var damage := shot.damage * (1.5 if back else 1.0)
 	health = maxf(0, health - damage)
 	knockback_velocity += shot.direction * shot.knockback / mass
-	hit_flash = 0.1
-	var result := {"zone": "BACK" if back else "BODY", "damage": damage, "point": point, "hp": health}
+	apply_hit_reaction(shot.direction, false)
+	var result := {"zone": "BACK" if back else "BODY", "damage": damage, "point": point, "hp": health, "direction": shot.direction}
 	hit_received.emit(result)
 	if health <= 0:
 		_enter(State.DEAD)

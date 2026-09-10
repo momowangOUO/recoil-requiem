@@ -2,7 +2,7 @@ extends SceneTree
 ## Read actual parsed scene properties and runtime constants, never the source draft.
 func _initialize() -> void:
 	var result := {}
-	for name in ["bell_tower", "forbidden_archive", "rose_court"]:
+	for name in ["bell_tower", "forbidden_archive", "rose_court", "connected_monastery"]:
 		var room = load("res://scenes/rooms/%s.tscn" % name).instantiate()
 		result[name + ".room_title"] = room.room_title
 		result[name + ".objective_hint"] = room.objective_hint
