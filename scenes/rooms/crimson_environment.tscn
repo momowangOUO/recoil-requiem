@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/crimson_environment.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/rooms/platform.tscn" id="2"]
+
+[node name="CrimsonMonastery" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Gameplay" type="Node2D" parent="."]
+z_index = -5
+
+[node name="SafeFloor" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(0, 352)
+width = 960.0
+collision_depth = 64.0
+one_way = false
+
+[node name="WestLanding" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(176, 288)
+width = 144.0
+
+[node name="ShieldBridge" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(368, 224)
+width = 208.0
+
+[node name="EastLanding" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(624, 288)
+width = 144.0
+
+[node name="UpperRoute" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(432, 128)
+width = 112.0

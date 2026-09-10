@@ -1,7 +1,14 @@
 class_name RecoilLab
 extends Node2D
 
-const TITLES := ["RECOIL STEP", "DESCENT", "BLIND SIDE"]
+const TITLES := ["RECOIL STEP", "DESCENT", "BLIND SIDE", "CRIMSON MONASTERY"]
+@export var visual_slice := false
+signal trial_reset
+var presentation_host: Node
+var projected_aim: Callable
+var aim_ui: CanvasLayer
+var slice_complete := false
+var greybox := false
 var config: Dictionary
 var definitions: Array
 var input_adapter := KeyboardInput.new()
@@ -28,9 +35,12 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	KeyboardInput.install_actions()
 	config = responsive_config()
+	if visual_slice:
+		config.measurement = false
+	overlay.lab_navigation = not visual_slice
 	add_child(camera)
 	add_child(audio)
-	add_child(overlay)
+	(presentation_host if presentation_host != null else self).add_child(overlay)
 	overlay.setup(config)
 	overlay.resume_requested.connect(resume_trial)
 	overlay.apply_requested.connect(apply_config)
@@ -39,7 +49,7 @@ func _ready() -> void:
 	overlay.preset_requested.connect(reset_trial)
 	overlay.reset_requested.connect(func(): reset_trial(preset))
 	get_window().focus_exited.connect(func(): pause_trial())
-	reset_trial(0)
+	reset_trial(3 if visual_slice else 0)
 
 static func baseline_config() -> Dictionary:
 	var weapons: Array = []
@@ -78,11 +88,14 @@ func restore_baseline() -> void:
 
 func reset_trial(index: int) -> void:
 	reset_pending = false
-	preset = clampi(index, 0, 2)
+	preset = 3 if visual_slice else clampi(index, 0, 2)
+	slice_complete = false
 	get_tree().paused = false
 	paused = false
 	overlay.hide_panel()
 	audio.stop_all()
+	if is_instance_valid(aim_ui) and presentation_host != null:
+		aim_ui.free()
 	if is_instance_valid(world):
 		world.free()
 	enemy = null
@@ -90,7 +103,7 @@ func reset_trial(index: int) -> void:
 	world.name = "TrialWorld"
 	world.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(world)
-	environment = LabEnvironment.new()
+	environment = load("res://scenes/rooms/crimson_environment.tscn").instantiate() if visual_slice else LabEnvironment.new()
 	world.add_child(environment)
 	environment.build(preset)
 	projectiles = Node2D.new()
@@ -103,7 +116,7 @@ func reset_trial(index: int) -> void:
 	player.position = environment.spawn
 	player.tuning.apply_dict(config.player)
 	player.weapons.configure(definitions, int(config.get("active_weapon", 0)))
-	player.input_source = func(): return input_adapter.sample(get_global_mouse_position())
+	player.input_source = func(): return input_adapter.sample(projected_aim.call() if projected_aim.is_valid() else get_global_mouse_position())
 	player.shot_fired.connect(_fire)
 	player.died.connect(_request_reset)
 	player.hurt.connect(func(): overlay.show_notice("HIT / %d HP" % player.health))
@@ -111,16 +124,27 @@ func reset_trial(index: int) -> void:
 	reticle = LabReticle.new()
 	reticle.player = player
 	reticle.measurement = config.measurement
-	world.add_child(reticle)
-	if preset == 2:
+	if presentation_host != null and presentation_host.has_method("get_aim_screen"):
+		reticle.screen_position_source = presentation_host.get_aim_screen
+	aim_ui = CanvasLayer.new()
+	aim_ui.name = "AimUI"
+	aim_ui.layer = 20
+	(presentation_host if presentation_host != null else world).add_child(aim_ui)
+	aim_ui.process_mode = Node.PROCESS_MODE_PAUSABLE
+	aim_ui.add_child(reticle)
+	if preset in [2, 3]:
 		enemy = ShieldEnemy.new()
-		enemy.position = Vector2(384, 320)
-		enemy.target = player
+		enemy.position = Vector2(512, 224) if visual_slice else Vector2(384, 320)
+		enemy.target = null if visual_slice else player
 		enemy.fixed_target = config.target_mode
 		enemy.turn_speed = config.turn_speed
 		enemy.hit_received.connect(_enemy_hit)
-		enemy.defeated.connect(func(): overlay.show_notice("AEGIS DOWN / BACKSPACE TO REPLAY"))
+		enemy.defeated.connect(_enemy_defeated)
 		world.add_child(enemy)
+	if environment is CrimsonEnvironment:
+		environment.stage.add_actor(player)
+		environment.stage.add_actor(enemy)
+		environment.set_greybox(greybox)
 	camera_center = player.position + Vector2(0, -50)
 	_update_camera(1.0)
 	elapsed = 0
@@ -131,9 +155,10 @@ func reset_trial(index: int) -> void:
 	input_adapter.suppress()
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CONFINED_HIDDEN
-	var hints := ["SPACE JUMP + AIM DOWN / FIRE TO BOOST", "3: HYMN   |   S DROP   |   FIRE DOWN TO SLOW FALL", "JUMP + RECOIL / CROSS BEHIND THE SHIELD"]
+	var hints := ["SPACE JUMP + AIM DOWN / FIRE TO BOOST", "3: HYMN   |   S DROP   |   FIRE DOWN TO SLOW FALL", "JUMP + RECOIL / CROSS BEHIND THE SHIELD", "CLEAR THE GUARD / REACH THE EAST DOOR"]
 	overlay.show_notice(hints[preset])
 	print("TRIAL %d RESET weapon_slot=%d gravity=%.1f" % [preset + 1, player.weapons.active_slot + 1, player.tuning.gravity])
+	trial_reset.emit()
 
 func _request_reset() -> void:
 	if not reset_pending:
@@ -171,8 +196,14 @@ func _input(event: InputEvent) -> void:
 					pause_trial()
 				get_viewport().set_input_as_handled()
 			KEY_F1, KEY_F2, KEY_F3:
-				reset_trial.call_deferred(int(event.physical_keycode - KEY_F1))
+				if not visual_slice:
+					reset_trial.call_deferred(int(event.physical_keycode - KEY_F1))
 				get_viewport().set_input_as_handled()
+			KEY_F6:
+				if visual_slice:
+					greybox = not greybox
+					environment.set_greybox(greybox)
+					overlay.show_notice("PAPER STAGE / GREYBOX" if greybox else "PAPER STAGE / TEXTURES")
 			KEY_BACKSPACE:
 				if not paused:
 					_request_reset()
@@ -196,13 +227,24 @@ func _physics_process(delta: float) -> void:
 		audio.play("reload")
 	last_reload = weapon.reloading
 	var hit_text := last_hit
+	if visual_slice:
+		if enemy.state != ShieldEnemy.State.DEAD and player.position.distance_to(enemy.position) < 180:
+			enemy.target = player
+		if enemy.state == ShieldEnemy.State.DEAD and player.position.x > 872 and player.is_on_floor() and not slice_complete:
+			slice_complete = true
+			overlay.show_notice("ROOM CLEARED / BACKSPACE TO REPLAY")
+		if hit_text.is_empty():
+			hit_text = "EAST DOOR OPEN" if environment.exit_open else "CLEAR GUARD / EAST DOOR"
 	if preset == 1:
 		hit_text = "DROP %.0f PX   TIME %.2f S" % [player.position.y - environment.spawn.y, elapsed]
 	overlay.update_hud({"preset": preset, "title": TITLES[preset], "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
 	queue_redraw()
 
 func _update_camera(delta: float) -> void:
-	var desired := player.position + Vector2(0, -50) + player.aim_direction * 34 + player.velocity.normalized() * minf(player.velocity.length() * 0.035, 28)
+	if presentation_host != null:
+		camera.enabled = false
+		return
+	var desired := player.position + Vector2(player.aim_direction.x * PaperStage.LOOK_AHEAD, -50)
 	var rect := environment.bounds
 	desired.x = clampf(desired.x, rect.position.x + 160, rect.end.x - 160)
 	desired.y = clampf(desired.y, rect.position.y + 90, rect.end.y - 90)
@@ -212,6 +254,16 @@ func _update_camera(delta: float) -> void:
 	if config.shake and not config.measurement and shake_time > 0:
 		camera.offset = Vector2(sin(elapsed * 160), cos(elapsed * 210)).round() * 2
 	camera.force_update_scroll()
+	if environment is CrimsonEnvironment:
+		environment.stage.follow_camera(camera.position)
+
+func _enemy_defeated() -> void:
+	if environment is CrimsonEnvironment:
+		environment.exit_open = true
+		environment.queue_redraw()
+		overlay.show_notice("GUARD DOWN / EAST DOOR OPEN")
+	else:
+		overlay.show_notice("AEGIS DOWN / BACKSPACE TO REPLAY")
 
 func _fire(context: ShotContext, data: WeaponData) -> void:
 	audio.play(str(data.id))

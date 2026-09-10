@@ -54,6 +54,7 @@ var _ammo_cells: Array[ColorRect] = []
 var _turn_speed: SpinBox
 var _notice_timer := 0.0
 var _built := false
+var lab_navigation := true
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -192,7 +193,7 @@ func _build() -> void:
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.theme = _theme()
 	add_child(_root)
-	for rect in [Rect2(0, 0, 320, 26), Rect2(0, 145, 320, 35)]:
+	for rect in [Rect2(0, 0, 320, 26 if lab_navigation else 18), Rect2(0, 145, 320, 35)]:
 		var plate := ColorRect.new()
 		plate.color = Color(0.035, 0.055, 0.08, 0.93)
 		plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -238,7 +239,7 @@ func _build() -> void:
 		_place(cell, Rect2(160 + i * 6, 166, 4, 3))
 		_ammo_cells.append(cell)
 	_hit = _label(_root, "", RED)
-	_place(_hit, Rect2(6, 137, 300, 11))
+	_place(_hit, Rect2(6, 137 if lab_navigation else 19, 300, 11))
 	var hint := _label(_root, "WASD move / SPACE jump / LMB fire / 1-6 select / Q cycle / TAB", MUTED)
 	_place(hint, Rect2(6, 170, 308, 10))
 	hint.add_theme_font_size_override("font_size", 7)
@@ -264,9 +265,9 @@ func _build() -> void:
 	frame.add_child(layout)
 	var heading := HBoxContainer.new()
 	layout.add_child(heading)
-	var header := _label(heading, "RECOIL LAB / PAUSED", RED)
+	var header := _label(heading, "RECOIL LAB / PAUSED" if lab_navigation else "CRIMSON MONASTERY / PAUSED", RED)
 	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	for i in range(3):
+	for i in range(3 if lab_navigation else 0):
 		_button(heading, "F%d" % (i + 1), func(): preset_requested.emit(i))
 	var tabs := TabContainer.new()
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL

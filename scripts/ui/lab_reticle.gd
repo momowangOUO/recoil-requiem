@@ -6,6 +6,7 @@ var measurement := true
 var last_weapon: WeaponRuntime
 var last_ammo := 0
 var completion_time := 0.0
+var screen_position_source: Callable
 
 func _ready() -> void:
 	z_index = 1000
@@ -25,7 +26,9 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if not is_instance_valid(player):
 		return
-	var target := get_global_mouse_position().round()
+	# CanvasLayer makes cursor placement independent of camera follow and shake.
+	var target: Vector2 = screen_position_source.call() if screen_position_source.is_valid() else get_viewport().get_mouse_position()
+	target = target.round()
 	for direction in [Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2.DOWN]:
 		draw_line(target + direction * 3, target + direction * 5, Color("efdfc6"), 1)
 	draw_rect(Rect2(target, Vector2.ONE), Color("e16b78"))

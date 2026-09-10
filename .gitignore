@@ -1,5 +1,6 @@
 .godot/
 artifacts/
+builds/
 *.tmp
 .env
 .env.*
