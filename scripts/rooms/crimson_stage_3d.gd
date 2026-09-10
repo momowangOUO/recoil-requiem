@@ -31,6 +31,10 @@ var greybox := false
 var shadow_cards: Array[MeshInstance3D] = []
 var door_material: StandardMaterial3D
 var ui_host: Node
+var platform_visuals: Dictionary = {}
+var action_visuals: Dictionary = {}
+var alarm_light: OmniLight3D
+var bell_clapper: MeshInstance3D
 
 static func to_stage(point: Vector2, depth: float = 0.0) -> Vector3:
 	return Vector3(point.x * PIXEL, -point.y * PIXEL, depth)
@@ -106,6 +110,10 @@ func _room_reset() -> void:
 	add_child(scenery)
 	materials.clear()
 	shadow_cards.clear()
+	platform_visuals.clear()
+	action_visuals.clear()
+	alarm_light = null
+	bell_clapper = null
 	_build_room()
 	set_greybox(greybox)
 	camera_target = to_stage(game.player.position + Vector2(0, -56))
@@ -144,11 +152,25 @@ func _build_room() -> void:
 	var edge := _material(Rect2(), Color("a59aaa"))
 	var gold := _material(Rect2(), Color("84705a"))
 	for module in game.environment.modules:
+		var first_child := scenery.get_child_count()
 		var width: float = module.width * PIXEL
 		# A thick fake slab would hide a 38px actor under a 48px-high platform.
-		var height: float = module.collision_depth * PIXEL if module.one_way else 0.64
+		var height: float = module.collision_depth * PIXEL
 		var depth := 1.18 if module.one_way else 1.85
 		var center := to_stage(module.position + Vector2(module.width * 0.5, 0), -0.25)
+		if module.one_way:
+			var grating := _material(Rect2(), Color("6d9095"))
+			for rail_z in [-0.76, 0.26]:
+				_box(Vector3(center.x, center.y - 0.035, rail_z), Vector3(width, 0.04, 0.045), dark, "GrateRail")
+			for slat in range(0, ceili(module.width), 12):
+				_box(Vector3((module.position.x + slat + 2) * PIXEL, center.y - 0.02, -0.25), Vector3(0.04, 0.04, 1.06), grating, "OpenGrateSlat")
+			var grating_pieces: Array[Node] = []
+			for child_index in range(first_child, scenery.get_child_count()):
+				var piece := scenery.get_child(child_index)
+				piece.visible = module.active
+				grating_pieces.append(piece)
+			platform_visuals[module] = grating_pieces
+			continue
 		var face_material: StandardMaterial3D = stone.duplicate()
 		face_material.uv1_scale = Vector3(maxf(1, width / 0.96), 1, 1)
 		materials.append(face_material)
@@ -178,6 +200,12 @@ func _build_room() -> void:
 		if module.one_way:
 			for end in [-1, 1]:
 				_box(center + Vector3(end * (width * 0.5 - 0.08), -0.35, -0.58), Vector3(0.13, 0.65, 0.18), dark, "BridgeBracket")
+		var pieces: Array[Node] = []
+		for child_index in range(first_child, scenery.get_child_count()):
+			var piece := scenery.get_child(child_index)
+			piece.visible = module.active
+			pieces.append(piece)
+		platform_visuals[module] = pieces
 	# Rear architecture and real front columns occupy separate depth planes.
 	for x in [0.25, 3.25, 6.25, 9.4]:
 		_box(Vector3(x, -1.52, -1.5), Vector3(0.24, 4, 0.35), dark, "RearPillar")
@@ -218,6 +246,9 @@ func _build_room() -> void:
 		_box(door_origin + Vector3(side * 0.235, 0.35, 0), Vector3(0.065, 0.7, 0.12), dark, "DoorFrame")
 	_box(door_origin + Vector3(0, 0.72, 0), Vector3(0.54, 0.075, 0.14), gold, "DoorLintel")
 	_box(door_origin + Vector3(0.12, 0.3, 0.08), Vector3(0.03, 0.08, 0.025), gold, "DoorHandle")
+	_build_room_identity(dark, gold, stone)
+	for action in game.environment.actions:
+		_build_action(action, dark, gold)
 	var shadow_image := Image.create(32, 16, false, Image.FORMAT_RGBA8)
 	for y in 16:
 		for x in 32:
@@ -239,6 +270,83 @@ func _build_room() -> void:
 		shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		scenery.add_child(shadow)
 		shadow_cards.append(shadow)
+
+func _cylinder(at: Vector3, bottom: float, top: float, height: float, material: Material, label: String) -> MeshInstance3D:
+	var mesh := CylinderMesh.new()
+	mesh.bottom_radius = bottom
+	mesh.top_radius = top
+	mesh.height = height
+	mesh.radial_segments = 12
+	var node := MeshInstance3D.new()
+	node.name = label
+	node.mesh = mesh
+	node.material_override = material
+	node.position = at
+	scenery.add_child(node)
+	return node
+
+func _build_room_identity(dark: Material, gold: Material, stone: Material) -> void:
+	match game.environment.architecture:
+		1:
+			# A real bell, beams and ropes create depth without painting fake platforms.
+			_box(Vector3(6.9, 0.1, -1.2), Vector3(2.1, 0.18, 0.3), dark, "BellCrossbeam")
+			_cylinder(Vector3(6.9, -0.45, -1.2), 0.48, 0.22, 0.7, gold, "AlarmBell")
+			bell_clapper = _cylinder(Vector3(6.9, -0.92, -1.2), 0.06, 0.04, 0.3, gold, "BellClapper")
+			_box(Vector3(7.36, -0.7, -0.4), Vector3(0.018, 1.6, 0.018), gold, "BellRope")
+			alarm_light = OmniLight3D.new()
+			alarm_light.position = Vector3(6.9, -1.3, -0.3)
+			alarm_light.light_color = Color("ff4654")
+			alarm_light.omni_range = 3.4
+			scenery.add_child(alarm_light)
+		2:
+			var wood := _material(Rect2(), Color("352b32"))
+			var book_colors := ["714852", "62596c", "787058", "3d6366"]
+			for bay in 5:
+				var x := 1.1 + bay * 1.8
+				_box(Vector3(x, -2.1, -1.45), Vector3(1.35, 2.6, 0.22), wood, "ArchiveBack")
+				for row in 4:
+					var y := -3.25 + row * 0.62
+					_box(Vector3(x, y, -1.15), Vector3(1.42, 0.07, 0.48), dark, "Bookshelf")
+					for book in 6:
+						var mat := _material(Rect2(), Color(book_colors[(book + row + bay) % 4]))
+						_box(Vector3(x - 0.5 + book * 0.2, y + 0.23, -1.05), Vector3(0.12, 0.36 + (book % 2) * 0.08, 0.17), mat, "BookSpine")
+		3:
+			var leaves := _material(Rect2(), Color("293d38"))
+			var rose := _material(Rect2(), Color("923c53"))
+			for x in [1.0, 3.0, 5.0, 7.0, 9.0]:
+				_box(Vector3(x, -3.2, -1.15), Vector3(1.2, 0.3, 0.55), stone, "RosePlanter")
+				for flower in 3:
+					var at := Vector3(x - 0.36 + flower * 0.36, -2.78, -1.1)
+					_box(at, Vector3(0.025, 0.6, 0.025), leaves, "RoseStem")
+					_cylinder(at + Vector3(0, 0.3, 0), 0.08, 0.12, 0.1, rose, "Bloodrose")
+			_box(Vector3(4.72, -4.02, -0.7), Vector3(4.6, 0.015, 0.3), _material(Rect2(), Color("442b39")), "DryCanalBed")
+
+func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
+	var at := to_stage(action.position, -0.18)
+	var indicator := _material(Rect2(), Color("d8b96f"))
+	indicator.emission_enabled = true
+	indicator.emission = Color("715225")
+	indicator.emission_energy_multiplier = 0.4
+	var piece: MeshInstance3D
+	match action.kind:
+		RoomAction.Kind.SWITCH:
+			_box(at + Vector3(0, 0.12, 0), Vector3(0.19, 0.24, 0.18), dark, "SwitchBase")
+			piece = _box(at + Vector3(0, 0.29, 0), Vector3(0.035, 0.25, 0.035), indicator, "SwitchHandle")
+			piece.rotation.z = -0.5
+		RoomAction.Kind.NOTE:
+			_box(at + Vector3(0, 0.15, 0), Vector3(0.24, 0.3, 0.18), dark, "ReadingStand")
+			piece = _box(at + Vector3(0, 0.32, 0.03), Vector3(0.22, 0.018, 0.16), indicator, "OpenRecord")
+		RoomAction.Kind.SUPPLY:
+			piece = _cylinder(at + Vector3(0, 0.1, 0), 0.055, 0.045, 0.18, indicator, "BloodVial")
+	var label := Label3D.new()
+	label.text = "E"
+	label.font_size = 32
+	label.pixel_size = 0.002
+	label.position = at + Vector3(0, 0.55, 0)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.modulate = Color("ffe5a5")
+	scenery.add_child(label)
+	action_visuals[action] = {"piece": piece, "material": indicator, "label": label}
 
 func _prop(region: Rect2, foot: Vector3, pixel_size: float, tint: Color) -> void:
 	var sprite := Sprite3D.new()
@@ -305,6 +413,20 @@ func _physics_process(delta: float) -> void:
 		return
 	if not frozen_camera:
 		_update_camera(delta)
+	for module in platform_visuals:
+		for piece in platform_visuals[module]: piece.visible = module.active
+	for action in action_visuals:
+		var visual: Dictionary = action_visuals[action]
+		visual.material.albedo_color = Color("5b938a") if action.activated else Color("d8b96f")
+		visual.label.visible = game.player.position.distance_to(action.position) < 65 and (not action.activated or action.kind == RoomAction.Kind.NOTE)
+		if action.kind == RoomAction.Kind.SWITCH:
+			visual.piece.rotation.z = lerpf(visual.piece.rotation.z, 0.6 if action.activated else -0.5, minf(1, delta * 8))
+		elif action.kind == RoomAction.Kind.SUPPLY:
+			visual.piece.visible = not action.activated
+	if is_instance_valid(alarm_light):
+		var ringing: bool = not game.environment.objectives_complete()
+		alarm_light.light_energy = (0.8 + sin(game.elapsed * 4) * 0.3) if ringing else 0.0
+		bell_clapper.rotation.z = sin(game.elapsed * 4) * 0.12 if ringing else 0.0
 	muzzle_light.visible = game.player.flash_time > 0
 	muzzle_light.position = to_stage(game.player.aim_origin() + game.player.aim_direction * 25, 0.15)
 	if game.environment.exit_open:

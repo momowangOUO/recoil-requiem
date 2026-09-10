@@ -2,6 +2,10 @@ class_name CrimsonEnvironment
 extends LabEnvironment
 
 @export var room_title := "CRIMSON / EAST COURT"
+@export_enum("Court", "Bell", "Archive", "Garden") var architecture := 0
+@export var require_clear := true
+@export var objective_hint := "CLEAR GUARDS / EAST DOOR"
+var actions: Array[RoomAction] = []
 var stage: PaperStage
 var modules: Array[PaperPlatform] = []
 var enemy_spawns: Array[RoomMarker] = []
@@ -16,6 +20,8 @@ func build(_index: int) -> void:
 	stage.name = "RoomVisuals"
 	add_child(stage)
 	for node in get_node("Gameplay").get_children():
+		if node is RoomAction:
+			actions.append(node)
 		if node is RoomMarker:
 			match node.kind:
 				RoomMarker.Kind.SPAWN: spawn = node.position
@@ -33,6 +39,26 @@ func build(_index: int) -> void:
 	_collision(Rect2(960, -144, 16, 560), false)
 	_collision(Rect2(0, -144, 960, 16), false)
 	queue_redraw()
+
+func objectives_complete() -> bool:
+	for action in actions:
+		if action.required and not action.activated: return false
+	return true
+
+func activate(action: RoomAction) -> void:
+	action.activated = true
+	for module in modules:
+		if module.unlock_action == action.action_id:
+			module.set_active(true)
+
+func progress_text() -> String:
+	var complete := 0
+	var total := 0
+	for action in actions:
+		if action.required:
+			total += 1
+			complete += int(action.activated)
+	return objective_hint + ("  %d/%d" % [complete, total] if total > 0 else "")
 
 func set_greybox(enabled: bool) -> void:
 	for module in modules:

@@ -8,7 +8,13 @@ var presentation_host: Node
 var projected_aim: Callable
 var aim_ui: CanvasLayer
 var slice_complete := false
-const CAMPAIGN_ROOMS := ["res://scenes/rooms/crimson_environment.tscn", "res://scenes/rooms/bell_gallery.tscn"]
+const CAMPAIGN_ROOMS := ["res://scenes/rooms/crimson_environment.tscn", "res://scenes/rooms/bell_gallery.tscn", "res://scenes/rooms/bell_tower.tscn", "res://scenes/rooms/forbidden_archive.tscn", "res://scenes/rooms/rose_court.tscn"]
+var journal: Dictionary = {}
+var reading := false
+const ROOM_NAMES := ["东庭", "钟楼外廊", "警钟塔", "禁书室", "血蔷薇庭院"]
+const ROOM_TEXT := {"exit_open": "通路已打开，前往出口", "health_full": "生命已满，血瓶留在这里。", "complete": "转运门已打开 · 本次样段结束"}
+var visited_rooms: Dictionary = {}
+var completed_rooms: Dictionary = {}
 var room_index := 0
 var editor_room_path := ""
 var enemies: Array[ShieldEnemy] = []
@@ -27,12 +33,14 @@ var enemy: ShieldEnemy
 var preset: int = 0
 var elapsed: float = 0
 var last_hit := ""
+var hit_display_time := 0.0
 var camera_center := Vector2.ZERO
 var shake_time: float = 0
 var reset_pending := false
 var rng := RandomNumberGenerator.new()
 var paused := false
 var last_reload := false
+var alarm_countdown := 0.0
 var reticle: LabReticle
 
 func _ready() -> void:
@@ -97,8 +105,13 @@ func reset_trial(index: int) -> void:
 	reset_pending = false
 	preset = 3 if visual_slice else clampi(index, 0, 2)
 	slice_complete = false
+	alarm_countdown = 0.0
+	hit_display_time = 0.0
+	if visual_slice and editor_room_path.is_empty(): visited_rooms[room_index] = true
 	get_tree().paused = false
 	paused = false
+	reading = false
+	overlay.hide_story()
 	overlay.hide_panel()
 	audio.stop_all()
 	if is_instance_valid(aim_ui) and presentation_host != null:
@@ -152,7 +165,7 @@ func reset_trial(index: int) -> void:
 			world.add_child(guard)
 			enemies.append(guard)
 		enemy = enemies[0] if not enemies.is_empty() else null
-		environment.exit_open = enemies.is_empty()
+		_update_exit()
 	elif preset == 2:
 		enemy = ShieldEnemy.new()
 		enemy.position = Vector2(512, 224) if visual_slice else Vector2(384, 320)
@@ -179,7 +192,7 @@ func reset_trial(index: int) -> void:
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CONFINED_HIDDEN
 	var hints := ["SPACE JUMP + AIM DOWN / FIRE TO BOOST", "3: HYMN   |   S DROP   |   FIRE DOWN TO SLOW FALL", "JUMP + RECOIL / CROSS BEHIND THE SHIELD", "CLEAR THE GUARD / REACH THE EAST DOOR"]
-	overlay.show_notice(hints[preset])
+	overlay.show_notice(environment.objective_hint if visual_slice else hints[preset])
 	print("TRIAL %d RESET weapon_slot=%d gravity=%.1f" % [preset + 1, player.weapons.active_slot + 1, player.tuning.gravity])
 	trial_reset.emit()
 
@@ -202,6 +215,8 @@ func pause_trial() -> void:
 
 func resume_trial() -> void:
 	paused = false
+	reading = false
+	overlay.hide_story()
 	get_tree().paused = false
 	input_adapter.suppress()
 	overlay.hide_panel()
@@ -212,6 +227,19 @@ func resume_trial() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:
+			KEY_E:
+				if reading: resume_trial()
+				elif not paused and visual_slice: interact()
+				get_viewport().set_input_as_handled()
+			KEY_J:
+				if reading: resume_trial()
+				elif not paused and visual_slice:
+					show_story("调查笔记", "\n\n".join(journal.values()) if not journal.is_empty() else "尚未找到记录。靠近书页标记后按 E 阅读。")
+				get_viewport().set_input_as_handled()
+			KEY_M:
+				if reading: resume_trial()
+				elif not paused and visual_slice: show_route()
+				get_viewport().set_input_as_handled()
 			KEY_ESCAPE, KEY_TAB:
 				if paused:
 					resume_trial()
@@ -240,6 +268,8 @@ func _physics_process(delta: float) -> void:
 	if paused or not is_instance_valid(player):
 		return
 	elapsed += delta
+	hit_display_time = maxf(0, hit_display_time - delta)
+	if hit_display_time == 0: last_hit = ""
 	shake_time = maxf(0, shake_time - delta)
 	_update_camera(delta)
 	if player.position.y > environment.bounds.end.y + 96:
@@ -251,21 +281,29 @@ func _physics_process(delta: float) -> void:
 	last_reload = weapon.reloading
 	var hit_text := last_hit
 	if visual_slice:
+		if environment.architecture == 1 and not environment.objectives_complete():
+			alarm_countdown -= delta
+			if alarm_countdown <= 0:
+				audio.play("bell")
+				alarm_countdown = 3.2
 		for guard in enemies:
 			if guard.state != ShieldEnemy.State.DEAD and player.position.distance_to(guard.position) < (520 if guard is RifleEnemy else 180):
 				guard.target = player
 		if environment.exit_open and player.position.distance_to(environment.exit_position) < 32 and player.is_on_floor() and not slice_complete:
 			slice_complete = true
+			if editor_room_path.is_empty(): completed_rooms[room_index] = true
 			if editor_room_path.is_empty() and room_index + 1 < CAMPAIGN_ROOMS.size():
 				room_index += 1
 				_request_reset()
 			else:
-				overlay.show_notice("BELL GALLERY CLEARED / CONTINUATION COMPLETE")
+				overlay.show_notice(ROOM_TEXT.complete)
 		if hit_text.is_empty():
-			hit_text = "EAST DOOR OPEN" if environment.exit_open else "CLEAR GUARDS / EAST DOOR"
+			hit_text = ROOM_TEXT.exit_open if environment.exit_open else environment.progress_text()
+		var nearby := nearby_action()
+		if nearby != null: hit_text = "[E] " + nearby.title
 	if preset == 1:
 		hit_text = "DROP %.0f PX   TIME %.2f S" % [player.position.y - environment.spawn.y, elapsed]
-	overlay.update_hud({"preset": preset, "title": environment.room_title if visual_slice else TITLES[preset], "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
+	overlay.update_hud({"preset": room_index if visual_slice else preset, "title": environment.room_title if visual_slice else TITLES[preset], "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
 	queue_redraw()
 
 func _update_camera(delta: float) -> void:
@@ -287,15 +325,69 @@ func _update_camera(delta: float) -> void:
 
 func _enemy_defeated() -> void:
 	if environment is CrimsonEnvironment:
-		for guard in enemies:
-			if guard.state != ShieldEnemy.State.DEAD:
-				overlay.show_notice("ENEMY DOWN / CLEAR REMAINING GUARDS")
-				return
-		environment.exit_open = true
-		environment.queue_redraw()
-		overlay.show_notice("GUARD DOWN / EAST DOOR OPEN")
+		_update_exit()
+		overlay.show_notice(ROOM_TEXT.exit_open if environment.exit_open else environment.progress_text())
 	else:
 		overlay.show_notice("AEGIS DOWN / BACKSPACE TO REPLAY")
+
+func _update_exit() -> void:
+	if not environment is CrimsonEnvironment: return
+	var clear := true
+	for guard in enemies:
+		if guard.state != ShieldEnemy.State.DEAD: clear = false
+	environment.exit_open = environment.objectives_complete() and (clear or not environment.require_clear)
+	environment.queue_redraw()
+
+func nearby_action() -> RoomAction:
+	if not environment is CrimsonEnvironment or not player.is_on_floor(): return null
+	var nearest: RoomAction
+	var distance := 38.0
+	for action in environment.actions:
+		if action.activated and action.kind != RoomAction.Kind.NOTE: continue
+		var d := player.position.distance_to(action.position)
+		if d >= distance: continue
+		var query := PhysicsRayQueryParameters2D.create(player.position + Vector2(0, -18), action.position + Vector2(0, -18), 1)
+		if not player.get_world_2d().direct_space_state.intersect_ray(query).is_empty(): continue
+		nearest = action
+		distance = d
+	return nearest
+
+func interact() -> void:
+	if paused or reset_pending: return
+	var action := nearby_action()
+	if action == null: return
+	if action.kind == RoomAction.Kind.SUPPLY:
+		if player.health >= 5:
+			overlay.show_notice(ROOM_TEXT.health_full)
+			return
+		player.health = mini(5, player.health + 2)
+	environment.activate(action)
+	_update_exit()
+	if action.kind == RoomAction.Kind.SWITCH:
+		audio.play("lever")
+		if environment.architecture == 1 and environment.objectives_complete(): audio.stop_key("bell")
+	if action.kind == RoomAction.Kind.NOTE:
+		journal[action.action_id] = action.title + "\n" + action.description
+		show_story(action.title, action.description)
+	else:
+		overlay.show_notice(action.description if not action.description.is_empty() else "ACTIVATED")
+
+func show_story(title: String, content: String) -> void:
+	pause_trial()
+	reading = true
+	overlay.hide_panel()
+	overlay.show_story(title, content)
+
+func show_route() -> void:
+	if not editor_room_path.is_empty():
+		show_story("地图预览", "当前正在单独预览编辑器地图。\n房间目标：" + environment.objective_hint)
+		return
+	var lines := PackedStringArray()
+	for index in ROOM_NAMES.size():
+		var status := "当前" if index == room_index else ("已通过" if completed_rooms.has(index) else ("已到达" if visited_rooms.has(index) else "未到达"))
+		lines.append("%d  %s · %s" % [index + 1, ROOM_NAMES[index], status])
+	lines.append("\n沿东门前进；每间房都是检查点。\n记录与高处支路可选，J 查看已发现的线索。")
+	show_story("猩红修道院 · 当前路线", "\n".join(lines))
 
 func _fire(context: ShotContext, data: WeaponData) -> void:
 	audio.play(str(data.id))
@@ -321,6 +413,7 @@ func _fire(context: ShotContext, data: WeaponData) -> void:
 
 func _enemy_hit(result: Dictionary) -> void:
 	last_hit = "%s  %.1f DMG  /  %.1f HP" % [result.zone, result.damage, result.hp]
+	hit_display_time = 1.5
 	audio.play("weak" if result.zone in ["BACK", "WEAK"] else "hit")
 
 func _impact(point: Vector2, tint: Color) -> void:

@@ -21,3 +21,7 @@
 - Reload feedback must use actual `WeaponRuntime.progress()`, including each shotgun shell, cancellation and pause behavior.
 - The arsenal has six fixed numbered slots. Slots 1-3 currently hold revolver, shotgun, and SMG; slots 4-6 are empty. Number keys select occupied slots directly; Q/wheel cycle all occupied slots and skip empty ones. There is no separate quick-slot model. All runtimes preserve ammo and cooldown.
 - Run `tools/run_checks.ps1` for gameplay changes. Relevant rendered fixtures are documented in README; record visual limitations honestly.
+
+- Stone platforms block from all sides; only visibly open metal grating may use one-way collision. PaperPlatform defaults to solid. Check complete routes after changing platform collision, including headroom and leaving upper platforms.
+- Keep exactly one Windows output: builds/windows/RecoilRequiem.exe. Update this filename instead of adding named variants.
+- The user's natural-writing-zh skill was downloaded from GitHub. New player-visible prose must have a reviewed standalone game-text draft before integration; retain IDs and verify decoded target text against the draft.

@@ -17,3 +17,11 @@
 验证入口：`tools/run_checks.ps1` 包含真实编辑器内的添加、修改、撤销、重做、保存和重载检查；GPU 验证另检查面板可见性，截图为 `artifacts/map_editor.png`。
 
 实现依据为 Godot 原生 [EditorDock](https://docs.godotengine.org/en/stable/classes/class_editordock.html) 和 [EditorUndoRedoManager](https://docs.godotengine.org/en/stable/classes/class_editorundoredomanager.html)，没有维护另一份地图文件格式。
+
+## 机关、记录与补给
+
+面板现在可打开全部五间房，并添加 `RoomAction`。在 Inspector 中填写 `action_id`、`title`、`description`；`required` 表示本房出口要求完成该操作。根节点 `require_clear` 控制是否还需要清敌，`objective_hint` 显示当前目标，`architecture` 选择庭院、钟塔、藏书室或花园结构。
+
+平台的 `unlock_action` 留空时始终可用；填写本房的机关 ID 后，平台在该机关激活时启用。标记必须站在初始可用的平台上，不能把开桥机关放到尚未展开的桥上。补给恢复最多两格生命，满血时保留，因此不能设为必做目标。
+
+石台默认为实体。只有勾选 `one_way` 的平台才呈现镂空格栅，并允许上下穿越；两种外观与碰撞由同一个属性控制。校验增加了头顶净空、唯一机关 ID 与桥梁引用检查。调整位置后仍需实际走一次入口、机关和出口，确认能到达也能离开。

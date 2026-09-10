@@ -1,0 +1,111 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/crimson_environment.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/rooms/platform.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/rooms/room_marker.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/rooms/room_action.gd" id="4"]
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1")
+room_title = "猩红修道院 / 警钟塔"
+architecture = 1
+require_clear = false
+objective_hint = "登上钟台，拉下制动杆"
+
+[node name="Gameplay" type="Node2D" parent="."]
+z_index = -5
+
+[node name="CatchFloor" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(0, 400)
+width = 960.0
+one_way = false
+collision_depth = 32.0
+
+[node name="Stair1" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(128, 368)
+width = 128.0
+
+[node name="Stair2" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(208, 336)
+width = 144.0
+
+[node name="Stair3" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(288, 304)
+width = 144.0
+
+[node name="Stair4" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(368, 272)
+width = 144.0
+
+[node name="Stair5" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(448, 240)
+width = 144.0
+
+[node name="Stair6" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(528, 208)
+width = 144.0
+
+[node name="BellLanding" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(608, 176)
+width = 160.0
+
+[node name="ExitLanding" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(784, 240)
+width = 176.0
+
+[node name="ReturnBridge" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(320, 352)
+width = 448.0
+unlock_action = "BellRope"
+
+[node name="ReturnStep" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(704, 304)
+width = 112.0
+unlock_action = "BellRope"
+
+[node name="PlayerSpawn" type="Marker2D" parent="Gameplay"]
+position = Vector2(64, 400)
+script = ExtResource("3")
+kind = 0
+
+[node name="Exit" type="Marker2D" parent="Gameplay"]
+position = Vector2(900, 240)
+script = ExtResource("3")
+kind = 1
+
+[node name="StairGuard" type="Marker2D" parent="Gameplay"]
+position = Vector2(404, 272)
+script = ExtResource("3")
+kind = 2
+
+[node name="BellRifle" type="Marker2D" parent="Gameplay"]
+position = Vector2(672, 176)
+script = ExtResource("3")
+kind = 3
+
+[node name="BellRope" type="Marker2D" parent="Gameplay"]
+position = Vector2(736, 176)
+script = ExtResource("4")
+kind = 0
+action_id = "BellRope"
+required = true
+title = "拉下制动杆"
+description = "警钟已停，回程桥已放下。"
+
+[node name="TowerRecord" type="Marker2D" parent="Gameplay"]
+position = Vector2(96, 400)
+script = ExtResource("4")
+kind = 1
+action_id = "TowerRecord"
+required = false
+title = "守钟人的交班纸"
+description = "发现闯入者，立即鸣钟。今夜不得停钟。\n\n禁书室的门锁和钟架共用拉索。需要进门取巡更册时，先拉下制动杆。"
+
+[node name="TowerSupply" type="Marker2D" parent="Gameplay"]
+position = Vector2(288, 400)
+script = ExtResource("4")
+kind = 2
+action_id = "TowerSupply"
+required = false
+title = "血瓶 · 恢复2格生命"
+description = "已饮用血瓶，生命恢复。"

@@ -53,6 +53,21 @@ var _hp_cells: Array[ColorRect] = []
 var _ammo_cells: Array[ColorRect] = []
 var _turn_speed: SpinBox
 var _notice_timer := 0.0
+var _story: Control
+var _story_title: Label
+var _story_body: Label
+var _story_scroll: ScrollContainer
+
+func hide_story() -> void:
+	if is_instance_valid(_story): _story.hide()
+
+func show_story(title: String, content: String) -> void:
+	_build()
+	_story_title.text = title
+	_story_body.text = content
+	_story_scroll.scroll_vertical = 0
+	_notice.hide()
+	_story.show()
 var _built := false
 var lab_navigation := true
 
@@ -240,13 +255,44 @@ func _build() -> void:
 		_ammo_cells.append(cell)
 	_hit = _label(_root, "", RED)
 	_place(_hit, Rect2(6, 137 if lab_navigation else 19, 300, 11))
-	var hint := _label(_root, "WASD move / SPACE jump / LMB fire / 1-6 select / Q cycle / TAB", MUTED)
+	var hint := _label(_root, "WASD / SPACE / LMB / 1-6 guns / E use / J notes / M route / TAB", MUTED)
 	_place(hint, Rect2(6, 170, 308, 10))
 	hint.add_theme_font_size_override("font_size", 7)
 	_notice = _label(_root, "", CYAN)
 	_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_place(_notice, Rect2(10, 28, 300, 13))
 	_notice.hide()
+	_story = Control.new()
+	_story.name = "StoryCard"
+	_story.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_root.add_child(_story)
+	var story_back := Panel.new()
+	story_back.add_theme_stylebox_override("panel", _style(Color("111820"), Color("84705a")))
+	_story.add_child(story_back)
+	_place(story_back, Rect2(28, 34, 264, 108))
+	_story_title = _label(_story, "", CYAN)
+	_place(_story_title, Rect2(40, 43, 240, 14))
+	_story_scroll = ScrollContainer.new()
+	_story_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_story.add_child(_story_scroll)
+	_place(_story_scroll, Rect2(40, 62, 240, 59))
+	var scroll_bar := _story_scroll.get_v_scroll_bar()
+	scroll_bar.add_theme_stylebox_override("scroll", _style(Color("202c34")))
+	scroll_bar.add_theme_stylebox_override("grabber", _style(Color("84705a")))
+	scroll_bar.add_theme_stylebox_override("grabber_highlight", _style(CYAN))
+	scroll_bar.add_theme_stylebox_override("grabber_pressed", _style(CYAN))
+	var blank := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	blank.fill(Color.TRANSPARENT)
+	var empty_icon := ImageTexture.create_from_image(blank)
+	for icon in ["increment", "decrement", "increment_highlight", "decrement_highlight", "increment_pressed", "decrement_pressed"]:
+		scroll_bar.add_theme_icon_override(icon, empty_icon)
+	_story_body = _label(_story_scroll, "", BONE)
+	_story_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_story_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_story_body.add_theme_font_size_override("font_size", 8)
+	var story_hint := _label(_story, "滚轮阅读 · E / ESC 返回 · 世界已暂停", MUTED)
+	_place(story_hint, Rect2(40, 127, 240, 10))
+	_story.hide()
 	_panel = Control.new()
 	_panel.name = "TuningPanel"
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

@@ -1,0 +1,141 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/crimson_environment.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/rooms/platform.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/rooms/room_marker.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/rooms/room_action.gd" id="4"]
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1")
+room_title = "猩红修道院 / 血蔷薇庭院"
+architecture = 3
+require_clear = false
+objective_hint = "开启两侧水闸，前往转运门"
+
+[node name="Gameplay" type="Node2D" parent="."]
+z_index = -5
+
+[node name="WestTerrace" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(0, 320)
+width = 240.0
+one_way = false
+collision_depth = 32.0
+
+[node name="DryCanal" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(240, 400)
+width = 528.0
+one_way = false
+collision_depth = 32.0
+
+[node name="EastTerrace" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(768, 320)
+width = 192.0
+one_way = false
+collision_depth = 32.0
+
+[node name="WestLowerStep" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(208, 352)
+width = 112.0
+
+[node name="WestGallery" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(256, 224)
+width = 144.0
+
+[node name="WestClimb" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(96, 288)
+width = 96.0
+
+[node name="WestUpperStep" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(176, 256)
+width = 96.0
+
+[node name="CentralIsland" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(400, 352)
+width = 144.0
+
+[node name="EastLowerStep" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(624, 368)
+width = 112.0
+
+[node name="EastClimb" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(800, 288)
+width = 64.0
+
+[node name="EastUpperStep" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(688, 344)
+width = 80.0
+
+[node name="EastGallery" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(864, 256)
+width = 64.0
+
+[node name="CanalBridge" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(240, 320)
+width = 224.0
+unlock_action = "WestSluice"
+
+[node name="EastBridge" parent="Gameplay" instance=ExtResource("2")]
+position = Vector2(464, 320)
+width = 304.0
+unlock_action = "EastSluice"
+
+[node name="PlayerSpawn" type="Marker2D" parent="Gameplay"]
+position = Vector2(48, 320)
+script = ExtResource("3")
+kind = 0
+
+[node name="Exit" type="Marker2D" parent="Gameplay"]
+position = Vector2(944, 320)
+script = ExtResource("3")
+kind = 1
+
+[node name="CanalGuard" type="Marker2D" parent="Gameplay"]
+position = Vector2(480, 400)
+script = ExtResource("3")
+kind = 2
+
+[node name="EastRifle" type="Marker2D" parent="Gameplay"]
+position = Vector2(888, 256)
+script = ExtResource("3")
+kind = 3
+
+[node name="EastGuard" type="Marker2D" parent="Gameplay"]
+position = Vector2(576, 400)
+script = ExtResource("3")
+kind = 2
+
+[node name="WestSluice" type="Marker2D" parent="Gameplay"]
+position = Vector2(352, 224)
+script = ExtResource("4")
+kind = 0
+action_id = "WestSluice"
+required = true
+title = "扳动西侧水闸"
+description = "西段步道已放下。"
+
+[node name="EastSluice" type="Marker2D" parent="Gameplay"]
+position = Vector2(912, 256)
+script = ExtResource("4")
+kind = 0
+action_id = "EastSluice"
+required = true
+title = "扳动东侧水闸"
+description = "东段步道已放下。"
+
+[node name="CanalLetter" type="Marker2D" parent="Gameplay"]
+position = Vector2(288, 400)
+script = ExtResource("4")
+kind = 1
+action_id = "CanalLetter"
+required = false
+title = "渠底的姓名"
+description = "纸上抄着渠壁的姓名，后面记有转运车次。最后一页只写了两句话：\n\n「还醒着的人留在白银病房。\n别让她们把你送进礼堂。」"
+
+[node name="CanalSupply" type="Marker2D" parent="Gameplay"]
+position = Vector2(608, 400)
+script = ExtResource("4")
+kind = 2
+action_id = "CanalSupply"
+required = false
+title = "血瓶 · 恢复2格生命"
+description = "已饮用血瓶，生命恢复。"

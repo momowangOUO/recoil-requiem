@@ -48,6 +48,25 @@ func run(plugin: EditorPlugin) -> void:
 	var loaded = load("res://artifacts/editor_roundtrip.tscn").instantiate()
 	check(loaded.get_node("Gameplay").get_child_count() == before + 2, "saved map reload retains new platform and enemy")
 	loaded.free()
+	plugin.x_input.value = 128
+	plugin.y_input.value = 352
+	plugin._action(RoomAction.Kind.SWITCH)
+	var action := parent.get_child(-1) as RoomAction
+	action.action_id = "EditorSwitch"
+	action.required = true
+	check(action.owner == room and action.kind == RoomAction.Kind.SWITCH, "editor action button inserts a saved switch marker")
+	platform.unlock_action = action.action_id
+	check(plugin._validate(), "editor validates a switch-controlled bridge")
+	action.action_id = ""
+	check(not plugin._validate(), "editor rejects missing action IDs and broken bridge references")
+	action.action_id = "EditorSwitch"
+	platform.unlock_action = ""
+	check(packed.pack(room) == OK and ResourceSaver.save(packed, "res://artifacts/editor_roundtrip_actions.tscn") == OK, "action and objective data serialize with the room")
+	var action_room = load("res://artifacts/editor_roundtrip_actions.tscn").instantiate()
+	check(action_room.get_node("Gameplay").get_child(-1).action_id == "EditorSwitch" and action_room.get_node("Gameplay").get_child(-1).required, "action identity and required flag survive reload")
+	action_room.free()
+	history.undo()
+	check(plugin._validate(), "restored valid map clears the validation error message")
 	if DisplayServer.get_name() != "headless":
 		EditorInterface.open_scene_from_path("res://scenes/rooms/bell_gallery.tscn")
 		EditorInterface.set_main_screen_editor("2D")

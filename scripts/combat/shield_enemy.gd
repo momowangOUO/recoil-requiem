@@ -94,6 +94,12 @@ func _physics_process(delta: float) -> void:
 			State.RECOVERY:
 				if state_time >= 0.8:
 					_enter(State.APPROACH)
+	# Sentries hold their ledge while approaching. A committed bash or player
+	# knockback can still send them off, so terrain remains a combat tool.
+	if state == State.APPROACH and is_on_floor() and walk != 0:
+		var ahead := global_position + Vector2(signf(walk) * 22, -4)
+		var probe := PhysicsRayQueryParameters2D.create(ahead, ahead + Vector2(0, 28), 1 | 1024)
+		if get_world_2d().direct_space_state.intersect_ray(probe).is_empty(): walk = 0
 	knockback_velocity.x = move_toward(knockback_velocity.x, 0, 480 * delta)
 	knockback_velocity.y += 1500 * delta
 	velocity = Vector2(walk, 0) + knockback_velocity

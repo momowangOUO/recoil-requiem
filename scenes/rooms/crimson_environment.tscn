@@ -23,6 +23,7 @@ width = 144.0
 [node name="ShieldBridge" parent="Gameplay" instance=ExtResource("2")]
 position = Vector2(368, 224)
 width = 208.0
+one_way = true
 
 [node name="EastLanding" parent="Gameplay" instance=ExtResource("2")]
 position = Vector2(624, 288)
@@ -31,6 +32,7 @@ width = 144.0
 [node name="UpperRoute" parent="Gameplay" instance=ExtResource("2")]
 position = Vector2(432, 128)
 width = 112.0
+one_way = true
 
 [node name="PlayerSpawn" type="Marker2D" parent="Gameplay"]
 position = Vector2(80, 352)

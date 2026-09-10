@@ -17,6 +17,22 @@ func _ready() -> void:
 	sounds["hit"] = _synthesize(0.08, 720.0, 0.2, 4)
 	sounds["weak"] = _synthesize(0.18, 280.0, 0.2, 5)
 	sounds["reload"] = _synthesize(0.08, 960.0, 0.4, 6)
+	sounds["lever"] = _synthesize(0.25, 155.0, 0.32, 7)
+	sounds["bell"] = _bell()
+
+func _bell() -> AudioStreamWAV:
+	var data := PackedByteArray()
+	data.resize(26460 * 2)
+	for index in 26460:
+		var t := float(index) / 22050
+		var tone := sin(TAU * 220 * t) * 0.6 + sin(TAU * 607 * t) * 0.25 + sin(TAU * 1190 * t) * 0.15
+		var value := tone * exp(-t * 4.0) * minf(t * 800, 1)
+		data.encode_s16(index * 2, int(value * 18000))
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = 22050
+	stream.data = data
+	return stream
 
 func _synthesize(duration: float, frequency: float, noise: float, seed_value: int) -> AudioStreamWAV:
 	var sample_rate := 22050
@@ -42,8 +58,12 @@ func play(key: String) -> void:
 	var voice := voices[next_voice]
 	next_voice = (next_voice + 1) % voices.size()
 	voice.stream = sounds[key]
-	voice.volume_db = -22 if key == "smg" else -16
+	voice.volume_db = -26 if key == "bell" else (-22 if key == "smg" else -16)
 	voice.play()
+
+func stop_key(key: String) -> void:
+	for voice in voices:
+		if voice.stream == sounds.get(key): voice.stop()
 
 func stop_all() -> void:
 	for voice in voices:

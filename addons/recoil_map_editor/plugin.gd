@@ -19,6 +19,9 @@ func _enter_tree() -> void:
 	dock.add_child(heading)
 	_button("打开东庭", _open.bind("res://scenes/rooms/crimson_environment.tscn"))
 	_button("打开钟楼外廊", _open.bind("res://scenes/rooms/bell_gallery.tscn"))
+	_button("打开警钟塔", _open.bind("res://scenes/rooms/bell_tower.tscn"))
+	_button("打开禁书室", _open.bind("res://scenes/rooms/forbidden_archive.tscn"))
+	_button("打开血蔷薇庭院", _open.bind("res://scenes/rooms/rose_court.tscn"))
 	x_input = _number("放置 X", 0, 960, 16, 320)
 	y_input = _number("脚底 Y", -128, 400, 16, 288)
 	width_input = _number("平台宽度", 16, 960, 16, 128)
@@ -28,6 +31,9 @@ func _enter_tree() -> void:
 	_button("添加女枪手", _marker.bind(RoomMarker.Kind.RIFLE))
 	_button("添加出生点", _marker.bind(RoomMarker.Kind.SPAWN))
 	_button("添加出口", _marker.bind(RoomMarker.Kind.EXIT))
+	_button("添加机关", _action.bind(RoomAction.Kind.SWITCH))
+	_button("添加调查记录", _action.bind(RoomAction.Kind.NOTE))
+	_button("添加补给", _action.bind(RoomAction.Kind.SUPPLY))
 	_button("校验当前地图", _validate)
 	_button("保存并试玩当前地图（3D）", _preview)
 	status = Label.new()
@@ -109,6 +115,14 @@ func _insert(node: Node2D) -> void:
 	EditorInterface.get_selection().add_node(node)
 	EditorInterface.edit_node(node)
 	EditorInterface.set_main_screen_editor("2D")
+
+func _action(kind: RoomAction.Kind) -> void:
+	var node := RoomAction.new()
+	node.kind = kind
+	node.name = ["Switch", "Note", "Supply"][kind]
+	node.title = ["LEVER", "RECORD", "BLOOD VIAL"][kind]
+	node.action_id = str(Time.get_ticks_usec())
+	_insert(node)
 
 func _validate() -> bool:
 	var errors := Validator.validate(EditorInterface.get_edited_scene_root())
