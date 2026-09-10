@@ -12,9 +12,9 @@ const CAMERA_RISE := 1.18
 const CAMERA_FOV := 23.0
 # z-distance in metres; cursor reach is in logical screen pixels.
 const WEAPON_CAMERA := {
-	&"revolver": {"near": 4.8, "far": 7.2, "reach": 115.0},
-	&"shotgun": {"near": 3.8, "far": 5.2, "reach": 60.0},
-	&"smg": {"near": 4.4, "far": 6.3, "reach": 90.0}
+	&"revolver": {"near": 4.8, "far": 7.2, "outside": 32.0},
+	&"shotgun": {"near": 3.8, "far": 5.2, "outside": 8.0},
+	&"smg": {"near": 4.4, "far": 6.3, "outside": 20.0}
 }
 var camera_distance := CAMERA_DISTANCE
 var simulation := SubViewport.new()
@@ -272,11 +272,16 @@ func raw_cursor() -> Vector2:
 	return ui_host.get_aim_screen() if ui_host != null else get_viewport().get_mouse_position() / RENDER_SCALE
 
 func reticle_screen() -> Vector2:
-	var anchor := camera.unproject_position(to_stage(game.player.aim_origin())) / RENDER_SCALE
-	return anchor + (raw_cursor() - anchor).limit_length(camera_profile().reach)
+	# Full-screen aim for every gun; the outer 10% adds offscreen reach.
+	var cursor := raw_cursor().clamp(Vector2.ZERO, Vector2(320, 180))
+	var normalized := (cursor - Vector2(160, 90)) / Vector2(160, 90)
+	var extension := Vector2(
+		signf(normalized.x) * smoothstep(0.9, 1.0, absf(normalized.x)),
+		signf(normalized.y) * smoothstep(0.9, 1.0, absf(normalized.y)))
+	return cursor + extension * camera_profile().outside
 
 func edge_look_amount() -> float:
-	# Raw pointer is deliberately used: a shotgun's limited reticle can still pan out.
+	# Zoom uses the raw pointer, independent of offscreen aim extension.
 	var normalized := (raw_cursor() - Vector2(160, 90)) / Vector2(160, 90)
 	return smoothstep(0.72, 0.98, maxf(absf(normalized.x), absf(normalized.y)))
 

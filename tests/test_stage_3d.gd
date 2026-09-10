@@ -73,8 +73,12 @@ func run() -> void:
 		await frames(100)
 		var profile := stage.camera_profile()
 		check(stage.camera_distance > base + 0.8 and stage.camera_distance <= profile.far + 0.01, "screen-edge zoom follows each weapon's maximum distance")
-		var anchor := stage.camera.unproject_position(CrimsonStage3D.to_stage(game.player.aim_origin())) / 2
-		check(stage.reticle_screen().distance_to(anchor) <= profile.reach + 0.01, "reticle stays inside the selected weapon's reach")
+		check(stage.reticle_screen().x >= 320, "every weapon can aim beyond screen edge")
+		for edge in [Vector2(0, 90), Vector2(320, 90), Vector2(160, 0), Vector2(160, 180), Vector2(0, 0), Vector2(320, 180)]:
+			app.mouse_screen = edge
+			var expected: Vector2 = edge + Vector2(signf(edge.x - 160), signf(edge.y - 90)) * profile.outside
+			check(stage.reticle_screen().distance_to(expected) < 0.01, "all edges and corners allow weapon-specific offscreen aim")
+		app.mouse_screen = Vector2(319, 90)
 		check((stage.camera.unproject_position(CrimsonStage3D.to_stage(stage.mouse_world())) / 2).distance_to(stage.reticle_screen()) < 0.02, "limited cursor and actual aim stay aligned while zoomed")
 		app.mouse_screen = Vector2(160, 90)
 		await frames(100)
