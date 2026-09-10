@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/rooms/crimson_environment.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/rooms/platform.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/rooms/room_marker.gd" id="3"]
 
 [node name="CrimsonMonastery" type="Node2D"]
 script = ExtResource("1")
@@ -30,3 +31,18 @@ width = 144.0
 [node name="UpperRoute" parent="Gameplay" instance=ExtResource("2")]
 position = Vector2(432, 128)
 width = 112.0
+
+[node name="PlayerSpawn" type="Marker2D" parent="Gameplay"]
+position = Vector2(80, 352)
+script = ExtResource("3")
+kind = 0
+
+[node name="EastDoor" type="Marker2D" parent="Gameplay"]
+position = Vector2(900, 352)
+script = ExtResource("3")
+kind = 1
+
+[node name="BridgeGuard" type="Marker2D" parent="Gameplay"]
+position = Vector2(512, 224)
+script = ExtResource("3")
+kind = 2

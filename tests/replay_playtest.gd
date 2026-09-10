@@ -195,7 +195,7 @@ func run() -> void:
 	await frames(30)
 	await capture("jump_recoil_combo")
 	await frames(80)
-	check("Space_plus_shotgun_controlled_lift", lab.player.max_rise > 90 and lab.player.max_rise < 190 and lab.player.weapons.current().ammo == 1, {"rise_px": lab.player.max_rise})
+	check("Space_plus_shotgun_controlled_lift", lab.player.max_rise > 200 and lab.player.max_rise < 270 and lab.player.weapons.current().ammo == 1, {"rise_px": lab.player.max_rise})
 	await setup(0, 0, Vector2(80, 320))
 	aim = Vector2.RIGHT
 	mouse(true)

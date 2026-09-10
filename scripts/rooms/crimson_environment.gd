@@ -1,8 +1,11 @@
 class_name CrimsonEnvironment
 extends LabEnvironment
 
+@export var room_title := "CRIMSON / EAST COURT"
 var stage: PaperStage
 var modules: Array[PaperPlatform] = []
+var enemy_spawns: Array[RoomMarker] = []
+var exit_position := Vector2(900, 352)
 var exit_open := false
 
 func build(_index: int) -> void:
@@ -13,6 +16,11 @@ func build(_index: int) -> void:
 	stage.name = "RoomVisuals"
 	add_child(stage)
 	for node in get_node("Gameplay").get_children():
+		if node is RoomMarker:
+			match node.kind:
+				RoomMarker.Kind.SPAWN: spawn = node.position
+				RoomMarker.Kind.EXIT: exit_position = node.position
+				_: enemy_spawns.append(node)
 		if node is PaperPlatform:
 			modules.append(node)
 			var rect := Rect2(node.position, Vector2(node.width, node.collision_depth))

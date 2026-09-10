@@ -15,14 +15,14 @@ func run() -> void:
 	var samples := {}
 	var lift_world := Node2D.new()
 	root.add_child(lift_world)
-	var lift_player := make_player(lift_world, Vector2.ZERO, 1)
+	var lift_player := make_player(lift_world, Vector2.ZERO, 0)
 	var lift_input := frame_for(lift_player, Vector2.DOWN)
 	lift_input.fire_pressed = true
 	lift_player.velocity.y = -lift_player.tuning.jump_impulse
 	await physics_frame
 	lift_player.step(lift_input, 1.0 / 60)
 	var first_lift := -lift_player.last_recoil.y
-	check(-lift_player.velocity.y < 720, "jump-speed plus shotgun remains below air lift ceiling")
+	check(first_lift >= 440 and -lift_player.velocity.y <= 1000, "first airborne revolver shot retains its full impulse below lift ceiling")
 	lift_input.fire_pressed = false
 	for tick in 90:
 		await physics_frame
@@ -31,7 +31,7 @@ func run() -> void:
 	lift_input = frame_for(lift_player, Vector2.DOWN)
 	lift_input.fire_pressed = true
 	lift_player.step(lift_input, 1.0 / 60)
-	check(-lift_player.last_recoil.y < first_lift * 0.25, "same-airtime lift fades even after firing cooldown ends")
+	check(-lift_player.last_recoil.y > first_lift * 0.5 and -lift_player.last_recoil.y < first_lift * 0.7, "same-airtime lift fades gently and remains useful after 1.5 seconds")
 	samples.first_and_late_lift = [first_lift, -lift_player.last_recoil.y]
 	lift_world.free()
 	var world := Node2D.new()
@@ -103,7 +103,7 @@ func run() -> void:
 		world.free()
 	samples.revolver_boost_old_new = boosted_jumps
 	check(boosted_jumps[1] > boosted_jumps[0] + 5, "stronger revolver gives a measurable jump-shot boost")
-	check(boosted_jumps[1] > 64 and boosted_jumps[1] < 110, "one revolver jump-shot clears a 64 pixel rise without excessive lift")
+	check(boosted_jumps[1] > 175 and boosted_jumps[1] < 220, "one revolver jump-shot retains substantial flight while staying bounded")
 	var drops: Array = []
 	for mode in 3:
 		world = Node2D.new()

@@ -2,8 +2,8 @@ class_name PlayerVisual
 extends Node2D
 ## Generated body atlas plus an articulated, pixel-snapped aiming rig.
 
-const IDLE := preload("res://assets/characters/requiem/requiem_idle_v2.png")
-const RUN := preload("res://assets/characters/requiem/requiem_run_v2.png")
+const IDLE := preload("res://assets/characters/requiem/requiem_idle_v3_red.png")
+const RUN := preload("res://assets/characters/requiem/requiem_run_v3_red.png")
 const BODY_SCALE := 0.084
 const IDLE_ROOTS := [346.0, 311.5, 346.0, 311.0]
 const RUN_ROOTS := [369.5, 351.0, 369.5, 344.5]
@@ -42,12 +42,35 @@ func update_pose(delta: float) -> void:
 	queue_redraw()
 
 func _arm(shoulder: Vector2, hand: Vector2, rear: bool) -> void:
-	var elbow := shoulder.lerp(hand, 0.48) + Vector2(-actor.facing * 3, 5)
+	# Fixed upper/forearm lengths give a real elbow instead of a rubber midpoint.
+	var axis := hand - shoulder
+	var distance := maxf(0.1, axis.length())
+	axis /= distance
+	var upper := 8.5
+	var lower := 10.5
+	var along := clampf((upper * upper - lower * lower + distance * distance) / (2 * distance), -upper, upper)
+	var bend := axis.orthogonal()
+	if bend.y < 0 or (absf(bend.y) < 0.01 and bend.x * actor.facing < 0): bend = -bend
+	var elbow := shoulder + axis * along + bend * sqrt(maxf(0, upper * upper - along * along))
+	var grid := Vector2(0.5, 0.5)
+	shoulder = shoulder.snapped(grid)
+	elbow = elbow.snapped(grid)
+	hand = hand.snapped(grid)
 	var sleeve := Color("542638") if rear else Color("963d52")
-	draw_line(shoulder.round(), elbow.round(), Color("151722"), 5, false)
-	draw_line(elbow.round(), hand.round(), Color("151722"), 4, false)
-	draw_line(shoulder.round(), elbow.round(), sleeve, 3, false)
-	draw_line(elbow.round(), hand.round(), Color("454658"), 2, false)
+	draw_line(shoulder, elbow, Color("151722"), 3.5, false)
+	draw_line(elbow, hand, Color("151722"), 3, false)
+	draw_line(shoulder, elbow, sleeve, 2, false)
+	draw_line(elbow, hand, Color("454658"), 1.5, false)
+	draw_line(shoulder + Vector2(0.5, 0), elbow + Vector2(0.5, 0), Color("b35b68") if not rear else Color("754052"), 0.5, false)
+
+func _hand(at: Vector2, angle: float, support: bool) -> void:
+	# Gloves and exposed fingertips rotate with the grip, including vertical aim.
+	draw_set_transform(at.snapped(Vector2(0.5, 0.5)), angle, Vector2(1, actor.facing))
+	draw_rect(Rect2(-2, -1.5, 3.5, 3), Color("151722"))
+	draw_rect(Rect2(-1.5, -1, 2.5, 2), Color("454658"))
+	draw_rect(Rect2(0, -1.5, 1.5, 1), Color("bc8d81") if support else Color("e4baa0"))
+	draw_rect(Rect2(1, -0.5, 0.5, 1.5), Color("bc8d81"))
+	draw_set_transform(Vector2.ZERO)
 
 func _draw() -> void:
 	if not is_instance_valid(actor):
@@ -56,14 +79,15 @@ func _draw() -> void:
 	var forward := actor.aim_direction
 	var down := forward.orthogonal() * -actor.facing
 	var origin := Vector2(0, -26)
-	var grip := origin + forward * 10 + down * 5
-	var support := origin + forward * 18 + down * 3
+	var grip := origin + forward * 10 + down * 4.5
+	# Pistol: support hand cups the firing hand. Long guns: under the fore-end.
+	var support := origin + forward * (9 if weapon.data.id == &"revolver" else 14) + down * (6 if weapon.data.id == &"revolver" else 3)
 	var progress := weapon.progress()
 	if progress >= 0:
 		# Each shell uses its real reload progress; the hand visits the belt then chamber.
 		var travel := sin(progress * PI)
 		support = support.lerp(Vector2(3 * actor.facing, -15), travel)
-	_arm(Vector2(-4 * actor.facing, -27), support, true)
+	_arm(Vector2(-3 * actor.facing, -27), support - forward, true)
 	var atlas := IDLE if pose == "idle" else RUN
 	var cell := Vector2(atlas.get_width() * 0.5, atlas.get_height() * 0.5)
 	var feet: float = IDLE_FEET[frame] if pose == "idle" else RUN_FEET[frame]
@@ -74,7 +98,8 @@ func _draw() -> void:
 	var tint := Color(1.7, 1.7, 1.7) if actor.invulnerability > 0 and int(actor.invulnerability * 30) % 2 == 0 else Color.WHITE
 	draw_texture_rect_region(atlas, dest, region, tint)
 	draw_set_transform(Vector2.ZERO)
-	_arm(Vector2(-2 * actor.facing, -27), grip, false)
+	_arm(Vector2(-2 * actor.facing, -27), grip - forward, false)
+	_hand(support, forward.angle(), true)
 	# All three silhouettes terminate at the shared, real 25px muzzle anchor.
 	draw_set_transform(origin, forward.angle(), Vector2(1, actor.facing))
 	var ink := Color("151722")
@@ -96,9 +121,7 @@ func _draw() -> void:
 			draw_rect(Rect2(15, -2, 10, 3), silver)
 			draw_rect(Rect2(10, -2, 5, 4), Color("848594"))
 	draw_set_transform(Vector2.ZERO)
-	draw_rect(Rect2(grip.round() - Vector2(2, 2), Vector2(4, 4)), Color("272a38"))
-	draw_rect(Rect2(grip.round() - Vector2(1, 2), Vector2(2, 1)), Color("e4baa0"))
-	draw_rect(Rect2(support.round() - Vector2(1, 1), Vector2(3, 3)), Color("454658"))
+	_hand(grip, forward.angle(), false)
 	if actor.flash_time > 0:
 		var muzzle := origin + forward * 25
 		draw_line(muzzle.round(), (muzzle + forward * 7).round(), Color("edc875"), 3, false)

@@ -8,6 +8,10 @@ var presentation_host: Node
 var projected_aim: Callable
 var aim_ui: CanvasLayer
 var slice_complete := false
+const CAMPAIGN_ROOMS := ["res://scenes/rooms/crimson_environment.tscn", "res://scenes/rooms/bell_gallery.tscn"]
+var room_index := 0
+var editor_room_path := ""
+var enemies: Array[ShieldEnemy] = []
 var greybox := false
 var config: Dictionary
 var definitions: Array
@@ -34,6 +38,9 @@ var reticle: LabReticle
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	KeyboardInput.install_actions()
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--room="):
+			editor_room_path = argument.trim_prefix("--room=")
 	config = responsive_config()
 	if visual_slice:
 		config.measurement = false
@@ -60,7 +67,7 @@ static func baseline_config() -> Dictionary:
 static func responsive_config() -> Dictionary:
 	var result := baseline_config()
 	result.player = PlayerTuning.responsive().to_dict()
-	# Preserve launch heights and SMG slow-fall under the faster gravity profile.
+	# Current low-jump profile uses stronger weapon recoil; GDD stays recoverable.
 	for i in 3:
 		result.weapons[i].recoil_impulse = [450.0, 950.0, 160.0][i]
 	return result
@@ -99,11 +106,13 @@ func reset_trial(index: int) -> void:
 	if is_instance_valid(world):
 		world.free()
 	enemy = null
+	enemies.clear()
 	world = Node2D.new()
 	world.name = "TrialWorld"
 	world.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(world)
-	environment = load("res://scenes/rooms/crimson_environment.tscn").instantiate() if visual_slice else LabEnvironment.new()
+	var room_path: String = editor_room_path if not editor_room_path.is_empty() else CAMPAIGN_ROOMS[room_index]
+	environment = load(room_path).instantiate() if visual_slice else LabEnvironment.new()
 	world.add_child(environment)
 	environment.build(preset)
 	projectiles = Node2D.new()
@@ -132,7 +141,19 @@ func reset_trial(index: int) -> void:
 	(presentation_host if presentation_host != null else world).add_child(aim_ui)
 	aim_ui.process_mode = Node.PROCESS_MODE_PAUSABLE
 	aim_ui.add_child(reticle)
-	if preset in [2, 3]:
+	if visual_slice:
+		for marker in environment.enemy_spawns:
+			var guard: ShieldEnemy = RifleEnemy.new() if marker.kind == RoomMarker.Kind.RIFLE else ShieldEnemy.new()
+			guard.position = marker.position
+			guard.fixed_target = config.target_mode
+			guard.turn_speed = config.turn_speed
+			guard.hit_received.connect(_enemy_hit)
+			guard.defeated.connect(_enemy_defeated)
+			world.add_child(guard)
+			enemies.append(guard)
+		enemy = enemies[0] if not enemies.is_empty() else null
+		environment.exit_open = enemies.is_empty()
+	elif preset == 2:
 		enemy = ShieldEnemy.new()
 		enemy.position = Vector2(512, 224) if visual_slice else Vector2(384, 320)
 		enemy.target = null if visual_slice else player
@@ -141,9 +162,11 @@ func reset_trial(index: int) -> void:
 		enemy.hit_received.connect(_enemy_hit)
 		enemy.defeated.connect(_enemy_defeated)
 		world.add_child(enemy)
+		enemies.append(enemy)
 	if environment is CrimsonEnvironment:
 		environment.stage.add_actor(player)
-		environment.stage.add_actor(enemy)
+		for guard in enemies:
+			environment.stage.add_actor(guard)
 		environment.set_greybox(greybox)
 	camera_center = player.position + Vector2(0, -50)
 	_update_camera(1.0)
@@ -228,16 +251,21 @@ func _physics_process(delta: float) -> void:
 	last_reload = weapon.reloading
 	var hit_text := last_hit
 	if visual_slice:
-		if enemy.state != ShieldEnemy.State.DEAD and player.position.distance_to(enemy.position) < 180:
-			enemy.target = player
-		if enemy.state == ShieldEnemy.State.DEAD and player.position.x > 872 and player.is_on_floor() and not slice_complete:
+		for guard in enemies:
+			if guard.state != ShieldEnemy.State.DEAD and player.position.distance_to(guard.position) < (520 if guard is RifleEnemy else 180):
+				guard.target = player
+		if environment.exit_open and player.position.distance_to(environment.exit_position) < 32 and player.is_on_floor() and not slice_complete:
 			slice_complete = true
-			overlay.show_notice("ROOM CLEARED / BACKSPACE TO REPLAY")
+			if editor_room_path.is_empty() and room_index + 1 < CAMPAIGN_ROOMS.size():
+				room_index += 1
+				_request_reset()
+			else:
+				overlay.show_notice("BELL GALLERY CLEARED / CONTINUATION COMPLETE")
 		if hit_text.is_empty():
-			hit_text = "EAST DOOR OPEN" if environment.exit_open else "CLEAR GUARD / EAST DOOR"
+			hit_text = "EAST DOOR OPEN" if environment.exit_open else "CLEAR GUARDS / EAST DOOR"
 	if preset == 1:
 		hit_text = "DROP %.0f PX   TIME %.2f S" % [player.position.y - environment.spawn.y, elapsed]
-	overlay.update_hud({"preset": preset, "title": TITLES[preset], "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
+	overlay.update_hud({"preset": preset, "title": environment.room_title if visual_slice else TITLES[preset], "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
 	queue_redraw()
 
 func _update_camera(delta: float) -> void:
@@ -259,6 +287,10 @@ func _update_camera(delta: float) -> void:
 
 func _enemy_defeated() -> void:
 	if environment is CrimsonEnvironment:
+		for guard in enemies:
+			if guard.state != ShieldEnemy.State.DEAD:
+				overlay.show_notice("ENEMY DOWN / CLEAR REMAINING GUARDS")
+				return
 		environment.exit_open = true
 		environment.queue_redraw()
 		overlay.show_notice("GUARD DOWN / EAST DOOR OPEN")

@@ -51,6 +51,7 @@ func run() -> void:
 	root.size = old_root_size
 	# Main-canvas coordinates are logical 320x180; only the world is sampled at 2x.
 	var aim_point := Vector2(540, 236)
+	game.player.position = Vector2(500, 262)
 	var aim_pixel := stage.camera.unproject_position(CrimsonStage3D.to_stage(aim_point))
 	var motion := InputEventMouseMotion.new()
 	motion.position = aim_pixel / CrimsonStage3D.RENDER_SCALE
@@ -58,6 +59,27 @@ func run() -> void:
 	root.push_input(motion, true)
 	print("CURSOR logical=", root.get_mouse_position(), " injected=", motion.position, " got=", stage.mouse_world(), " expected=", aim_point)
 	check(stage.mouse_world().distance_to(aim_point) < 0.05, "Main UI cursor must map to the supersampled 3D combat plane")
+	game.player.manual_control = true
+	var base_distances: Array[float] = []
+	for slot in 3:
+		game.player.weapons.select_weapon(slot)
+		app.mouse_screen = Vector2(160, 90)
+		await frames(100)
+		var base := stage.camera_distance
+		var feet_screen := stage.camera.unproject_position(CrimsonStage3D.to_stage(game.player.position)) / 2
+		check(feet_screen.y < 145, "closer weapon framing keeps player feet above the HUD")
+		base_distances.append(base)
+		app.mouse_screen = Vector2(319, 90)
+		await frames(100)
+		var profile := stage.camera_profile()
+		check(stage.camera_distance > base + 0.8 and stage.camera_distance <= profile.far + 0.01, "screen-edge zoom follows each weapon's maximum distance")
+		var anchor := stage.camera.unproject_position(CrimsonStage3D.to_stage(game.player.aim_origin())) / 2
+		check(stage.reticle_screen().distance_to(anchor) <= profile.reach + 0.01, "reticle stays inside the selected weapon's reach")
+		check((stage.camera.unproject_position(CrimsonStage3D.to_stage(stage.mouse_world())) / 2).distance_to(stage.reticle_screen()) < 0.02, "limited cursor and actual aim stay aligned while zoomed")
+		app.mouse_screen = Vector2(160, 90)
+		await frames(100)
+		check(absf(stage.camera_distance - base) < 0.02, "moving mouse away from edge restores the weapon's close view")
+	check(base_distances[1] < base_distances[2] and base_distances[2] < base_distances[0], "shotgun is closest, SMG intermediate, revolver widest")
 	stage.set_greybox(true)
 	var mesh_count := stage.scenery.get_child_count()
 	stage.set_greybox(false)

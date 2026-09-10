@@ -107,8 +107,10 @@ func step(frame: InputFrame, delta: float) -> void:
 			var braking := minf(maxf(velocity.y, 0.0), -last_recoil.y)
 			var lift := -last_recoil.y - braking
 			var headroom := maxf(0.0, tuning.air_lift_speed - maxf(-velocity.y, 0.0))
-			var fade := exp(-air_lift_age * 1.2)
-			last_recoil.y = -braking - headroom * (1.0 - exp(-lift / tuning.air_lift_speed)) * fade
+			# The first shot supplies its real impulse. Later shots retain useful lift;
+			# a speed ceiling bounds ascent without making gravity change mid-flight.
+			var fade := 0.35 + 0.65 * exp(-air_lift_age * 0.65)
+			last_recoil.y = -braking - minf(headroom, lift * fade)
 		if is_on_floor() and velocity.y >= 0.0:
 			# Ground contact absorbs horizontal kick, never the upward launch impulse.
 			last_recoil.x *= tuning.ground_recoil_scale

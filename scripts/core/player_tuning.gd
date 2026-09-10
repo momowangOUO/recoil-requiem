@@ -36,7 +36,7 @@ static func responsive() -> PlayerTuning:
 	result.ground_acceleration = 2400.0
 	result.ground_deceleration = 3200.0
 	result.horizontal_recoil_scale = 1.1
-	result.air_lift_speed = 720.0
+	result.air_lift_speed = 1000.0
 	return result
 
 func to_dict() -> Dictionary:

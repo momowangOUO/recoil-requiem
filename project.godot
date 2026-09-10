@@ -25,6 +25,10 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
 window/stretch/scale_mode="integer"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/recoil_map_editor/plugin.cfg")
+
 [physics]
 
 common/physics_ticks_per_second=60

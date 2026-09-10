@@ -1,5 +1,9 @@
 # Recoil Requiem project guidance
 
+- Current body artwork: player v3 idle/run, Aegis v3, riflewoman v1. The user explicitly requested finer protagonist detail to match enemies; compare all three in `artifacts/character_lineup_v3.png`. Keep authored body sources and independent player aiming arms.
+- Rooms are authored in `scenes/rooms/*.tscn` using PaperPlatform and RoomMarker; use the bundled Recoil Map editor and `docs/MAP_EDITOR.md`. New room gameplay and 3D geometry must share this data.
+- During this work the user requested periodic account-usage checks, wrapping up with records and GitHub sync if remaining quota falls below 80%. Usage percentages are account limits, not exact token counts.
+
 - Latest user override (2026-09-10): use real 3D scenery, perspective Camera3D and lighting with pixel-art paper characters; retain existing 2D gameplay physics. This overrides the attached v1.3 document's pure-2D presentation restriction. Main scene is `scenes/game.tscn`.
 - Logical gameplay remains 320×180, but world rendering is now 640×360 and actor compositing is 2× to preserve artwork detail. UI renders on the native-resolution canvas. This user-requested quality upgrade overrides the older 320×180-only render rule below. Keep nearest sampling for game textures, clear native-resolution UI text, and no perspective scaling added to individual animation frames.
 - Greybox must retain actual 3D platform depth, perspective and lighting. Old laboratories are internal regression fixtures, not player-facing destinations. Read `docs/VISUAL_IMPLEMENTATION.md` before changing the presentation pipeline.

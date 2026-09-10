@@ -3,9 +3,18 @@ class_name PaperPlatform
 extends Node2D
 ## The origin is the physical standing line. All visual depth extends BELOW it.
 
-@export var width: float = 128.0
-@export var collision_depth: float = 8.0
-@export var one_way := true
+@export var width: float = 128.0:
+	set(value):
+		width = maxf(16, value)
+		_refresh()
+@export var collision_depth: float = 8.0:
+	set(value):
+		collision_depth = maxf(1, value)
+		_refresh()
+@export var one_way := true:
+	set(value):
+		one_way = value
+		_refresh()
 @export var textured := true
 const TOP_DEPTH := 8.0
 const FACE_DEPTH := 24.0
@@ -29,6 +38,17 @@ func _ready() -> void:
 	body.add_child(collider)
 	add_child(body)
 	queue_redraw()
+
+func _refresh() -> void:
+	queue_redraw()
+	if not is_inside_tree() or not has_node("Collision"):
+		return
+	var body := get_node("Collision") as StaticBody2D
+	body.collision_layer = 1024 if one_way else 1
+	var collider := body.get_child(0) as CollisionShape2D
+	collider.shape.size = Vector2(width, collision_depth)
+	collider.position = Vector2(width, collision_depth) * 0.5
+	collider.one_way_collision = one_way
 
 func _draw() -> void:
 	var edge := Color("6cddd3") if one_way else Color("b7abb2")

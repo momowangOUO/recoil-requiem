@@ -10,6 +10,13 @@ const VIEW_CENTER := Vector2(480, 144)
 const CAMERA_DISTANCE := 4.8
 const CAMERA_RISE := 1.18
 const CAMERA_FOV := 23.0
+# z-distance in metres; cursor reach is in logical screen pixels.
+const WEAPON_CAMERA := {
+	&"revolver": {"near": 4.8, "far": 7.2, "reach": 115.0},
+	&"shotgun": {"near": 3.8, "far": 5.2, "reach": 60.0},
+	&"smg": {"near": 4.4, "far": 6.3, "reach": 90.0}
+}
+var camera_distance := CAMERA_DISTANCE
 var simulation := SubViewport.new()
 var game: RecoilLab
 var camera := Camera3D.new()
@@ -89,6 +96,7 @@ func _room_reset() -> void:
 	# Hide only the 2D scenery. Players, enemies, bullets and hit FX still render.
 	game.environment.hide()
 	game.camera.enabled = false
+	game.reticle.screen_position_source = reticle_screen
 	simulation.canvas_transform = Transform2D(Vector2(RENDER_SCALE, 0), Vector2(0, RENDER_SCALE), Vector2(0, 128 * RENDER_SCALE))
 	if is_instance_valid(scenery):
 		scenery.free()
@@ -102,6 +110,7 @@ func _room_reset() -> void:
 	set_greybox(greybox)
 	camera_target = to_stage(game.player.position + Vector2(0, -56))
 	yaw_offset = 0
+	camera_distance = camera_profile().near
 	_update_camera(1.0)
 
 func _material(region: Rect2, color: Color) -> StandardMaterial3D:
@@ -136,7 +145,8 @@ func _build_room() -> void:
 	var gold := _material(Rect2(), Color("84705a"))
 	for module in game.environment.modules:
 		var width: float = module.width * PIXEL
-		var height := 0.34 if module.one_way else 0.64
+		# A thick fake slab would hide a 38px actor under a 48px-high platform.
+		var height: float = module.collision_depth * PIXEL if module.one_way else 0.64
 		var depth := 1.18 if module.one_way else 1.85
 		var center := to_stage(module.position + Vector2(module.width * 0.5, 0), -0.25)
 		var face_material: StandardMaterial3D = stone.duplicate()
@@ -198,17 +208,23 @@ func _build_room() -> void:
 		light.omni_range = 1.55
 		light.shadow_enabled = true
 		scenery.add_child(light)
-	door_material = _material(Rect2(), Color("744151"))
+	door_material = _material(Rect2(), Color("211a25"))
 	door_material.emission_enabled = true
-	door_material.emission = Color("351b27")
-	_box(Vector3(9, -3.19, -0.63), Vector3(0.4, 0.66, 0.09), door_material, "ExitDoor")
+	door_material.emission = Color("080308")
+	door_material.emission_energy_multiplier = 0.3
+	_box(to_stage(game.environment.exit_position, -0.63) + Vector3(0, 0.33, 0), Vector3(0.4, 0.66, 0.09), door_material, "ExitDoor")
+	var door_origin := to_stage(game.environment.exit_position, -0.56)
+	for side in [-1, 1]:
+		_box(door_origin + Vector3(side * 0.235, 0.35, 0), Vector3(0.065, 0.7, 0.12), dark, "DoorFrame")
+	_box(door_origin + Vector3(0, 0.72, 0), Vector3(0.54, 0.075, 0.14), gold, "DoorLintel")
+	_box(door_origin + Vector3(0.12, 0.3, 0.08), Vector3(0.03, 0.08, 0.025), gold, "DoorHandle")
 	var shadow_image := Image.create(32, 16, false, Image.FORMAT_RGBA8)
 	for y in 16:
 		for x in 32:
 			if Vector2((x - 15.5) / 15.5, (y - 7.5) / 7.5).length_squared() <= 1:
 				shadow_image.set_pixel(x, y, Color.WHITE)
 	var shadow_texture := ImageTexture.create_from_image(shadow_image)
-	for i in 2:
+	for i in game.enemies.size() + 1:
 		var shadow := MeshInstance3D.new()
 		var plane := PlaneMesh.new()
 		plane.size = Vector2(0.23, 0.11)
@@ -247,8 +263,22 @@ func screen_to_world(screen: Vector2) -> Vector2:
 	return Vector2(point.x, -point.y) / PIXEL
 
 func mouse_world() -> Vector2:
-	var screen: Vector2 = ui_host.get_aim_screen() if ui_host != null else get_viewport().get_mouse_position()
-	return screen_to_world(screen * RENDER_SCALE if ui_host != null else screen)
+	return screen_to_world(reticle_screen() * RENDER_SCALE)
+
+func camera_profile() -> Dictionary:
+	return WEAPON_CAMERA.get(game.player.weapons.current().data.id, WEAPON_CAMERA[&"revolver"])
+
+func raw_cursor() -> Vector2:
+	return ui_host.get_aim_screen() if ui_host != null else get_viewport().get_mouse_position() / RENDER_SCALE
+
+func reticle_screen() -> Vector2:
+	var anchor := camera.unproject_position(to_stage(game.player.aim_origin())) / RENDER_SCALE
+	return anchor + (raw_cursor() - anchor).limit_length(camera_profile().reach)
+
+func edge_look_amount() -> float:
+	# Raw pointer is deliberately used: a shotgun's limited reticle can still pan out.
+	var normalized := (raw_cursor() - Vector2(160, 90)) / Vector2(160, 90)
+	return smoothstep(0.72, 0.98, maxf(absf(normalized.x), absf(normalized.y)))
 
 func _input(event: InputEvent) -> void:
 	if not is_instance_valid(game):
@@ -275,8 +305,8 @@ func _physics_process(delta: float) -> void:
 	if game.environment.exit_open:
 		door_material.albedo_color = Color("69b7ad")
 		door_material.emission = Color("245950")
-	for i in 2:
-		var actor: CharacterBody2D = game.player if i == 0 else game.enemy
+	for i in game.enemies.size() + 1:
+		var actor: CharacterBody2D = game.player if i == 0 else game.enemies[i - 1]
 		var query := PhysicsRayQueryParameters2D.create(actor.position + Vector2(0, -2), actor.position + Vector2(0, 162), 1 | 1024)
 		var hit := actor.get_world_2d().direct_space_state.intersect_ray(query)
 		shadow_cards[i].visible = not hit.is_empty()
@@ -286,12 +316,15 @@ func _physics_process(delta: float) -> void:
 			shadow_cards[i].scale = Vector3.ONE * lerpf(1, 0.4, clampf(altitude / 160, 0, 1))
 
 func _update_camera(delta: float) -> void:
-	var target_2d := game.player.position + Vector2(game.player.aim_direction.x * 20, -52)
+	var target_2d := game.player.position + Vector2(game.player.aim_direction.x * 20, -minf(52, camera_distance * 10))
 	target_2d.x = clampf(target_2d.x, 150, 810)
-	target_2d.y = clampf(target_2d.y, -20, 300)
+	target_2d.y = clampf(target_2d.y, -20, 350)
 	camera_target = camera_target.lerp(to_stage(target_2d), 1 - exp(-delta / 0.16))
 	# A small, bounded dolly angle reveals side faces during movement, without orbit controls.
 	var desired_yaw := clampf(game.player.velocity.x / 420, -1, 1) * 0.32
 	yaw_offset = lerpf(yaw_offset, desired_yaw, 1 - exp(-delta / 0.3))
-	camera.position = camera_target + Vector3(yaw_offset, CAMERA_RISE, CAMERA_DISTANCE)
+	var profile := camera_profile()
+	var desired_distance := lerpf(profile.near, profile.far, edge_look_amount())
+	camera_distance = lerpf(camera_distance, desired_distance, 1 - exp(-delta / 0.24))
+	camera.position = camera_target + Vector3(yaw_offset, CAMERA_RISE, camera_distance)
 	camera.look_at(camera_target, Vector3.UP)
