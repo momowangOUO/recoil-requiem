@@ -2,7 +2,7 @@
 
 生成日期：2026-09-10。使用 Codex 内置 imagegen；工具不提供可核验的模型型号。本轮未调用外部 CLI/API。
 
-保留源图：night_layers_source_v1.png、moon_source_v1.png、materials_source_v1.png。运行时使用裁出的 sky_v3.png、castle_v3.png、moon_v1.png 和九种 *_v1.png 材质。旧 skyline_v2.png 保留作历史来源，主三维场景不再引用。
+保留源图：night_layers_source_v1.png、moon_source_v1.png、materials_source_v1.png。运行时使用裁出的 sky_v3.png、castle_v3.png、moon_v1.png 和九种 *_v1.png 材质。旧的合成远景 skyline_v2.png 已于 2026-09-10 清理；其提示词和生成标识仍保存在 Git 历史中。
 
 夜景源图请求为一个两行背景图集：上半为深海军蓝云层天空，不含月亮与建筑；下半为带少量暗红窗光的蓝灰哥特城堡剪影，空处纯品红。生成图为 1536×1024，上下各 512 像素。月亮单独请求：居中、灰蓝陨坑色块、象牙白满月、无外发光、无云、无建筑，纯品红底。两图都要求清晰像素簇和吸血鬼哥特氛围。
 

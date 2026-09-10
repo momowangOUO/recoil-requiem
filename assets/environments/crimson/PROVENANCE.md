@@ -11,8 +11,8 @@
 
 验收边界：源图存在大分辨率生成特征，必须以游戏实际低分辨率采样后的画面评估，不以这两张原图作为最终视觉验收。
 
-## 参照示意图的第二版远景
+## 已退役的合成远景
 
-`skyline_v2.png` 为当前 3D 房间远景，内置 imagegen 生成标识 `exec-7c294aa1-8656-4e16-976a-12404ec4dbfd.png`。参考图来自用户附件的第二张示意图，仅参考夜空、城堡与冷蓝色层次，没有取用其中角色或 UI。第一版背景保留作来源历史及二维测试夹具。
+`skyline_v2.png` 曾用于 3D 房间远景，后因天空、月亮和城堡必须独立分层而退役，并在 2026-09-10 的素材清理中删除。内置 imagegen 生成标识为 `exec-7c294aa1-8656-4e16-976a-12404ec4dbfd.png`；参考图只用于夜空、城堡与冷蓝层次。当前分层素材来源见 `LAYERS_SOURCE.md`。第一版 `background_v1.png` 仍由二维回归夹具使用，不能删除。
 
 提示词：Use the supplied reference ONLY for its night-sky, distant gothic city architecture, cool blue palette and layered atmosphere. Generate a NEW BACKGROUND texture for the Crimson Monastery game scene. Extract the concept of the background vista, do NOT reproduce the reference's characters, HUD, platforms, foreground columns, candles or railing. Wide 16:9 landscape view of distant gothic castle spires, a great pale blue moon in the upper right, dark indigo towers with a few muted red windows, distant stone bridges crossing between towers, deep midnight clouds and cool mist. The lower half continues distant dark towers and haze, NO foreground floor. 2D pixel-art game background, flat side elevation with layered silhouettes suitable for placing far behind a real 3D stage. Pixel detail similar to a 640x360 background enlarged using crisp squares. Restrained clear pixel clusters, no photographic realism, no 3D rendered appearance, no anti-aliasing, no blurry smooth gradients. Overall mid-dark blue, moon softly bright but not glaring white, main towers arranged to create some quiet negative space behind characters. Fill entire image, opaque background. No text, no UI, no people, no weapons, no platforms near camera.

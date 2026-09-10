@@ -7,3 +7,4 @@ builds/
 !.env.example
 export_credentials.cfg
 .DS_Store
+docs/screenshots/*.png.import
