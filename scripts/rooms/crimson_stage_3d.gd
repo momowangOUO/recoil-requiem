@@ -35,6 +35,7 @@ var platform_visuals: Dictionary = {}
 var action_visuals: Dictionary = {}
 var alarm_light: OmniLight3D
 var bell_clapper: MeshInstance3D
+var night: NightBackdrop
 
 static func to_stage(point: Vector2, depth: float = 0.0) -> Vector3:
 	return Vector3(point.x * PIXEL, -point.y * PIXEL, depth)
@@ -122,7 +123,7 @@ func _room_reset() -> void:
 	_update_camera(1.0)
 	_update_actor_window()
 
-func _material(region: Rect2, color: Color) -> StandardMaterial3D:
+func _material(region: Rect2, color: Color, surface: String = "iron") -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.roughness = 0.88
@@ -130,6 +131,15 @@ func _material(region: Rect2, color: Color) -> StandardMaterial3D:
 	if region.has_area():
 		var source := PaperStage.ATLAS.get_image().get_region(Rect2i(region))
 		material.albedo_texture = ImageTexture.create_from_image(source)
+	else:
+		material.albedo_texture = load("res://assets/environments/crimson/%s_v1.png" % surface)
+		if surface in ["iron", "brass", "wood"]:
+			material.uv1_triplanar = true
+			material.uv1_world_triplanar = true
+			material.uv1_scale = Vector3.ONE * 0.8
+		if surface in ["iron", "brass"]:
+			material.metallic = 0.45
+			material.roughness = 0.65
 	material.set_meta("authored_texture", material.albedo_texture)
 	materials.append(material)
 	return material
@@ -149,9 +159,12 @@ func _build_room() -> void:
 	# Plain masonry for structural faces; the arch motif belongs to architecture only.
 	var stone := _material(Rect2(668, 42, 526, 62), Color("8e829f"))
 	var paving := _material(PaperPlatform.TOP_REGION, Color("a39aa9"))
-	var dark := _material(Rect2(), Color("282531"))
+	var dark := _material(Rect2(), Color("706977"))
 	var edge := _material(Rect2(), Color("a59aaa"))
-	var gold := _material(Rect2(), Color("84705a"))
+	var gold := _material(Rect2(), Color("b8a58b"), "brass")
+	night = NightBackdrop.new()
+	night.name = "NightBackdrop"
+	scenery.add_child(night)
 	for module in game.environment.modules:
 		var first_child := scenery.get_child_count()
 		var width: float = module.width * PIXEL
@@ -219,7 +232,7 @@ func _build_room() -> void:
 		scenery = room_root
 	for x in [-0.45, game.environment.bounds.end.x * PIXEL + 0.45]:
 		_box(Vector3(x, -1.5, 1.0), Vector3(0.38, 4.2, 0.5), dark, "ForegroundPillar")
-	door_material = _material(Rect2(), Color("211a25"))
+	door_material = _material(Rect2(), Color("675362"), "wood")
 	door_material.emission_enabled = true
 	door_material.emission = Color("080308")
 	door_material.emission_energy_multiplier = 0.3
@@ -263,15 +276,6 @@ func _build_backdrop(dark: Material, gold: Material) -> void:
 	for x in range(0, 49):
 		_box(Vector3(x * 0.2, -3.3, -0.85), Vector3(0.025, 0.4, 0.025), dark, "RearRailing")
 	_box(Vector3(4.8, -3.09, -0.85), Vector3(9.6, 0.035, 0.05), gold, "RailingCap")
-	var background := Sprite3D.new()
-	background.name = "DistantWindows"
-	background.texture = preload("res://assets/environments/crimson/skyline_v2.png")
-	background.pixel_size = 0.008
-	background.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	background.position = Vector3(4.8, -4.7, -4)
-	background.modulate = Color("9c9aad")
-	background.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	scenery.add_child(background)
 	for x in [0.6, 3.35, 6.0, 8.6]:
 		_prop(PaperStage.CANDLE_REGION, Vector3(x, -3.52, -0.38), 0.0013, Color.WHITE)
 		var light := OmniLight3D.new()
@@ -304,38 +308,39 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 			_box(Vector3(6.9, 0.1, -1.2), Vector3(2.1, 0.18, 0.3), dark, "BellCrossbeam")
 			_cylinder(Vector3(6.9, -0.45, -1.2), 0.48, 0.22, 0.7, gold, "AlarmBell")
 			bell_clapper = _cylinder(Vector3(6.9, -0.92, -1.2), 0.06, 0.04, 0.3, gold, "BellClapper")
-			_box(Vector3(7.36, -0.7, -0.4), Vector3(0.018, 1.6, 0.018), gold, "BellRope")
+			_box(Vector3(7.36, -0.7, -0.4), Vector3(0.018, 1.6, 0.018), _material(Rect2(), Color("b4a18c"), "rope"), "BellRope")
 			alarm_light = OmniLight3D.new()
 			alarm_light.position = Vector3(6.9, -1.3, -0.3)
 			alarm_light.light_color = Color("ff4654")
 			alarm_light.omni_range = 3.4
 			scenery.add_child(alarm_light)
 		2:
-			var wood := _material(Rect2(), Color("352b32"))
+			var wood := _material(Rect2(), Color("998690"), "wood")
 			var book_colors := ["714852", "62596c", "787058", "3d6366"]
 			for bay in 5:
 				var x := 1.1 + bay * 1.8
 				_box(Vector3(x, -2.1, -1.45), Vector3(1.35, 2.6, 0.22), wood, "ArchiveBack")
 				for row in 4:
 					var y := -3.25 + row * 0.62
-					_box(Vector3(x, y, -1.15), Vector3(1.42, 0.07, 0.48), dark, "Bookshelf")
+					_box(Vector3(x, y, -1.15), Vector3(1.42, 0.07, 0.48), wood, "Bookshelf")
 					for book in 6:
-						var mat := _material(Rect2(), Color(book_colors[(book + row + bay) % 4]))
+						var mat := _material(Rect2(), Color(book_colors[(book + row + bay) % 4]), "leather")
 						_box(Vector3(x - 0.5 + book * 0.2, y + 0.23, -1.05), Vector3(0.12, 0.36 + (book % 2) * 0.08, 0.17), mat, "BookSpine")
 		3:
-			var leaves := _material(Rect2(), Color("293d38"))
-			var rose := _material(Rect2(), Color("923c53"))
+			var leaves := _material(Rect2(), Color("9bada2"), "leaf")
+			var rose := _material(Rect2(), Color("cc9bac"), "petal")
 			for x in [1.0, 3.0, 5.0, 7.0, 9.0]:
 				_box(Vector3(x, -3.2, -1.15), Vector3(1.2, 0.3, 0.55), stone, "RosePlanter")
 				for flower in 3:
 					var at := Vector3(x - 0.36 + flower * 0.36, -2.78, -1.1)
 					_box(at, Vector3(0.025, 0.6, 0.025), leaves, "RoseStem")
 					_cylinder(at + Vector3(0, 0.3, 0), 0.08, 0.12, 0.1, rose, "Bloodrose")
-			_box(Vector3(4.72, -4.02, -0.7), Vector3(4.6, 0.015, 0.3), _material(Rect2(), Color("442b39")), "DryCanalBed")
+			_box(Vector3(4.72, -4.02, -0.7), Vector3(4.6, 0.015, 0.3), stone, "DryCanalBed")
 
 func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 	var at := to_stage(action.position, -0.18)
-	var indicator := _material(Rect2(), Color("d8b96f"))
+	var surface := "parchment" if action.kind == RoomAction.Kind.NOTE else ("glass" if action.kind == RoomAction.Kind.SUPPLY else "brass")
+	var indicator := _material(Rect2(), Color("d8b96f"), surface)
 	indicator.emission_enabled = true
 	indicator.emission = Color("715225")
 	indicator.emission_energy_multiplier = 0.4
@@ -426,6 +431,7 @@ func _physics_process(delta: float) -> void:
 	if not frozen_camera:
 		_update_camera(delta)
 	_update_actor_window()
+	night.follow_camera(camera.position)
 	for module in platform_visuals:
 		for piece in platform_visuals[module]: piece.visible = module.active
 	for action in action_visuals:
