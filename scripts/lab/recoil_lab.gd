@@ -62,7 +62,7 @@ static func responsive_config() -> Dictionary:
 	result.player = PlayerTuning.responsive().to_dict()
 	# Preserve launch heights and SMG slow-fall under the faster gravity profile.
 	for i in 3:
-		result.weapons[i].recoil_impulse = [300.0, 850.0, 145.0][i]
+		result.weapons[i].recoil_impulse = [450.0, 950.0, 160.0][i]
 	return result
 
 func restore_responsive() -> void:

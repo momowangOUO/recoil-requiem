@@ -18,7 +18,7 @@ func run() -> void:
 	var lift_player := make_player(lift_world, Vector2.ZERO, 1)
 	var lift_input := frame_for(lift_player, Vector2.DOWN)
 	lift_input.fire_pressed = true
-	lift_player.velocity.y = -545
+	lift_player.velocity.y = -lift_player.tuning.jump_impulse
 	await physics_frame
 	lift_player.step(lift_input, 1.0 / 60)
 	var first_lift := -lift_player.last_recoil.y
@@ -27,7 +27,7 @@ func run() -> void:
 	for tick in 90:
 		await physics_frame
 		lift_player.step(frame_for(lift_player, Vector2.DOWN), 1.0 / 60)
-	lift_player.velocity.y = -545
+	lift_player.velocity.y = -lift_player.tuning.jump_impulse
 	lift_input = frame_for(lift_player, Vector2.DOWN)
 	lift_input.fire_pressed = true
 	lift_player.step(lift_input, 1.0 / 60)
@@ -77,7 +77,33 @@ func run() -> void:
 		world.free()
 	samples.jumps_old_new = jumps
 	check(jumps[1].airtime <= jumps[0].airtime * 0.9, "responsive jump lands at least 10 percent sooner")
-	check(absf(jumps[1].height - jumps[0].height) < 8, "faster gravity preserves ordinary jump height")
+	check(jumps[1].height >= 40 and jumps[1].height <= 55, "ordinary jump stays compact at 40-55 pixels")
+	# Compare actual trajectories with the previously shipped revolver, including
+	# the controller's saturating airborne lift rather than raw weapon values.
+	var boosted_jumps: Array = []
+	for old_revolver in [true, false]:
+		world = Node2D.new()
+		root.add_child(world)
+		make_floor(world, Rect2(-2000, 0, 4000, 32))
+		p = make_player(world, Vector2.ZERO)
+		if old_revolver:
+			var definitions := WeaponData.baselines()
+			definitions[0].recoil_impulse = 300.0
+			p.weapons.configure(definitions, 0)
+		for tick in 3:
+			await physics_frame
+			p.step(frame_for(p), 1.0 / 60)
+		for tick in 90:
+			var boost := frame_for(p, Vector2.DOWN)
+			boost.jump_pressed = tick == 0
+			boost.fire_pressed = tick == 0
+			await physics_frame
+			p.step(boost, 1.0 / 60)
+		boosted_jumps.append(p.max_rise)
+		world.free()
+	samples.revolver_boost_old_new = boosted_jumps
+	check(boosted_jumps[1] > boosted_jumps[0] + 5, "stronger revolver gives a measurable jump-shot boost")
+	check(boosted_jumps[1] > 64 and boosted_jumps[1] < 110, "one revolver jump-shot clears a 64 pixel rise without excessive lift")
 	var drops: Array = []
 	for mode in 3:
 		world = Node2D.new()
@@ -135,7 +161,7 @@ func run() -> void:
 		samples["ground_%d" % index] = {"vx_on_shot": after_shot, "vx_after_200ms": p.velocity.x, "extra_reverse_distance": backslide - minimum_x}
 		check(p.velocity.x >= 140, "held running recovers from grounded shot within 200ms, weapon=%d" % index)
 		if index == 0:
-			check(after_shot >= 0, "grounded revolver shot slows a run without involuntary reverse")
+			check(after_shot < 0 and backslide - minimum_x < 3, "stronger grounded revolver kick has less than 3 pixels of subsequent sliding")
 		else:
 			check(after_shot < 0 and backslide - minimum_x < 20, "grounded shotgun retains kick with bounded sliding")
 		world.free()

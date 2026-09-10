@@ -113,7 +113,7 @@ func run() -> void:
 	await frames(23)
 	await capture("shotgun_hop")
 	await frames(51)
-	check("mouse_down_shotgun_hop", lab.player.max_rise >= 140 and lab.player.max_rise <= 190 and lab.player.weapons.current().ammo == 1,
+	check("mouse_down_shotgun_hop", lab.player.max_rise >= 180 and lab.player.max_rise <= 220 and lab.player.weapons.current().ammo == 1,
 		{"start_feet": [80, 320], "max_rise_px": lab.player.max_rise, "ammo": lab.player.weapons.current().ammo})
 	key(KEY_Q, true)
 	await frames(1)
@@ -184,7 +184,7 @@ func run() -> void:
 	await frames(15)
 	await capture("space_jump")
 	await frames(65)
-	check("Space_jump_hold_does_not_repeat", lab.player.max_rise > 55 and lab.player.max_rise < 80 and lab.player.is_on_floor(), {"rise_px": lab.player.max_rise})
+	check("Space_jump_hold_does_not_repeat", lab.player.max_rise >= 40 and lab.player.max_rise <= 55 and lab.player.is_on_floor(), {"rise_px": lab.player.max_rise})
 	key(KEY_SPACE, false)
 	await setup(0, 1, Vector2(80, 320))
 	key(KEY_SPACE, true)

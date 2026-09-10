@@ -32,7 +32,7 @@ static func gdd_baseline() -> PlayerTuning:
 static func responsive() -> PlayerTuning:
 	var result := PlayerTuning.new()
 	result.gravity = 2100.0
-	result.jump_impulse = 545.0
+	result.jump_impulse = 440.0
 	result.ground_acceleration = 2400.0
 	result.ground_deceleration = 3200.0
 	result.horizontal_recoil_scale = 1.1
