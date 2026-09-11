@@ -14,6 +14,15 @@ func check(ok: bool, message: String) -> void:
 func supported(stage: CrimsonStage3D, piece: MeshInstance3D) -> bool:
 	var bounds := piece.get_aabb()
 	var foot := piece.global_position + Vector3(0, bounds.position.y, 0)
+	if str(piece.name).begins_with("PillarFoot"):
+		for corbel in stage.scenery.find_children("PillarCorbel*", "MeshInstance3D", true, false):
+			var base: AABB = corbel.get_aabb()
+			if absf(corbel.global_position.x - foot.x) > 0.001: continue
+			if absf(corbel.global_position.y + base.end.y - foot.y) > 0.001: continue
+			if foot.z + bounds.position.z < corbel.global_position.z + base.position.z: continue
+			if foot.z + bounds.end.z > corbel.global_position.z + base.end.z: continue
+			return true
+		return false
 	for module in stage.game.environment.modules:
 		if not module.active or module.one_way: continue
 		var left: float = module.position.x * 0.01
@@ -31,6 +40,19 @@ func run() -> void:
 	stage.game.player.set_physics_process(false)
 	for enemy in stage.game.enemies: enemy.set_physics_process(false)
 	var floating: Array[String] = []
+	for pillar in stage.scenery.find_children("RearPillar*", "MeshInstance3D", true, false):
+		check(pillar.global_position.z + pillar.get_aabb().end.z < -1.175, "Rear columns must remain entirely behind the platform back face")
+	for corbel in stage.scenery.find_children("PillarCorbel*", "MeshInstance3D", true, false):
+		var attached := false
+		for module in stage.game.environment.modules:
+			if not module.active or module.one_way or not module.unlock_action.is_empty(): continue
+			var top: float = -module.position.y * 0.01
+			var bounds: AABB = corbel.get_aabb()
+			if absf(corbel.global_position.y + bounds.end.y - top) > 0.001: continue
+			if corbel.global_position.x + bounds.position.x < module.position.x * 0.01: continue
+			if corbel.global_position.x + bounds.end.x > (module.position.x + module.width) * 0.01: continue
+			attached = absf(corbel.global_position.z + bounds.end.z + 1.175) < 0.001
+		check(attached, "Column corbels must meet a permanent platform rear face, not float")
 	for piece in stage.scenery.find_children("*", "MeshInstance3D", true, false):
 		if not piece.is_visible_in_tree(): continue
 		if str(piece.name).begins_with("RearRailing") or str(piece.name).begins_with("RosePlanter") or str(piece.name).begins_with("PillarFoot") or str(piece.name).begins_with("ArchiveBack") or str(piece.name).begins_with("ForegroundPillar") or str(piece.name).begins_with("BellPost"):
@@ -48,6 +70,17 @@ func run() -> void:
 			if absf(planter.global_position.x - foot.x) < 0.01 and absf(planter.global_position.y + planter.get_aabb().end.y - foot.y) < 0.01:
 				attached = true
 		check(attached, "Opaque stem baseline must meet the planter rim")
+		var clear := true
+		var half_width: float = bush.region_rect.size.x * bush.pixel_size * 0.5
+		var head_y: float = foot.y + bush.region_rect.size.y * bush.pixel_size
+		for module in stage.game.environment.modules:
+			var left: float = module.position.x * 0.01
+			var right: float = left + module.width * 0.01
+			if right <= foot.x - half_width or left >= foot.x + half_width: continue
+			var top: float = -module.position.y * 0.01
+			var bottom: float = top - module.collision_depth * 0.01
+			if top > foot.y + 0.005 and bottom < head_y + 0.25: clear = false
+		check(clear, "Entire rose silhouette needs clear space above the planter, including future bridge geometry")
 	for active in [true, false]:
 		for module in stage.game.environment.modules:
 			if not module.unlock_action.is_empty(): module.active = active

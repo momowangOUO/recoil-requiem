@@ -180,6 +180,30 @@ func _build_platform_railing(module: PaperPlatform, dark: Material, gold: Materi
 		_box(Vector3(left + width * index / count, floor_y + 0.20, -0.96), Vector3(0.025, 0.40, 0.025), dark, "RearRailing")
 	_box(Vector3(left + width * 0.5, floor_y + 0.40, -0.96), Vector3(width + 0.025, 0.035, 0.05), gold, "RailingCap")
 
+func _rose_support_height(x: float) -> float:
+	# A planter needs a whole display space, not merely contact beneath its base.
+	var world_x := x + scenery.global_position.x
+	var best := -INF
+	for support in game.environment.modules:
+		if not support.active or support.one_way or not support.unlock_action.is_empty(): continue
+		var left: float = support.position.x * PIXEL
+		var right: float = left + support.width * PIXEL
+		if world_x - 0.32 < left - 0.0001 or world_x + 0.32 > right + 0.0001: continue
+		var floor_y: float = -support.position.y * PIXEL
+		var clear := true
+		for obstacle in game.environment.modules:
+			var obstacle_left: float = obstacle.position.x * PIXEL
+			var obstacle_right: float = obstacle_left + obstacle.width * PIXEL
+			if obstacle_right <= world_x - 0.32 + 0.0001 or obstacle_left >= world_x + 0.32 - 0.0001: continue
+			var top: float = -obstacle.position.y * PIXEL
+			var bottom: float = top - obstacle.collision_depth * PIXEL
+			# Include currently hidden bridges so activation cannot bury the flowers.
+			if top > floor_y + 0.001 and bottom < floor_y + 0.90:
+				clear = false
+				break
+		if clear: best = maxf(best, floor_y - scenery.global_position.y)
+	return best
+
 func _build_room() -> void:
 	# Plain masonry for structural faces; the arch motif belongs to architecture only.
 	var stone := _material(Rect2(668, 42, 526, 62), Color("8e829f"))
@@ -256,10 +280,6 @@ func _build_room() -> void:
 		_build_backdrop(dark, gold)
 		_build_room_identity(dark, gold, stone, section.architecture)
 		scenery = room_root
-	for x in [0.25, game.environment.bounds.end.x * PIXEL - 0.25]:
-		var floor_y := _support_height(x, 0.19, 0.40, 0.25)
-		if is_finite(floor_y):
-			_box(Vector3(x, floor_y + 2.1, 0.40), Vector3(0.38, 4.2, 0.5), dark, "ForegroundPillar")
 	door_material = _material(Rect2(), Color("675362"), "wood")
 	door_material.emission_enabled = true
 	door_material.emission = Color("080308")
@@ -295,13 +315,14 @@ func _build_room() -> void:
 		shadow_cards.append(shadow)
 
 func _build_backdrop(dark: Material, gold: Material) -> void:
-	# Rear architecture and real front columns occupy separate depth planes.
+	# Columns stand on rear masonry corbels, entirely behind the playable slabs.
 	for x in [0.25, 3.25, 6.25, 9.4]:
-		var floor_y := _support_height(x, 0.20, -0.90, 0.25)
+		var floor_y := _support_height(x, 0.22, -0.90, 0.25)
 		if not is_finite(floor_y): continue
-		_box(Vector3(x, floor_y + 2, -0.90), Vector3(0.24, 4, 0.35), dark, "RearPillar")
-		_box(Vector3(x, floor_y + 0.16, -0.90), Vector3(0.4, 0.32, 0.5), dark, "PillarFoot")
-		_prop(PaperStage.COLUMN_REGION, Vector3(x, floor_y, -0.69), 0.004, Color("a59aaa"))
+		_box(Vector3(x, floor_y - 0.10, -1.45), Vector3(0.44, 0.20, 0.55), dark, "PillarCorbel")
+		_box(Vector3(x, floor_y + 2, -1.46), Vector3(0.24, 4, 0.35), dark, "RearPillar")
+		_box(Vector3(x, floor_y + 0.16, -1.46), Vector3(0.4, 0.32, 0.5), dark, "PillarFoot")
+		_prop(PaperStage.COLUMN_REGION, Vector3(x, floor_y, -1.20), 0.004, Color("a59aaa"))
 	for x in [0.6, 3.35, 6.0, 8.6]:
 		var floor_y := _support_height(x, 0.15, -0.38, 0.05)
 		if not is_finite(floor_y): continue
@@ -365,17 +386,17 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 		3:
 			var rose_texture := preload("res://assets/environments/crimson/rose_bush_v1.png")
 			var crop := rose_texture.get_image().get_used_rect()
-			for x in [1.0, 3.0, 5.0, 7.0, 9.0]:
-				var floor_y := _support_height(x, 0.42, -0.84, 0.275)
+			for x in [1.44, 3.28, 4.72, 7.20, 8.96]:
+				var floor_y := _rose_support_height(x)
 				if not is_finite(floor_y): continue
-				_box(Vector3(x, floor_y + 0.12, -0.84), Vector3(0.84, 0.24, 0.55), stone, "RosePlanter")
+				_box(Vector3(x, floor_y + 0.09, -0.65), Vector3(0.64, 0.18, 0.55), stone, "RosePlanter")
 				var bush := Sprite3D.new()
 				bush.name = "RoseBush"
 				bush.texture = rose_texture
 				bush.region_enabled = true
 				bush.region_rect = crop
-				bush.pixel_size = 0.76 / crop.size.x
-				bush.position = Vector3(x, floor_y + 0.235 + crop.size.y * bush.pixel_size * 0.5, -0.84)
+				bush.pixel_size = 0.58 / crop.size.x
+				bush.position = Vector3(x, floor_y + 0.18 + crop.size.y * bush.pixel_size * 0.5, -0.50)
 				bush.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 				bush.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 				bush.shaded = true

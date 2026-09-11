@@ -31,7 +31,7 @@ func run() -> void:
 			await RenderingServer.frame_post_draw
 			root.get_texture().get_image().save_png("res://artifacts/environment_%d_%d.png" % [section, int(distance * 10)])
 	# Close views of actual attachment points, including the depressed canal floor.
-	for point in [Vector2(1440, 400), Vector2(4340, 352)]:
+	for point in [Vector2(1440, 400), Vector2(4140, 224), Vector2(4736, 256)]:
 		stage.game.player.position = point
 		stage.camera_target = CrimsonStage3D.to_stage(point + Vector2(0, -40))
 		stage.camera.position = stage.camera_target + Vector3(0, 1.18, 5.8)
