@@ -131,3 +131,5 @@ Godot 安装在其他位置时：
 项目美术标准见 [docs/ART_STANDARD.md](docs/ART_STANDARD.md)，包括像素规格、调色板、动作拆分、持枪挂点和 UI 反馈；跳跃规则变更见 [docs/jump-update.md](docs/jump-update.md)。
 
 石台默认全实体，不能从底面穿入，S 也不能穿下。只有外观明确镂空的金属格栅可上下穿越。
+
+项目目录用途及清理记录见 [docs/FOLDER_GUIDE.md](docs/FOLDER_GUIDE.md)。

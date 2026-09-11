@@ -8,3 +8,4 @@ builds/
 export_credentials.cfg
 .DS_Store
 docs/screenshots/*.png.import
+docs/references/*.png.import
