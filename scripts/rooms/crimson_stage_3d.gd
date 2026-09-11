@@ -152,8 +152,33 @@ func _box(at: Vector3, size: Vector3, material: Material, label: String) -> Mesh
 	node.mesh = mesh
 	node.material_override = material
 	node.position = at
-	scenery.add_child(node)
+	scenery.add_child(node, true)
 	return node
+
+func _support_height(x: float, half_width: float, z: float, half_depth: float) -> float:
+	# Query the same solid platform data that produces the visible floors.
+	var world_x := x + scenery.global_position.x
+	var best := -INF
+	for module in game.environment.modules:
+		if module.one_way or not module.active or not module.unlock_action.is_empty(): continue
+		var left: float = module.position.x * PIXEL
+		var right: float = left + module.width * PIXEL
+		if world_x - half_width < left or world_x + half_width > right: continue
+		if z - half_depth < -1.175 or z + half_depth > 0.675: continue
+		var floor_y: float = -module.position.y * PIXEL - scenery.global_position.y
+		if floor_y <= -3.0: best = maxf(best, floor_y)
+	return best
+
+func _build_platform_railing(module: PaperPlatform, dark: Material, gold: Material) -> void:
+	# Each span belongs to one actual platform; gaps and elevation changes stay open.
+	if module.one_way or module.position.y < 320 or module.width < 192: return
+	var left: float = module.position.x * PIXEL + 0.04
+	var width: float = module.width * PIXEL - 0.08
+	var floor_y: float = -module.position.y * PIXEL
+	var count := maxi(2, ceili(width / 0.2))
+	for index in count + 1:
+		_box(Vector3(left + width * index / count, floor_y + 0.20, -0.96), Vector3(0.025, 0.40, 0.025), dark, "RearRailing")
+	_box(Vector3(left + width * 0.5, floor_y + 0.40, -0.96), Vector3(width + 0.025, 0.035, 0.05), gold, "RailingCap")
 
 func _build_room() -> void:
 	# Plain masonry for structural faces; the arch motif belongs to architecture only.
@@ -211,6 +236,7 @@ func _build_room() -> void:
 		top.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		# Physical standing plane is z=0, visibly marked without expanding collision.
 		_box(Vector3(center.x, center.y + 0.003, 0), Vector3(width, 0.008, 0.014), edge, module.name + "StandingEdge")
+		_build_platform_railing(module, dark, gold)
 		if module.one_way:
 			for end in [-1, 1]:
 				_box(center + Vector3(end * (width * 0.5 - 0.08), -0.35, -0.58), Vector3(0.13, 0.65, 0.18), dark, "BridgeBracket")
@@ -230,8 +256,10 @@ func _build_room() -> void:
 		_build_backdrop(dark, gold)
 		_build_room_identity(dark, gold, stone, section.architecture)
 		scenery = room_root
-	for x in [-0.45, game.environment.bounds.end.x * PIXEL + 0.45]:
-		_box(Vector3(x, -1.5, 1.0), Vector3(0.38, 4.2, 0.5), dark, "ForegroundPillar")
+	for x in [0.25, game.environment.bounds.end.x * PIXEL - 0.25]:
+		var floor_y := _support_height(x, 0.19, 0.40, 0.25)
+		if is_finite(floor_y):
+			_box(Vector3(x, floor_y + 2.1, 0.40), Vector3(0.38, 4.2, 0.5), dark, "ForegroundPillar")
 	door_material = _material(Rect2(), Color("675362"), "wood")
 	door_material.emission_enabled = true
 	door_material.emission = Color("080308")
@@ -269,18 +297,18 @@ func _build_room() -> void:
 func _build_backdrop(dark: Material, gold: Material) -> void:
 	# Rear architecture and real front columns occupy separate depth planes.
 	for x in [0.25, 3.25, 6.25, 9.4]:
-		_box(Vector3(x, -1.52, -1.5), Vector3(0.24, 4, 0.35), dark, "RearPillar")
-		_box(Vector3(x, -3.36, -1.5), Vector3(0.4, 0.32, 0.5), dark, "PillarFoot")
-		_prop(PaperStage.COLUMN_REGION, Vector3(x, -3.5, -1.27), 0.004, Color("a59aaa"))
-	# Rear railing is behind the actors and does not cover their hands or targets.
-	for x in range(0, 49):
-		_box(Vector3(x * 0.2, -3.3, -0.85), Vector3(0.025, 0.4, 0.025), dark, "RearRailing")
-	_box(Vector3(4.8, -3.09, -0.85), Vector3(9.6, 0.035, 0.05), gold, "RailingCap")
+		var floor_y := _support_height(x, 0.20, -0.90, 0.25)
+		if not is_finite(floor_y): continue
+		_box(Vector3(x, floor_y + 2, -0.90), Vector3(0.24, 4, 0.35), dark, "RearPillar")
+		_box(Vector3(x, floor_y + 0.16, -0.90), Vector3(0.4, 0.32, 0.5), dark, "PillarFoot")
+		_prop(PaperStage.COLUMN_REGION, Vector3(x, floor_y, -0.69), 0.004, Color("a59aaa"))
 	for x in [0.6, 3.35, 6.0, 8.6]:
-		_prop(PaperStage.CANDLE_REGION, Vector3(x, -3.52, -0.38), 0.0013, Color.WHITE)
+		var floor_y := _support_height(x, 0.15, -0.38, 0.05)
+		if not is_finite(floor_y): continue
+		_prop(PaperStage.CANDLE_REGION, Vector3(x, floor_y, -0.38), 0.0013, Color.WHITE)
 		var light := OmniLight3D.new()
 		light.name = "CandleLight"
-		light.position = Vector3(x, -2.92, -0.15)
+		light.position = Vector3(x, floor_y + 0.60, -0.15)
 		light.light_color = Color("ffb573")
 		light.light_energy = 1.45
 		light.omni_range = 1.55
@@ -305,10 +333,15 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 	match section_architecture:
 		1:
 			# A real bell, beams and ropes create depth without painting fake platforms.
-			_box(Vector3(6.9, 0.1, -1.2), Vector3(2.1, 0.18, 0.3), dark, "BellCrossbeam")
-			_cylinder(Vector3(6.9, -0.45, -1.2), 0.48, 0.22, 0.7, gold, "AlarmBell")
-			bell_clapper = _cylinder(Vector3(6.9, -0.92, -1.2), 0.06, 0.04, 0.3, gold, "BellClapper")
-			_box(Vector3(7.36, -0.7, -0.4), Vector3(0.018, 1.6, 0.018), _material(Rect2(), Color("b4a18c"), "rope"), "BellRope")
+			for x in [5.95, 7.85]:
+				var floor_y := _support_height(x, 0.10, -0.88, 0.10)
+				if is_finite(floor_y):
+					_box(Vector3(x, (floor_y + 0.1) * 0.5, -0.88), Vector3(0.20, 0.1 - floor_y, 0.20), dark, "BellPost")
+			_box(Vector3(6.9, 0.1, -0.88), Vector3(2.1, 0.18, 0.3), dark, "BellCrossbeam")
+			_box(Vector3(6.9, -0.045, -0.88), Vector3(0.06, 0.29, 0.06), gold, "BellHanger")
+			_cylinder(Vector3(6.9, -0.45, -0.88), 0.48, 0.22, 0.7, gold, "AlarmBell")
+			bell_clapper = _cylinder(Vector3(6.9, -0.92, -0.88), 0.06, 0.04, 0.3, gold, "BellClapper")
+			_box(Vector3(7.36, -0.7, -0.88), Vector3(0.018, 1.6, 0.018), _material(Rect2(), Color("b4a18c"), "rope"), "BellRope")
 			alarm_light = OmniLight3D.new()
 			alarm_light.position = Vector3(6.9, -1.3, -0.3)
 			alarm_light.light_color = Color("ff4654")
@@ -319,23 +352,34 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 			var book_colors := ["714852", "62596c", "787058", "3d6366"]
 			for bay in 5:
 				var x := 1.1 + bay * 1.8
-				_box(Vector3(x, -2.1, -1.45), Vector3(1.35, 2.6, 0.22), wood, "ArchiveBack")
+				var floor_y := _support_height(x, 0.71, -0.90, 0.24)
+				if not is_finite(floor_y): continue
+				_box(Vector3(x, floor_y + 1.3, -0.98), Vector3(1.35, 2.6, 0.22), wood, "ArchiveBack")
 				for row in 4:
-					var y := -3.25 + row * 0.62
-					_box(Vector3(x, y, -1.15), Vector3(1.42, 0.07, 0.48), wood, "Bookshelf")
+					var y := floor_y + 0.035 + row * 0.62
+					_box(Vector3(x, y, -0.90), Vector3(1.42, 0.07, 0.48), wood, "Bookshelf")
 					for book in 6:
 						var mat := _material(Rect2(), Color(book_colors[(book + row + bay) % 4]), "leather")
-						_box(Vector3(x - 0.5 + book * 0.2, y + 0.23, -1.05), Vector3(0.12, 0.36 + (book % 2) * 0.08, 0.17), mat, "BookSpine")
+						var height := 0.36 + (book % 2) * 0.08
+						_box(Vector3(x - 0.5 + book * 0.2, y + 0.035 + height * 0.5, -0.83), Vector3(0.12, height, 0.17), mat, "BookSpine")
 		3:
-			var leaves := _material(Rect2(), Color("9bada2"), "leaf")
-			var rose := _material(Rect2(), Color("cc9bac"), "petal")
+			var rose_texture := preload("res://assets/environments/crimson/rose_bush_v1.png")
+			var crop := rose_texture.get_image().get_used_rect()
 			for x in [1.0, 3.0, 5.0, 7.0, 9.0]:
-				_box(Vector3(x, -3.2, -1.15), Vector3(1.2, 0.3, 0.55), stone, "RosePlanter")
-				for flower in 3:
-					var at := Vector3(x - 0.36 + flower * 0.36, -2.78, -1.1)
-					_box(at, Vector3(0.025, 0.6, 0.025), leaves, "RoseStem")
-					_cylinder(at + Vector3(0, 0.3, 0), 0.08, 0.12, 0.1, rose, "Bloodrose")
-			_box(Vector3(4.72, -4.02, -0.7), Vector3(4.6, 0.015, 0.3), stone, "DryCanalBed")
+				var floor_y := _support_height(x, 0.42, -0.84, 0.275)
+				if not is_finite(floor_y): continue
+				_box(Vector3(x, floor_y + 0.12, -0.84), Vector3(0.84, 0.24, 0.55), stone, "RosePlanter")
+				var bush := Sprite3D.new()
+				bush.name = "RoseBush"
+				bush.texture = rose_texture
+				bush.region_enabled = true
+				bush.region_rect = crop
+				bush.pixel_size = 0.76 / crop.size.x
+				bush.position = Vector3(x, floor_y + 0.235 + crop.size.y * bush.pixel_size * 0.5, -0.84)
+				bush.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+				bush.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+				bush.shaded = true
+				scenery.add_child(bush, true)
 
 func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 	var at := to_stage(action.position, -0.18)
@@ -354,7 +398,7 @@ func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 			_box(at + Vector3(0, 0.15, 0), Vector3(0.24, 0.3, 0.18), dark, "ReadingStand")
 			piece = _box(at + Vector3(0, 0.32, 0.03), Vector3(0.22, 0.018, 0.16), indicator, "OpenRecord")
 		RoomAction.Kind.SUPPLY:
-			piece = _cylinder(at + Vector3(0, 0.1, 0), 0.055, 0.045, 0.18, indicator, "BloodVial")
+			piece = _cylinder(at + Vector3(0, 0.09, 0), 0.055, 0.045, 0.18, indicator, "BloodVial")
 	var label := Label3D.new()
 	label.text = "E"
 	label.font_size = 32
@@ -371,7 +415,9 @@ func _prop(region: Rect2, foot: Vector3, pixel_size: float, tint: Color) -> void
 	sprite.region_enabled = true
 	sprite.region_rect = region
 	sprite.pixel_size = pixel_size
-	sprite.position = foot + Vector3(0, region.size.y * pixel_size * 0.5, 0)
+	var opaque := PaperStage.ATLAS.get_image().get_region(Rect2i(region)).get_used_rect()
+	var bottom_margin := region.size.y - opaque.end.y
+	sprite.position = foot + Vector3(0, (region.size.y * 0.5 - bottom_margin) * pixel_size, 0)
 	sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 	sprite.alpha_scissor_threshold = 0.4
