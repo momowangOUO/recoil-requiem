@@ -15,11 +15,18 @@ func run() -> void:
 	root.add_child(game)
 	game.player.manual_control = true
 	var visual := game.player.visual
+	# A tiny aim change around the vertical axis must not swap IK branches.
+	for facing in [-1.0,1.0]:
+		game.player.facing = facing
+		var before := visual._elbow(Vector2.ZERO,Vector2(-0.001,8),6,6)
+		var after := visual._elbow(Vector2.ZERO,Vector2(0.001,8),6,6)
+		check(before.distance_to(after) < 0.01,"Elbow remains continuous through downward aim")
 	for index in 3:
-		for degrees in range(-180, 181, 15):
+		for degrees in range(-180, 181):
 			var forward := Vector2.from_angle(deg_to_rad(degrees))
 			for facing in [-1.0, 1.0]:
-				if absf(forward.x) > 0.01 and forward.x * facing < 0: continue
+				# Match the controller's facing dead zone around vertical aim.
+				if absf(forward.x) > 0.06 and forward.x * facing < 0: continue
 				game.player.facing = facing
 				var shoulder := Vector2(-3 * facing, -26)
 				var upper: float = PlayerVisual.RIGHT_SHOULDERS[index].distance_to(PlayerVisual.RIGHT_ELBOWS[index]) * PlayerVisual.ARM_SCALE

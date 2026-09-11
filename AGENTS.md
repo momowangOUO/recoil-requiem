@@ -1,5 +1,7 @@
 # Recoil Requiem project guidance
 
+- Latest hand rig: SMG uses smg_left_support_v5.png with palm facing viewer. Keep support_palm_front's body/near-hand occlusion mask; never repaint the entire far hand unconditionally above the torso. Validate complete 360-degree aiming via tests/test_arm_rig.gd and tests/capture_aim_sweep.gd. See assets/characters/requiem/SMG_SUPPORT_V5.md.
+
 - Current body artwork: player v5 sleeveless Gothic/steampunk vampire torso, Aegis v3, riflewoman v1. Use `requiem_*_v5_socket.png` with independently authored right-trigger and left-support parts. Bodies must have no sleeves; complete sleeves belong to upper arms. Fix shoulders to the torso, rotate upper/forearm around authored joints, and keep hand/gun registration. Never rotate the entire sleeved arm around the gun or duplicate a right hand as a left hand. Fit artwork on the whole character before splitting. See `assets/characters/requiem/GOTHIC_RIG_SOURCE.md` and `docs/screenshots/gothic_rig.png`.
 - Main gameplay is one 4800px connected map, `scenes/rooms/connected_monastery.tscn`; the five former rooms are reusable editing sections, not separate room-load boundaries. Preserve two-way traversal and continuous world/camera state.
 - Rooms are authored in `scenes/rooms/*.tscn` using PaperPlatform and RoomMarker; use the bundled Recoil Map editor and `docs/MAP_EDITOR.md`. New room gameplay and 3D geometry must share this data.
