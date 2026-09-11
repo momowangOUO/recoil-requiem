@@ -24,7 +24,10 @@ func run() -> void:
 		var foreground: Node3D = stage.scenery.get_node("NearForeground")
 		check(stage.scenery.find_children("NearForeground", "Node3D", true, false).size() == 1, "Reset must leave one foreground layer")
 		check(foreground.get_child_count() == 10, "Five sections each have two separated low wall groups")
-		check(foreground.find_children("*", "Sprite3D", true, false).is_empty(), "Stretched foreground pillar cards are retired")
+		var near_cards := foreground.find_children("AuthoredNearSilhouette", "Sprite3D", true, false)
+		check(near_cards.size() == 10, "Each foreground group uses a newly authored 2D silhouette")
+		for card in near_cards:
+			check(card.texture.get_image().detect_alpha() != Image.ALPHA_NONE and not card.shaded and card.material_override == null, "Authored transparent silhouette has no 3D lighting or screen-space blur")
 		check(foreground.find_children("*", "CollisionObject3D", true, false).is_empty(), "Foreground must not change gameplay collision")
 		for piece in foreground.find_children("*", "MeshInstance3D", true, false):
 			var material: StandardMaterial3D = piece.material_override

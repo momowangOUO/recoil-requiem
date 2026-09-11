@@ -1,0 +1,7 @@
+# 二维城墙荆棘前景
+
+2026-09-11 内置 imagegen 生成，输出 exec-4766c794-85a6-4299-a257-daf3d58fd26a。原始 RGBA PNG 原样复制为 foreground_silhouette_v1.png。运行时区域裁切，未修改源图。用户示意图用于理解深色二维近景层次；未复制其中角色、场景或 UI。
+
+完整提示词：
+
+Create an authored transparent-background 2D foreground game asset for a Gothic vampire / Victorian steampunk pixel-art side-scroller. One wide low silhouette of a ruined castle parapet entwined with thorn branches, with a single short broken stone finial near its left end. Flat side view, NOT a 3D render, no visible isometric top planes. Almost black charcoal plum (#10101a) with extremely subtle dark violet interior masses; simplified soft painterly silhouette, detail deliberately out of focus, very gently softened contour, no sharp brick grid, no individually outlined bricks, no bright highlights. The visual idea is the dark out-of-focus foreground vegetation silhouettes along the bottom of a hand-painted metroidvania frame, translated into Gothic castle masonry and brambles. Broad readable shapes, quiet and atmospheric, compatible with a pixel-art world but this near silhouette may have soft edges. Asset width roughly three times height, bottom is solid and flat, silhouette across top irregular and low; highest finial only modestly taller. Entire object isolated with transparent margins, actual RGBA transparency, NO background, no ground plane, no fog rectangle, no text, no frame, no characters. This is a single reusable lower-screen foreground cutout, not a complete scene.
