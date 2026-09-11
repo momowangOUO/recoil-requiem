@@ -7,6 +7,7 @@ var measurement := true
 var last_weapon: WeaponRuntime
 var last_ammo := 0
 var completion_time := 0.0
+var shot_time := 0.0
 var screen_position_source: Callable
 
 func _ready() -> void:
@@ -17,6 +18,7 @@ func _ready() -> void:
 	material = keyed
 
 func _process(delta: float) -> void:
+	shot_time = maxf(0.0, shot_time - delta) if visible else 0.0
 	completion_time = maxf(0.0, completion_time - delta)
 	if is_instance_valid(player):
 		var current := player.weapons.current()
@@ -24,6 +26,7 @@ func _process(delta: float) -> void:
 			completion_time = 0.18
 		elif current != last_weapon:
 			completion_time = 0.0
+			shot_time = 0.0
 		last_weapon = current
 		last_ammo = current.ammo
 	queue_redraw()
@@ -42,3 +45,6 @@ func _draw() -> void:
 		ReloadFeedback.draw_ring(self, target, progress)
 	elif completion_time > 0.0:
 		ReloadFeedback.draw_ring(self, target, 1.0)
+	elif shot_time > 0.0:
+		var weapon := player.weapons.current()
+		ReloadFeedback.draw_ring(self, target, float(weapon.ammo) / maxi(1,weapon.data.magazine_size), clampf(shot_time/0.1,0,1))

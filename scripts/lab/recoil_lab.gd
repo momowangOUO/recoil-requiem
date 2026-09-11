@@ -458,6 +458,8 @@ func show_route() -> void:
 
 func _fire(context: ShotContext, data: WeaponData) -> void:
 	combat_timer = 3.0
+	reticle.shot_time = 0.35
+	if is_instance_valid(overlay.combat): overlay.combat.shot_time = 0.35
 	audio.play(str(data.id))
 	if data.id == &"shotgun":
 		shake_time = 0.08

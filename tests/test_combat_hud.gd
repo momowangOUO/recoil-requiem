@@ -20,8 +20,34 @@ func run() -> void:
 	check(hud.opening == 0 and hud.hold == 0 and not hud.viewing)
 	hud.sync({"active_slot":0,"cycle_order":[0]})
 	check(hud.others().is_empty())
+	hud.metrics = {"ammo":1,"magazine":6,"reload_progress":-1}
+	check(not hud.ring_state().visible)
+	hud.shot_time = 0.35
+	check(hud.ring_state().visible and is_equal_approx(hud.ring_state().ratio,1.0/6))
+	hud.metrics.reload_progress = 0.6
+	check(is_equal_approx(hud.ring_state().ratio,0.6))
+	hud.metrics.reload_progress = -1
+	hud.suspend(false)
+	hud._process(0.5)
+	check(not hud.ring_state().visible)
+	for factor in [1.0,1.5,2.0]:
+		hud.ui_scale = factor
+		hud._process(0)
+		check(is_equal_approx((hud.weapon_origin().y + 140) * hud.scale.y,hud.get_viewport_rect().size.y))
 	hud.sync({"active_slot":0,"cycle_order":[]})
 	check(hud.others().is_empty())
 	hud.free()
+	var game: RecoilLab = load("res://scenes/lab.tscn").instantiate()
+	root.add_child(game)
+	game.player.manual_control = true
+	var input := InputFrame.new()
+	input.fire_pressed = true
+	input.aim_world = game.player.aim_origin()+Vector2(200,0)
+	game.player.step(input,1.0/60)
+	check(game.reticle.shot_time > 0)
+	game.reticle.last_weapon = game.player.weapons.current()
+	game.reticle._process(0.5)
+	check(game.reticle.shot_time == 0)
+	game.free()
 	print("COMBAT HUD STAGE RESULT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

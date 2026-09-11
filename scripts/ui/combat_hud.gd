@@ -2,7 +2,7 @@ class_name CombatHud
 extends Control
 
 const COPY = preload("res://assets/ui/hud_text.json")
-const POINTS := [Vector2(105,108), Vector2(160,135), Vector2(216,135), Vector2(266,108), Vector2(294,61)]
+const POINTS := [Vector2(64,-67), Vector2(120,-94), Vector2(180,-105), Vector2(240,-94), Vector2(296,-67)]
 const BONE := Color("e8e4d5")
 const TIMING := {"transition":0.12, "number":0.45, "wheel":0.8, "view":0.12, "restore":0.4, "task":2.0, "area":3.0}
 var metrics: Dictionary = {}
@@ -23,6 +23,7 @@ var old_health := 5
 var hurt_cell := -1
 var hurt_time := 0.0
 var failure := 0.0
+var shot_time := 0.0
 var icons: Array[Texture2D] = []
 static var icon_cache: Array[Texture2D] = []
 
@@ -51,12 +52,14 @@ func suspend(value: bool) -> void:
 	viewing = false
 	hold = 0
 	opening = 0
+	shot_time = 0
 	queue_redraw()
 
 func result(_slot: int, success: bool, changed: bool, source: String) -> void:
 	if not success:
 		failure = 0.6
 	elif changed:
+		shot_time = 0
 		hold = TIMING.wheel if source == "wheel" else TIMING.number
 
 func notify(message: String, kind := "task") -> void:
@@ -94,6 +97,7 @@ func _process(delta: float) -> void:
 	scale = Vector2.ONE * 0.25 * ui_scale
 	visible = not blocked
 	if blocked: return
+	shot_time = maxf(0, shot_time - delta)
 	hold = maxf(0, hold - delta)
 	failure = maxf(0, failure - delta)
 	hurt_time = maxf(0, hurt_time - delta)
@@ -110,7 +114,7 @@ func _process(delta: float) -> void:
 
 func text_at(at: Vector2, value: String, size_px: int, tint := BONE) -> void:
 	var font := ThemeDB.fallback_font
-	draw_string_outline(font, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, size_px, 4, Color("080b12"))
+	draw_string_outline(font, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, size_px, 6 if high_contrast else 4, Color("080b12"))
 	draw_string(font, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, size_px, tint)
 
 func icon(index: int, rect: Rect2, tint := Color.WHITE) -> void:
@@ -121,7 +125,6 @@ func icon(index: int, rect: Rect2, tint := Color.WHITE) -> void:
 	draw_texture_rect(tex, Rect2(rect.get_center() - dim * 0.5, dim), false, tint)
 
 func weapon_icon(slot: int, center: Vector2, diameter: float, alpha := 1.0) -> void:
-	draw_circle(center, diameter * 0.5, Color(0.025,0.03,0.055,0.94))
 	draw_arc(center, diameter * 0.5, 0, TAU, 48, Color(BONE, alpha), 1.2, true)
 	var inv: Array = metrics.get("inventory", [])
 	if slot < 0 or slot >= inv.size() or not inv[slot].get("occupied", false): return
@@ -131,10 +134,21 @@ func weapon_icon(slot: int, center: Vector2, diameter: float, alpha := 1.0) -> v
 
 func _draw() -> void:
 	if metrics.is_empty(): return
-	if high_contrast: draw_style_box(panel_style(), Rect2(16,14,306,170))
+	# All combat information shares a bottom-left anchor, independent of window scale.
+	if opening <= 0 and quiet <= 0:
+		var message := str(metrics.get("objective", ""))
+		if not messages.is_empty(): message = str(messages[0].text)
+		var lines := message.split(" · ")
+		for i in mini(2,lines.size()): text_at(Vector2(32,40+i*20), lines[i].left(28),16)
+	draw_set_transform(weapon_origin())
+	for i in int(metrics.get("max_health", 5)):
+		var full := i < int(metrics.get("health", 5))
+		var tint := Color(1.6,1.6,1.6) if i == hurt_cell and hurt_time > 0 else Color.WHITE
+		icon(1 if full else 2, Rect2(132+i*31,-18,20,29), tint)
+	draw_line(Vector2(116,26),Vector2(116,104),Color(0.6,0.57,0.48,0.6),1.0,true)
 	var active := int(metrics.get("active_slot", -1))
 	var available := others()
-	var previous := Vector2(54,51)
+	var previous := Vector2(64,59)
 	for i in available.size():
 		if i > 0 and opening <= 0: break
 		var p: Vector2 = POINTS[i]
@@ -147,30 +161,38 @@ func _draw() -> void:
 		if i > 0 and not reduced_motion: p += Vector2(-4,4) * (1.0-opening)
 		weapon_icon(available[i], p, 32, 1.0 if i == 0 else opening)
 		text_at(p + Vector2(-5,32), str(available[i]+1), 16, Color(BONE, 1.0 if i == 0 else opening))
-	if not available.is_empty(): text_at(POINTS[0]+Vector2(-29,5), "›", 22)
-	weapon_icon(active, Vector2(54,51), 50)
-	icon(0, Rect2(23,20,62,62))
-	var diamond := PackedVector2Array([Vector2(54,73),Vector2(63,82),Vector2(54,91),Vector2(45,82),Vector2(54,73)])
+	weapon_icon(active, Vector2(64,59), 64)
+	icon(0, Rect2(24,19,80,80))
+	var diamond := PackedVector2Array([Vector2(64,88),Vector2(74,99),Vector2(64,110),Vector2(54,99),Vector2(64,88)])
 	draw_colored_polygon(diamond, Color("10121d"))
 	draw_polyline(diamond, BONE, 1.5, true)
-	text_at(Vector2(50,87), str(active+1) if active in order else "—", 13)
-	for i in int(metrics.get("max_health", 5)):
-		var full := i < int(metrics.get("health", 5))
-		var tint := Color(1.6,1.6,1.6) if i == hurt_cell and hurt_time > 0 else Color.WHITE
-		icon(1 if full else 2, Rect2(102+i*25,20,18,25), tint)
+	text_at(Vector2(59,105), str(active+1) if active in order else "—", 16)
 	if active in order:
-		text_at(Vector2(100,76), "%d / %d" % [metrics.get("ammo",0),metrics.get("magazine",0)], 25)
-	var reload := float(metrics.get("reload_progress", -1))
-	if reload >= 0: draw_arc(Vector2(54,51),23,-PI*0.5,-PI*0.5+TAU*reload,48,ReloadFeedback.progress_color(reload),2.5,true)
-	if failure > 0: text_at(Vector2(45,164), COPY.data.empty, 16)
-	elif opening <= 0 and quiet <= 0:
-		var message := str(metrics.get("objective", ""))
-		if not messages.is_empty(): message = str(messages[0].text)
-		var lines := message.split(" · ")
-		for i in mini(2,lines.size()): text_at(Vector2(45,164+i*20), lines[i].left(28),16)
+		var ammo := int(metrics.get("ammo",0))
+		var magazine := int(metrics.get("magazine",0))
+		var tint := ammo_color(ammo, magazine)
+		text_at(Vector2(132,32), str(metrics.get("weapon_name", "")), 14)
+		text_at(Vector2(128,83), "%02d" % ammo, 56, tint)
+		text_at(Vector2(214,81), "/ %d" % magazine, 24)
+	var ring := ring_state()
+	if ring.visible and active in order:
+		var alpha := 1.0 if float(metrics.get("reload_progress",-1)) >= 0 else clampf(shot_time / 0.1,0,1)
+		draw_arc(Vector2(64,59),36,0,TAU,64,Color(Color("39343f"),alpha),4,true)
+		draw_arc(Vector2(64,59),36,-PI*0.5,-PI*0.5+TAU*ring.ratio,64,Color(ring.color,alpha),4,true)
+	if failure > 0: text_at(Vector2(108,-17), COPY.data.empty, 16)
+	draw_set_transform(Vector2.ZERO)
 
-func panel_style() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.02,0.025,0.04,0.9)
-	box.set_corner_radius_all(12)
-	return box
+func weapon_origin() -> Vector2:
+	return Vector2(0, get_viewport_rect().size.y / scale.y - 140)
+
+func ammo_color(ammo: int, magazine: int) -> Color:
+	if ammo == 0: return Color("ff6c74")
+	if ammo <= ceili(magazine * 0.25): return Color("ffc16e")
+	return Color("fff5df")
+
+func ring_state() -> Dictionary:
+	var reload := float(metrics.get("reload_progress", -1))
+	if reload >= 0: return {"ratio":clampf(reload,0,1), "color":ReloadFeedback.progress_color(reload), "visible":true}
+	var ammo := int(metrics.get("ammo",0))
+	var magazine := int(metrics.get("magazine",0))
+	return {"ratio":clampf(float(ammo)/maxi(1,magazine),0,1), "color":ammo_color(ammo,magazine), "visible":shot_time > 0}

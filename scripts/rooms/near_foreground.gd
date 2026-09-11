@@ -37,5 +37,5 @@ func rebuild() -> void:
 		pier.name = "AttachedFinial"
 		pier.region_rect = Rect2(214, 73, 110, 278)
 		pier.pixel_size = 0.28 / 110.0
-		pier.position = Vector3(0.6, -278 * pier.pixel_size * 0.5, 0.002)
+		pier.position = Vector3(0.6, -278 * pier.pixel_size * 0.5 - 0.16, 0.002)
 		add_child(pier)
