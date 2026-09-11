@@ -271,9 +271,11 @@ func _build_room() -> void:
 			pieces.append(piece)
 		platform_visuals[module] = pieces
 	var room_root := scenery
-	var foreground := preload("res://scripts/rooms/near_foreground.gd").new()
+	var foreground := preload("res://scenes/rooms/near_foreground.tscn").instantiate()
 	foreground.name = "NearForeground"
 	room_root.add_child(foreground)
+	for piece in foreground.find_children("*", "MeshInstance3D", true, false):
+		if not materials.has(piece.material_override): materials.append(piece.material_override)
 	for section in game.environment.visual_sections:
 		var group := Node3D.new()
 		group.name = "SectionArchitecture"

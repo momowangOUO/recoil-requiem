@@ -23,9 +23,12 @@ func run() -> void:
 		await process_frame
 		var foreground: Node3D = stage.scenery.get_node("NearForeground")
 		check(stage.scenery.find_children("NearForeground", "Node3D", true, false).size() == 1, "Reset must leave one foreground layer")
-		check(foreground.get_child_count() == 14, "Connected map has authored near architecture throughout")
-		for card in foreground.get_children():
-			check(card.position.z > stage.actors.position.z and card.material_override is ShaderMaterial, "Foreground is ahead of actors and has an isolated blur material")
+		check(foreground.get_child_count() == 10, "Five sections each have two separated low wall groups")
+		check(foreground.find_children("*", "Sprite3D", true, false).is_empty(), "Stretched foreground pillar cards are retired")
+		check(foreground.find_children("*", "CollisionObject3D", true, false).is_empty(), "Foreground must not change gameplay collision")
+		for piece in foreground.find_children("*", "MeshInstance3D", true, false):
+			var material: StandardMaterial3D = piece.material_override
+			check(material != null and material.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED and material.texture_filter == BaseMaterial3D.TEXTURE_FILTER_NEAREST, "Foreground has opaque nearest stone, no blur or screen fade")
 		check(stage.scenery.find_children("Moon", "Sprite3D", true, false).size() == 1, "The whole map must share exactly one moon")
 		check(stage.scenery.find_children("Sky", "Sprite3D", true, false).size() == 1, "The whole map must share exactly one sky")
 		check(stage.scenery.find_children("DistantWindows", "Sprite3D", true, false).is_empty(), "Baked moon/castle backdrop must be retired")
