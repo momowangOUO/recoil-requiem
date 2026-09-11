@@ -14,8 +14,8 @@ func check(ok: bool, message: String) -> void:
 func supported(stage: CrimsonStage3D, piece: MeshInstance3D) -> bool:
 	var bounds := piece.get_aabb()
 	var foot := piece.global_position + Vector3(0, bounds.position.y, 0)
-	if str(piece.name).begins_with("PillarFoot"):
-		for corbel in stage.scenery.find_children("PillarCorbel*", "MeshInstance3D", true, false):
+	if str(piece.name).begins_with("PillarFoot") or str(piece.name).begins_with("ArchiveBack"):
+		for corbel in stage.scenery.find_children("*Corbel*", "MeshInstance3D", true, false):
 			var base: AABB = corbel.get_aabb()
 			if absf(corbel.global_position.x - foot.x) > 0.001: continue
 			if absf(corbel.global_position.y + base.end.y - foot.y) > 0.001: continue
@@ -40,9 +40,12 @@ func run() -> void:
 	stage.game.player.set_physics_process(false)
 	for enemy in stage.game.enemies: enemy.set_physics_process(false)
 	var floating: Array[String] = []
+	for piece in stage.scenery.find_children("*", "MeshInstance3D", true, false):
+		if str(piece.name).begins_with("ArchiveBack") or str(piece.name).begins_with("Bookshelf") or str(piece.name).begins_with("BookSpine"):
+			check(piece.global_position.z + piece.get_aabb().end.z < -1.175, "Entire bookcase, including books, must stay behind platform depth")
 	for pillar in stage.scenery.find_children("RearPillar*", "MeshInstance3D", true, false):
 		check(pillar.global_position.z + pillar.get_aabb().end.z < -1.175, "Rear columns must remain entirely behind the platform back face")
-	for corbel in stage.scenery.find_children("PillarCorbel*", "MeshInstance3D", true, false):
+	for corbel in stage.scenery.find_children("*Corbel*", "MeshInstance3D", true, false):
 		var attached := false
 		for module in stage.game.environment.modules:
 			if not module.active or module.one_way or not module.unlock_action.is_empty(): continue

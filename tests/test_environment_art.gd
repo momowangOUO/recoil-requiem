@@ -21,6 +21,11 @@ func run() -> void:
 		stage.game.player.set_physics_process(false)
 		for enemy in stage.game.enemies: enemy.set_physics_process(false)
 		await process_frame
+		var foreground: Node3D = stage.scenery.get_node("NearForeground")
+		check(stage.scenery.find_children("NearForeground", "Node3D", true, false).size() == 1, "Reset must leave one foreground layer")
+		check(foreground.get_child_count() == 14, "Connected map has authored near architecture throughout")
+		for card in foreground.get_children():
+			check(card.position.z > stage.actors.position.z and card.material_override is ShaderMaterial, "Foreground is ahead of actors and has an isolated blur material")
 		check(stage.scenery.find_children("Moon", "Sprite3D", true, false).size() == 1, "The whole map must share exactly one moon")
 		check(stage.scenery.find_children("Sky", "Sprite3D", true, false).size() == 1, "The whole map must share exactly one sky")
 		check(stage.scenery.find_children("DistantWindows", "Sprite3D", true, false).is_empty(), "Baked moon/castle backdrop must be retired")

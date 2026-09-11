@@ -271,6 +271,9 @@ func _build_room() -> void:
 			pieces.append(piece)
 		platform_visuals[module] = pieces
 	var room_root := scenery
+	var foreground := preload("res://scripts/rooms/near_foreground.gd").new()
+	foreground.name = "NearForeground"
+	room_root.add_child(foreground)
 	for section in game.environment.visual_sections:
 		var group := Node3D.new()
 		group.name = "SectionArchitecture"
@@ -373,16 +376,17 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 			var book_colors := ["714852", "62596c", "787058", "3d6366"]
 			for bay in 5:
 				var x := 1.1 + bay * 1.8
-				var floor_y := _support_height(x, 0.71, -0.90, 0.24)
+				var floor_y := _support_height(x, 0.75, -0.90, 0.24)
 				if not is_finite(floor_y): continue
-				_box(Vector3(x, floor_y + 1.3, -0.98), Vector3(1.35, 2.6, 0.22), wood, "ArchiveBack")
+				_box(Vector3(x, floor_y - 0.10, -1.4875), Vector3(1.5, 0.20, 0.625), stone, "ArchiveCorbel")
+				_box(Vector3(x, floor_y + 1.3, -1.58), Vector3(1.35, 2.6, 0.22), wood, "ArchiveBack")
 				for row in 4:
 					var y := floor_y + 0.035 + row * 0.62
-					_box(Vector3(x, y, -0.90), Vector3(1.42, 0.07, 0.48), wood, "Bookshelf")
+					_box(Vector3(x, y, -1.50), Vector3(1.42, 0.07, 0.48), wood, "Bookshelf")
 					for book in 6:
 						var mat := _material(Rect2(), Color(book_colors[(book + row + bay) % 4]), "leather")
 						var height := 0.36 + (book % 2) * 0.08
-						_box(Vector3(x - 0.5 + book * 0.2, y + 0.035 + height * 0.5, -0.83), Vector3(0.12, height, 0.17), mat, "BookSpine")
+						_box(Vector3(x - 0.5 + book * 0.2, y + 0.035 + height * 0.5, -1.43), Vector3(0.12, height, 0.17), mat, "BookSpine")
 		3:
 			var rose_texture := preload("res://assets/environments/crimson/rose_bush_v1.png")
 			var crop := rose_texture.get_image().get_used_rect()
