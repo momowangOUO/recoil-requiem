@@ -26,6 +26,7 @@ var config: Dictionary
 var definitions: Array
 var input_adapter := KeyboardInput.new()
 var overlay := LabOverlay.new()
+var combat_timer := 0.0
 var audio := LabAudio.new()
 var camera := Camera2D.new()
 var world: Node2D
@@ -105,6 +106,11 @@ func restore_baseline() -> void:
 	overlay.show_notice("GDD BASELINE RESTORED")
 
 func reset_trial(index: int) -> void:
+	combat_timer = 0.0
+	if is_instance_valid(overlay) and is_instance_valid(overlay.combat):
+		overlay.combat.messages.clear()
+		overlay.combat.area = ""
+		overlay.combat.quiet = 0.0
 	reset_pending = false
 	preset = 3 if visual_slice else clampi(index, 0, 2)
 	slice_complete = false
@@ -144,6 +150,7 @@ func reset_trial(index: int) -> void:
 	player.position = environment.spawn
 	player.tuning.apply_dict(config.player)
 	player.weapons.configure(definitions, int(config.get("active_weapon", 0)))
+	if overlay.combat != null: player.weapons.equipment_result.connect(overlay.combat.result)
 	player.input_source = func(): return input_adapter.sample(projected_aim.call() if projected_aim.is_valid() else get_global_mouse_position())
 	player.shot_fired.connect(_fire)
 	player.died.connect(_request_respawn)
@@ -299,12 +306,16 @@ func _input(event: InputEvent) -> void:
 				get_window().mode = Window.MODE_WINDOWED if get_window().mode == Window.MODE_EXCLUSIVE_FULLSCREEN else Window.MODE_EXCLUSIVE_FULLSCREEN
 	if event is InputEventMouseButton and event.pressed and not paused:
 		if event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-			input_adapter.wheel_switch = true
+			var direction := 1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1
+			if overlay.combat != null and overlay.combat.reverse_wheel: direction = -direction
+			input_adapter.wheel_steps.append(direction)
 
 func _physics_process(delta: float) -> void:
 	if paused or not is_instance_valid(player):
 		return
 	elapsed += delta
+	combat_timer = maxf(0, combat_timer - delta)
+	if overlay.combat != null: input_adapter.view_toggle = overlay.combat.view_toggle
 	hit_display_time = maxf(0, hit_display_time - delta)
 	if hit_display_time == 0: last_hit = ""
 	shake_time = maxf(0, shake_time - delta)
@@ -348,8 +359,17 @@ func _physics_process(delta: float) -> void:
 	if preset == 1:
 		hit_text = "DROP %.0f PX   TIME %.2f S" % [player.position.y - environment.spawn.y, elapsed]
 	var hud_title: String = environment.room_title if visual_slice else TITLES[preset]
+	var objective := ""
+	if visual_slice:
+		var done := 0
+		var total := 0
+		for action in environment.actions:
+			if action.required:
+				total += 1
+				done += int(action.activated)
+		objective = CombatHud.COPY.data.objective % [done,total]
 	if environment is ConnectedMonastery: hud_title += " · " + ROOM_NAMES[clampi(int(player.position.x / 960), 0, 4)]
-	overlay.update_hud({"preset": room_index if visual_slice else preset, "title": hud_title, "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement})
+	overlay.update_hud({"preset": room_index if visual_slice else preset, "title": hud_title, "health": player.health, "velocity": player.velocity, "height": player.max_rise, "weapon_name": weapon.data.display_name, "weapon_id": weapon.data.id, "per_shell": weapon.data.per_shell, "active_slot": player.weapons.active_slot, "inventory": player.weapons.inventory_snapshot(), "ammo": weapon.ammo, "magazine": weapon.data.magazine_size, "reload_progress": weapon.progress(), "last_hit": hit_text, "time": elapsed, "measurement": config.measurement, "cycle_order": player.weapons.cycle_slots(), "viewing": input_adapter.view_active, "combat": combat_timer > 0, "objective": objective})
 	queue_redraw()
 
 func _update_camera(delta: float) -> void:
@@ -437,6 +457,7 @@ func show_route() -> void:
 	show_story("猩红修道院 · 当前路线", "\n".join(lines))
 
 func _fire(context: ShotContext, data: WeaponData) -> void:
+	combat_timer = 3.0
 	audio.play(str(data.id))
 	if data.id == &"shotgun":
 		shake_time = 0.08
@@ -459,6 +480,7 @@ func _fire(context: ShotContext, data: WeaponData) -> void:
 		projectiles.add_child(projectile)
 
 func _player_hurt() -> void:
+	combat_timer = 3.0
 	overlay.show_notice("HIT / %d HP" % player.health)
 	_hurt_effect(player.aim_origin(), player.last_hit_direction, false)
 	shake_time = 0.07
@@ -471,6 +493,7 @@ func _hurt_effect(point: Vector2, direction: Vector2, shield: bool) -> void:
 	world.add_child(effect)
 
 func _enemy_hit(result: Dictionary) -> void:
+	combat_timer = 3.0
 	_hurt_effect(result.point, result.get("direction", Vector2.RIGHT), result.zone == "FRONT")
 	last_hit = "%s  %.1f DMG  /  %.1f HP" % [result.zone, result.damage, result.hp]
 	hit_display_time = 1.5

@@ -118,6 +118,7 @@ func run() -> void:
 	key(KEY_Q, true)
 	await frames(1)
 	key(KEY_Q, false)
+	await frames(1)
 	check("Q_cycles_slot_2_to_slot_3", lab.player.weapons.current().data.id == &"smg", {"weapon": str(lab.player.weapons.current().data.id)})
 
 	await setup(1, 0, Vector2(300, 280))
@@ -257,11 +258,19 @@ func run() -> void:
 	key(KEY_Q, true)
 	await frames(1)
 	key(KEY_Q, false)
+	await frames(1)
 	check("Q_cycles_slot_3_to_slot_1", lab.player.weapons.current().data.id == &"revolver")
 	key(KEY_Q, true)
 	await frames(1)
 	key(KEY_Q, false)
+	await frames(1)
 	check("Q_cycles_slot_1_to_slot_2", lab.player.weapons.current().data.id == &"shotgun")
+	key(KEY_Q, true)
+	await frames(12)
+	check("Q_hold_views_without_switch", lab.input_adapter.view_active and lab.player.weapons.active_slot == 1)
+	key(KEY_Q, false)
+	await frames(1)
+	check("Q_hold_release_does_not_switch", not lab.input_adapter.view_active and lab.player.weapons.active_slot == 1)
 	var summary := {"method": "scripted_event_replay", "native_or_manual_input": false,
 		"event_route": "Input.parse_input_event for InputEventKey (physical and logical codes) and InputEventMouseButton; rendered SubViewport.push_input(local=true) for InputEventMouseMotion",
 		"physics": "production KeyboardInput adapter and automatic 60 Hz player physics", "display_server": DisplayServer.get_name(),

@@ -16,6 +16,8 @@ extends Node2D
 		one_way = value
 		_refresh()
 @export var textured := true
+## Ordinary roads have a visual foundation; collision depth stays unchanged.
+@export var grounded := false
 @export var unlock_action := ""
 var active := true
 const TOP_DEPTH := 8.0

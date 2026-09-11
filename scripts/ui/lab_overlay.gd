@@ -63,6 +63,7 @@ func hide_story() -> void:
 
 func show_story(title: String, content: String) -> void:
 	_build()
+	if combat != null: combat.suspend(true)
 	_story_title.text = title
 	_story_body.text = content
 	_story_scroll.scroll_vertical = 0
@@ -70,6 +71,7 @@ func show_story(title: String, content: String) -> void:
 	_story.show()
 var _built := false
 var lab_navigation := true
+var combat: CombatHud
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -87,6 +89,7 @@ func show_panel(config: Dictionary) -> void:
 	_config = config.duplicate(true)
 	_load_form()
 	_panel.show()
+	if combat != null: combat.suspend(true)
 	_root.mouse_filter = Control.MOUSE_FILTER_STOP
 	_panel.find_child("Resume", true, false).grab_focus()
 
@@ -94,6 +97,7 @@ func hide_panel() -> void:
 	if not _built:
 		return
 	_panel.hide()
+	if combat != null: combat.suspend(false)
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var focused := get_viewport().gui_get_focus_owner()
 	if focused != null:
@@ -101,6 +105,9 @@ func hide_panel() -> void:
 
 func update_hud(metrics: Dictionary) -> void:
 	_build()
+	if combat != null:
+		combat.sync(metrics)
+		return
 	var velocity: Vector2 = metrics.get("velocity", Vector2.ZERO)
 	_title.text = "R/R  |  %02d  %s" % [int(metrics.get("preset", 0)) + 1, str(metrics.get("title", "RECOIL LAB")).to_upper()]
 	_health.text = "HP"
@@ -133,6 +140,9 @@ func update_hud(metrics: Dictionary) -> void:
 
 func show_notice(message: String) -> void:
 	_build()
+	if combat != null:
+		combat.notify(message)
+		return
 	_notice.text = message
 	_notice_timer = 3.5
 	_notice.show()
@@ -263,6 +273,12 @@ func _build() -> void:
 	_place(_notice, Rect2(10, 28, 300, 13))
 	_notice.hide()
 	_story = Control.new()
+	if not lab_navigation:
+		for child in _root.get_children():
+			if child is CanvasItem: child.hide()
+		combat = CombatHud.new()
+		combat.name = "CombatHud"
+		_root.add_child(combat)
 	_story.name = "StoryCard"
 	_story.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.add_child(_story)
@@ -346,6 +362,19 @@ func _build() -> void:
 	_turn_speed = _number(trial, "Target turn deg/sec", 1, 720, 5)
 	_label(trial, "Apply restarts the trial. Values are session-only.", MUTED)
 	var footer := HBoxContainer.new()
+	if combat != null:
+		var settings := _tab(tabs, "HUD")
+		var sizing := _number(settings, CombatHud.COPY.data.scale, 1.0, 2.0, 0.25)
+		sizing.value = 1.0
+		sizing.value_changed.connect(func(value: float): combat.ui_scale = value)
+		for key in ["contrast", "motion", "toggle", "reverse"]:
+			var option := CheckBox.new()
+			option.text = CombatHud.COPY.data[key]
+			settings.add_child(option)
+			var field: String = {"contrast":"high_contrast","motion":"reduced_motion","toggle":"view_toggle","reverse":"reverse_wheel"}[key]
+			option.toggled.connect(func(value: bool): combat.set(field,value))
+		var input_hint := _label(settings, CombatHud.COPY.data.hint, MUTED)
+		input_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	footer.add_theme_constant_override("separation", 3)
 	layout.add_child(footer)
 	_button(footer, "Resume", func(): resume_requested.emit(), "Resume")

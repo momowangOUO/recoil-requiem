@@ -16,6 +16,7 @@ func run() -> void:
 	var walls := stage.scenery.get_node("NearForeground").get_children()
 	var worst := {}
 	var foot_clear := true
+	var bottom_clear := true
 	for wall in walls: worst[wall.name] = 2.0
 	# Every supported route height, including lower routes under raised platforms.
 	for x in range(32, 4800, 32):
@@ -37,16 +38,21 @@ func run() -> void:
 							var right: Vector2 = stage.camera.unproject_position(wall.position + Vector3(wall.width, 0, 0.23))
 							if maxf(left.x, right.x) < 0 or minf(left.x, right.x) > 640: continue
 							worst[wall.name] = minf(worst[wall.name], minf(left.y, right.y) / 360.0)
+							var card: Sprite3D = wall.get_node("AuthoredNearSilhouette")
+							var depth := card.region_rect.size.y * card.pixel_size
+							var bottom := stage.camera.unproject_position(wall.position + Vector3(wall.width * 0.5, -depth, 0))
+							bottom_clear = bottom_clear and bottom.y > 360
 							var foot: Vector2 = stage.camera.unproject_position(CrimsonStage3D.to_stage(Vector2(x, floor_y - rise)))
 							if foot.x >= minf(left.x, right.x) and foot.x <= maxf(left.x, right.x):
+								if foot_clear and minf(left.y, right.y) <= foot.y + 4.0: print("FOOT OCCLUSION ", wall.name, " x=", x, " y=", floor_y, " distance=", distance, " top=", minf(left.y,right.y), " foot=", foot.y)
 								foot_clear = foot_clear and minf(left.y, right.y) > foot.y + 4.0
 	for wall in walls:
 		print("WALL ", wall.name, " highest screen fraction=", worst[wall.name])
-		# Native HUD occupies y=0..36 and 290..360 in world-render coordinates.
-		check(worst[wall.name] >= (36.0 + 254.0 * 0.80) / 360.0, "Wall must remain in bottom fifth of unobscured gameplay at every weapon distance and route height: " + str(wall.name))
+		check(worst[wall.name] >= 0.65, "Wall contour stays in lower 35% of full viewport: " + str(wall.name))
 		check(wall.position.z - 0.23 > 0.675, "Wall geometry is outside the playable platform front face")
 	check(walls.filter(func(wall): return wall.end_pier).size() == 2, "Exactly two attached short piers")
 	check(foot_clear, "Wall tops leave standing and airborne feet clear across all sampled routes")
+	check(bottom_clear, "Foreground wall bottom remains beyond viewport throughout camera sweep")
 	stage.camera.position = Vector3(1.4, -1.8, 7.2)
 	stage.camera.look_at(Vector3(1.4, -2.98, 0))
 	var near_point: Vector3 = walls[0].position

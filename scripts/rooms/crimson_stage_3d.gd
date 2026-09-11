@@ -218,7 +218,7 @@ func _build_room() -> void:
 		var first_child := scenery.get_child_count()
 		var width: float = module.width * PIXEL
 		# A thick fake slab would hide a 38px actor under a 48px-high platform.
-		var height: float = module.collision_depth * PIXEL
+		var height: float = maxf(module.collision_depth * PIXEL, 12.0) if module.grounded else module.collision_depth * PIXEL
 		var depth := 1.18 if module.one_way else 1.85
 		var center := to_stage(module.position + Vector2(module.width * 0.5, 0), -0.25)
 		if module.one_way:
@@ -235,7 +235,7 @@ func _build_room() -> void:
 			platform_visuals[module] = grating_pieces
 			continue
 		var face_material: StandardMaterial3D = stone.duplicate()
-		face_material.uv1_scale = Vector3(maxf(1, width / 0.96), 1, 1)
+		face_material.uv1_scale = Vector3(maxf(1, width / 0.96), maxf(1, height / 0.48) if module.grounded else 1.0, 1)
 		materials.append(face_material)
 		_box(center + Vector3(0, -height * 0.5, 0), Vector3(width, height, depth), dark, module.name + "Body")
 		var front := MeshInstance3D.new()

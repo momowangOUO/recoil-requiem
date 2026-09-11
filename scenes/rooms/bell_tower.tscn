@@ -16,6 +16,7 @@ objective_hint = "登上钟台，拉下制动杆"
 z_index = -5
 
 [node name="CatchFloor" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(0, 400)
 width = 960.0
 one_way = false

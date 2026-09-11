@@ -16,6 +16,7 @@ objective_hint = "寻找转运名单"
 z_index = -5
 
 [node name="ArchiveFloor" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(0, 352)
 width = 960.0
 one_way = false

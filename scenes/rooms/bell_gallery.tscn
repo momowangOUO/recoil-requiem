@@ -12,18 +12,21 @@ room_title = "CRIMSON / BELL GALLERY"
 z_index = -5
 
 [node name="WestFloor" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(0, 352)
 width = 320.0
 collision_depth = 64.0
 one_way = false
 
 [node name="LowerRecoveryFloor" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(320, 400)
 width = 352.0
 collision_depth = 16.0
 one_way = false
 
 [node name="EastFloor" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(672, 352)
 width = 288.0
 collision_depth = 64.0

@@ -11,6 +11,7 @@ script = ExtResource("1")
 z_index = -5
 
 [node name="SafeFloor" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(0, 352)
 width = 960.0
 collision_depth = 64.0

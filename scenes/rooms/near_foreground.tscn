@@ -5,61 +5,61 @@
 [node name="NearForeground" type="Node3D"]
 
 [node name="CourtWest" type="Node3D" parent="."]
-position = Vector3(0.6, -3.32, 0.95)
+position = Vector3(0.6, -3.38, 0.95)
 script = ExtResource("1")
-width = 2.6
+width = 4.8
 end_pier = true
 
 [node name="CourtEast" type="Node3D" parent="."]
-position = Vector3(7.2, -3.32, 0.95)
+position = Vector3(7.2, -3.38, 0.95)
 script = ExtResource("1")
 width = 2.4
 end_pier = false
 
 [node name="GalleryWest" type="Node3D" parent="."]
-position = Vector3(13.0, -3.84, 0.95)
+position = Vector3(13.0, -3.90, 0.95)
 script = ExtResource("1")
-width = 2.6
+width = 4.8
 end_pier = false
 
 [node name="GalleryEast" type="Node3D" parent="."]
-position = Vector3(16.0, -3.84, 0.95)
+position = Vector3(16.0, -3.90, 0.95)
 script = ExtResource("1")
-width = 2.2
+width = 4.8
 end_pier = false
 
 [node name="TowerWest" type="Node3D" parent="."]
-position = Vector3(20, -3.32, 0.95)
+position = Vector3(20, -3.38, 0.95)
 script = ExtResource("1")
-width = 2.4
+width = 4.8
 end_pier = false
 
 [node name="TowerEast" type="Node3D" parent="."]
-position = Vector3(26.2, -3.32, 0.95)
+position = Vector3(26.2, -3.38, 0.95)
 script = ExtResource("1")
-width = 2.8
+width = 4.8
 end_pier = false
 
 [node name="ArchiveWest" type="Node3D" parent="."]
-position = Vector3(30.4, -3.32, 0.95)
+position = Vector3(30.4, -3.38, 0.95)
 script = ExtResource("1")
-width = 2.4
+width = 4.8
 end_pier = false
 
 [node name="ArchiveEast" type="Node3D" parent="."]
-position = Vector3(36, -3.32, 0.95)
+position = Vector3(36, -3.38, 0.95)
 script = ExtResource("1")
-width = 2.6
+width = 2.4
 end_pier = true
 
 [node name="GardenWest" type="Node3D" parent="."]
-position = Vector3(41.0, -3.84, 0.95)
+position = Vector3(41.0, -3.90, 0.95)
 script = ExtResource("1")
-width = 2.4
+width = 4.8
 end_pier = false
 
 [node name="GardenEast" type="Node3D" parent="."]
-position = Vector3(44.2, -3.84, 0.95)
+position = Vector3(44.2, -3.90, 0.95)
 script = ExtResource("1")
-width = 2.4
+width = 4.8
 end_pier = false

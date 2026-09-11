@@ -16,18 +16,21 @@ objective_hint = "开启两侧水闸，前往转运门"
 z_index = -5
 
 [node name="WestTerrace" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(0, 320)
 width = 240.0
 one_way = false
 collision_depth = 32.0
 
 [node name="DryCanal" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(240, 400)
 width = 528.0
 one_way = false
 collision_depth = 32.0
 
 [node name="EastTerrace" parent="Gameplay" instance=ExtResource("2")]
+grounded = true
 position = Vector2(768, 320)
 width = 192.0
 one_way = false

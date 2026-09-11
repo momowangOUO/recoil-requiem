@@ -2,6 +2,18 @@ class_name WeaponController
 extends Node
 
 const SLOT_COUNT := 6
+signal equipment_result(index: int, success: bool, changed: bool, source: String)
+
+func cycle_slots() -> Array[int]:
+	var result: Array[int] = []
+	for i in slots.size():
+		if slots[i] != null: result.append(i)
+	return result
+
+func next_slot(direction: int = 1) -> int:
+	var order := cycle_slots()
+	if order.size() < 2: return -1
+	return order[posmod(order.find(active_slot) + direction, order.size())]
 
 ## Fixed numbered arsenal. Empty entries are visible, unselectable inventory slots.
 var slots: Array = []
@@ -18,24 +30,22 @@ func configure(definitions: Array, initial_slot: int = 0) -> void:
 func current() -> WeaponRuntime:
 	return slots[active_slot]
 
-func select_weapon(index: int) -> bool:
+func select_weapon(index: int, source: String = "number") -> bool:
 	if index < 0 or index >= slots.size() or slots[index] == null:
+		equipment_result.emit(index, false, false, source)
 		return false
 	if index == active_slot:
 		return true
-	current().cancel_reload()
+	if current() != null: current().cancel_reload()
 	active_slot = index
 	if current().ammo == 0 or current().reload_interrupted:
 		current().start_reload()
+	equipment_result.emit(index, true, true, source)
 	return true
 
 func cycle_weapon(direction: int = 1) -> bool:
-	var step := 1 if direction >= 0 else -1
-	for distance in range(1, SLOT_COUNT + 1):
-		var candidate := posmod(active_slot + distance * step, SLOT_COUNT)
-		if slots[candidate] != null:
-			return select_weapon(candidate)
-	return false
+	var candidate := next_slot(1 if direction >= 0 else -1)
+	return select_weapon(candidate, "wheel") if candidate >= 0 else false
 
 func inventory_snapshot() -> Array:
 	var result: Array = []
@@ -62,7 +72,9 @@ func advance(delta: float, frame: InputFrame) -> WeaponData:
 		select_weapon(frame.weapon_slot_pressed)
 	elif frame.switch_pressed:
 		cycle_weapon()
+	for step in frame.wheel_steps: cycle_weapon(step)
 	var weapon := current()
+	if weapon == null: return null
 	if frame.reload_pressed:
 		weapon.start_reload()
 	var wants_fire := frame.fire_held if weapon.data.automatic else frame.fire_pressed

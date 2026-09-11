@@ -134,6 +134,8 @@ func _draw() -> void:
 	var origin := Vector2(0, -26)
 	var index := 1 if weapon.data.id == &"shotgun" else (2 if weapon.data.id == &"smg" else 0)
 	_support_arm(index, forward, weapon.progress())
+	# During reload the support palm travels behind the torso with its sleeve.
+	if weapon.reloading: _support_arm(index, forward, weapon.progress(), true)
 	var atlas := IDLE if pose == "idle" else RUN
 	var cell := Vector2(atlas.get_width() * 0.5, atlas.get_height() * 0.5)
 	var feet: float = IDLE_FEET[frame] if pose == "idle" else RUN_FEET[frame]
@@ -151,7 +153,7 @@ func _draw() -> void:
 	draw_set_transform(origin, forward.angle(), Vector2(1, actor.facing))
 	draw_texture_rect_region(FIRING_ARMS[index], Rect2(offset, region_grip.size * ARM_SCALE), region_grip)
 	draw_set_transform(Vector2.ZERO)
-	_support_arm(index, forward, weapon.progress(), true)
+	if not weapon.reloading: _support_arm(index, forward, weapon.progress(), true)
 	if actor.flash_time > 0:
 		var muzzle := origin + forward * 25
 		draw_line(muzzle.round(), (muzzle + forward * 7).round(), Color("edc875"), 3, false)
