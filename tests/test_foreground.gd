@@ -20,6 +20,7 @@ func clear_pixel(screen: Vector2, wall: Node3D, camera: Camera3D, source: Image)
 	return true
 func run() -> void:
 	var app = load("res://scenes/game.tscn").instantiate()
+	app.campaign_enabled = false # Legacy regression fixture; main F5 uses the campaign.
 	root.add_child(app)
 	var stage: CrimsonStage3D = app.stage
 	stage.frozen_camera = true

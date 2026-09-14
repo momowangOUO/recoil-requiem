@@ -1,0 +1,6 @@
+interface:
+  display_name: "游戏故事与角色卡"
+  short_description: "先核对设定与人物动机，再组织游戏故事、角色关系、任务和自然中文对白"
+  default_prompt: "使用 $game-story-workflow，先建立角色动机和关系，再设计故事、任务与对白，并实际读取所需技能。"
+policy:
+  allow_implicit_invocation: true

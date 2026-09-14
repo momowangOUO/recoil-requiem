@@ -3,6 +3,7 @@ extends RefCounted
 
 var blocked_fire := true
 var blocked_jump := true
+var blocked_melee := true
 var wheel_switch := false
 var wheel_steps: Array[int] = []
 var view_active := false
@@ -12,7 +13,7 @@ var q_time := 0.0
 var blocked_view := false
 
 static func install_actions() -> void:
-	var mapping := {"move_left": KEY_A, "move_right": KEY_D, "move_up": KEY_W, "move_down": KEY_S, "reload": KEY_R, "switch_weapon": KEY_Q, "jump": KEY_SPACE}
+	var mapping := {"move_left": KEY_A, "move_right": KEY_D, "move_up": KEY_W, "move_down": KEY_S, "reload": KEY_R, "switch_weapon": KEY_Q, "jump": KEY_SPACE, "melee": KEY_V}
 	for index in 6:
 		mapping["weapon_%d" % (index + 1)] = [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6][index]
 	for action in mapping:
@@ -30,6 +31,7 @@ static func install_actions() -> void:
 func suppress() -> void:
 	blocked_fire = true
 	blocked_jump = true
+	blocked_melee = true
 	wheel_switch = false
 	wheel_steps.clear()
 	view_active = false
@@ -64,6 +66,9 @@ func sample(mouse_world: Vector2) -> InputFrame:
 	if not Input.is_action_pressed("jump"):
 		blocked_jump = false
 	frame.jump_pressed = Input.is_action_just_pressed("jump") and not blocked_jump
+	if not Input.is_action_pressed("melee"):
+		blocked_melee = false
+	frame.melee_pressed = Input.is_action_just_pressed("melee") and not blocked_melee
 	for index in 6:
 		if Input.is_action_just_pressed("weapon_%d" % (index + 1)):
 			frame.weapon_slot_pressed = index

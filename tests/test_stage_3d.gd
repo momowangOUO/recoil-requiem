@@ -26,6 +26,7 @@ func key(code: Key, down: bool) -> void:
 
 func run() -> void:
 	var app = load("res://scenes/game.tscn").instantiate()
+	app.campaign_enabled = false
 	root.add_child(app)
 	var stage: CrimsonStage3D = app.stage
 	var game := stage.game

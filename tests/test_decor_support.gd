@@ -35,6 +35,7 @@ func supported(stage: CrimsonStage3D, piece: MeshInstance3D) -> bool:
 
 func run() -> void:
 	var app = load("res://scenes/game.tscn").instantiate()
+	app.campaign_enabled = false # Legacy regression fixture; main F5 uses the campaign.
 	root.add_child(app)
 	var stage: CrimsonStage3D = app.stage
 	stage.game.player.set_physics_process(false)

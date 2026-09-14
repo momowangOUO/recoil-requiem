@@ -8,6 +8,7 @@ func capture(label: String) -> void:
 	root.get_texture().get_image().save_png("res://artifacts/combat_hud_%s.png" % label)
 func run() -> void:
 	var app = load("res://scenes/game.tscn").instantiate()
+	app.campaign_enabled = false # Legacy regression fixture; main F5 uses the campaign.
 	root.add_child(app)
 	var stage: CrimsonStage3D = app.stage
 	var player := stage.game.player

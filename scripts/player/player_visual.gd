@@ -4,6 +4,7 @@ extends Node2D
 
 const IDLE := preload("res://assets/characters/requiem/requiem_idle_v5_socket.png")
 const RUN := preload("res://assets/characters/requiem/requiem_run_v5_socket.png")
+const CLAW := preload("res://assets/characters/requiem/claw_fitting_source_v1.png")
 const BODY_SCALE := 0.084
 const IDLE_ROOTS := [346.0, 311.5, 346.0, 311.0]
 const RUN_ROOTS := [369.5, 351.0, 369.5, 344.5]
@@ -28,6 +29,11 @@ func update_pose(delta: float) -> void:
 	material.set_shader_parameter("hit_flash", clampf(actor.hit_flash / 0.06, 0, 1))
 	position = (actor.last_hit_direction * minf(2.0, actor.hurt_stun * 12)).snapped(Vector2(0.5, 0.5))
 	if actor.hurt_stun > 0:
+		queue_redraw()
+		return
+	if actor.melee.active():
+		pose = "run" if actor.melee.elapsed < 0.19 else "idle"
+		frame = 1 if actor.melee.elapsed < 0.08 else (2 if pose == "run" else 0)
 		queue_redraw()
 		return
 	var next_pose := "idle"
@@ -148,13 +154,20 @@ func _draw() -> void:
 	var forward := actor.aim_direction
 	var origin := Vector2(0, -26)
 	var index := 1 if weapon.data.id == &"shotgun" else (2 if weapon.data.id == &"smg" else 0)
-	_support_arm(index, forward, weapon.progress())
-	_support_arm(index, forward, weapon.progress(), true)
+	if actor.melee.active():
+		# The support hand folds naturally at the hip; gun is stowed during the claw.
+		_support_arm(0, Vector2(actor.facing, 0), -1)
+	else:
+		_support_arm(index, forward, weapon.progress())
+		_support_arm(index, forward, weapon.progress(), true)
 	var body := body_layout()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(actor.facing, 1))
 	var tint := Color(1.7, 1.7, 1.7) if actor.invulnerability > 0 and int(actor.invulnerability * 30) % 2 == 0 else Color.WHITE
 	draw_texture_rect_region(body.atlas, body.dest, body.region, tint)
 	draw_set_transform(Vector2.ZERO)
+	if actor.melee.active():
+		_claw_arm()
+		return
 	_right_arm(index, forward)
 	# Only the grip/hand and weapon rotate together. Shoulders stay on the torso.
 	var region_grip: Rect2 = RIGHT_GRIP[index]
@@ -166,3 +179,42 @@ func _draw() -> void:
 		var muzzle := origin + forward * 25
 		draw_line(muzzle.round(), (muzzle + forward * 7).round(), Color("edc875"), 3, false)
 		draw_line(muzzle.round(), (muzzle + forward * 11).round(), Color("fff2be"), 1, false)
+
+func claw_pose() -> Dictionary:
+	var age: float = actor.melee.elapsed
+	var reach: float
+	var sweep: float
+	if age < 0.08:
+		reach = age / 0.08
+		sweep = -0.8
+	elif age < 0.16:
+		reach = 1.0
+		sweep = lerpf(-0.8, 0.65, (age - 0.08) / 0.08)
+	else:
+		reach = 1.0 - clampf((age - 0.16) / 0.22, 0, 1)
+		sweep = lerpf(0.65, -0.2, 1 - reach)
+	var shoulder := Vector2(-3 * actor.facing, -26)
+	var wrist := Vector2(lerpf(0, 6.5, reach) * actor.facing, -25 + sin(sweep) * 4)
+	var upper := RIGHT_SHOULDERS[0].distance_to(RIGHT_ELBOWS[0]) * ARM_SCALE
+	var lower := RIGHT_ELBOWS[0].distance_to(RIGHT_WRISTS[0]) * ARM_SCALE
+	var elbow := _elbow(shoulder, wrist, upper, lower)
+	return {"shoulder": shoulder, "wrist": wrist, "elbow": elbow, "sweep": sweep}
+
+func _claw_arm() -> void:
+	var age: float = actor.melee.elapsed
+	var fitted := claw_pose()
+	var shoulder: Vector2 = fitted.shoulder
+	var wrist: Vector2 = fitted.wrist
+	var elbow: Vector2 = fitted.elbow
+	var sweep: float = fitted.sweep
+	_bone(FIRING_ARMS[0], RIGHT_UPPER[0], RIGHT_SHOULDERS[0], RIGHT_ELBOWS[0], shoulder, elbow)
+	_bone(FIRING_ARMS[0], RIGHT_FORE[0], RIGHT_ELBOWS[0], RIGHT_WRISTS[0], elbow, wrist)
+	# Authored right hand, registered at its wrist. The accepted body is unchanged.
+	draw_set_transform(wrist.snapped(Vector2(0.5, 0.5)), sweep * actor.facing, Vector2(actor.facing, 1))
+	draw_texture_rect_region(CLAW, Rect2(-0.5, -4.7, 12.6, 10), Rect2(1000, 125, 340, 270))
+	draw_set_transform(Vector2.ZERO)
+	if age >= 0.08 and age < 0.23:
+		var alpha := 1.0 if age < 0.16 else 1.0 - (age - 0.16) / 0.07
+		draw_set_transform(Vector2(5 * actor.facing, -39), 0, Vector2(actor.facing, 1))
+		draw_texture_rect_region(CLAW, Rect2(0, 0, 25, 27), Rect2(900, 425, 565, 545), Color(1, 1, 1, alpha))
+		draw_set_transform(Vector2.ZERO)

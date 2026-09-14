@@ -39,6 +39,7 @@ func leave_room(game: RecoilLab) -> bool:
 
 func run() -> void:
 	var app = load("res://scenes/game.tscn").instantiate()
+	app.campaign_enabled = false # Legacy regression fixture; main F5 uses the campaign.
 	root.add_child(app)
 	var game: RecoilLab = app.stage.game
 	game.connected_map = false

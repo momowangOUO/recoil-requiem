@@ -19,6 +19,7 @@ func run() -> void:
 	check(errors.is_empty(), "Composed map editor validation: " + str(errors))
 	source.free()
 	var app = load("res://scenes/game.tscn").instantiate()
+	app.campaign_enabled = false # Legacy regression fixture; main F5 uses the campaign.
 	root.add_child(app)
 	var stage: CrimsonStage3D = app.stage
 	var game := stage.game

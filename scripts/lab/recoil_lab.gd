@@ -3,6 +3,8 @@ extends Node2D
 
 const TITLES := ["RECOIL STEP", "DESCENT", "BLIND SIDE", "CRIMSON MONASTERY"]
 @export var visual_slice := false
+var campaign_enabled := false
+var campaign_session: Node
 var connected_map := true
 var checkpoint_position := Vector2.ZERO
 var checkpoint_index := 0
@@ -68,6 +70,10 @@ func _ready() -> void:
 	overlay.preset_requested.connect(reset_trial)
 	overlay.reset_requested.connect(func(): reset_trial(preset))
 	get_window().focus_exited.connect(func(): pause_trial())
+	if campaign_enabled and visual_slice and editor_room_path.is_empty():
+		campaign_session = preload("res://scripts/campaign/campaign_session.gd").new()
+		add_child(campaign_session)
+		campaign_session.setup(self)
 	reset_trial(3 if visual_slice else 0)
 
 static func baseline_config() -> Dictionary:
@@ -135,6 +141,7 @@ func reset_trial(index: int) -> void:
 	add_child(world)
 	var room_path: String = editor_room_path if not editor_room_path.is_empty() else CAMPAIGN_ROOMS[room_index]
 	if visual_slice and connected_map and editor_room_path.is_empty(): room_path = "res://scenes/rooms/connected_monastery.tscn"
+	if campaign_session != null: room_path = "res://scenes/rooms/monastery_campaign.tscn"
 	environment = load(room_path).instantiate() if visual_slice else LabEnvironment.new()
 	world.add_child(environment)
 	environment.build(preset)
@@ -167,7 +174,9 @@ func reset_trial(index: int) -> void:
 	(presentation_host if presentation_host != null else world).add_child(aim_ui)
 	aim_ui.process_mode = Node.PROCESS_MODE_PAUSABLE
 	aim_ui.add_child(reticle)
-	if visual_slice:
+	if campaign_session != null:
+		campaign_session.bind_world()
+	elif visual_slice:
 		for marker in environment.enemy_spawns:
 			var guard: ShieldEnemy = RifleEnemy.new() if marker.kind == RoomMarker.Kind.RIFLE else ShieldEnemy.new()
 			guard.position = marker.position
@@ -191,8 +200,9 @@ func reset_trial(index: int) -> void:
 		enemies.append(enemy)
 	if environment is CrimsonEnvironment:
 		environment.stage.add_actor(player)
-		for guard in enemies:
-			environment.stage.add_actor(guard)
+		if campaign_session == null:
+			for guard in enemies:
+				environment.stage.add_actor(guard)
 		environment.set_greybox(greybox)
 	camera_center = player.position + Vector2(0, -50)
 	_update_camera(1.0)
@@ -215,6 +225,10 @@ func _request_reset() -> void:
 		reset_trial.call_deferred(preset)
 
 func _request_respawn() -> void:
+	if campaign_session != null:
+		campaign_session.state.restore_checkpoint()
+		_request_reset()
+		return
 	if not environment is ConnectedMonastery:
 		_request_reset()
 		return
@@ -224,6 +238,7 @@ func _request_respawn() -> void:
 
 func _respawn() -> void:
 	reset_pending = false
+	player.melee.reset()
 	player.position = checkpoint_position
 	player.velocity = Vector2.ZERO
 	player.health = 5
@@ -269,6 +284,9 @@ func resume_trial() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CONFINED_HIDDEN
 
 func _input(event: InputEvent) -> void:
+	if campaign_session != null and campaign_session.handle_input(event):
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:
 			KEY_E:
@@ -328,7 +346,11 @@ func _physics_process(delta: float) -> void:
 		audio.play("reload")
 	last_reload = weapon.reloading
 	var hit_text := last_hit
-	if visual_slice:
+	if campaign_session != null:
+		campaign_session.step(delta)
+		var nearby: Dictionary = campaign_session.nearest()
+		if not nearby.is_empty(): hit_text = "[E] " + str(campaign_session.Data.NAMES.get(nearby.id, "调查 / 操作"))
+	if visual_slice and campaign_session == null:
 		if environment.alarm_active():
 			alarm_countdown -= delta
 			if alarm_countdown <= 0:
@@ -360,7 +382,7 @@ func _physics_process(delta: float) -> void:
 		hit_text = "DROP %.0f PX   TIME %.2f S" % [player.position.y - environment.spawn.y, elapsed]
 	var hud_title: String = environment.room_title if visual_slice else TITLES[preset]
 	var objective := ""
-	if visual_slice:
+	if visual_slice and campaign_session == null:
 		var done := 0
 		var total := 0
 		for action in environment.actions:
@@ -397,6 +419,7 @@ func _enemy_defeated() -> void:
 		overlay.show_notice("AEGIS DOWN / BACKSPACE TO REPLAY")
 
 func _update_exit() -> void:
+	if campaign_session != null: return
 	if not environment is CrimsonEnvironment: return
 	var clear := true
 	for guard in enemies:

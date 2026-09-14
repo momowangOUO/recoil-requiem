@@ -26,8 +26,8 @@ $replayOutput = & $Godot --headless --path $projectDirectory --log-file (Join-Pa
 $replayResult = $replayOutput | Select-String '^REPLAY RESULT:'
 if ($LASTEXITCODE -ne 0 -or -not $replayResult -or ($replayOutput | Select-String 'SCRIPT ERROR:')) { $replayOutput | Write-Output; exit 1 }
 Write-Output "Keyboard/mouse engine-event replay (60 FPS): $replayResult"
-foreach ($fixture in @('test_paper_stage', 'test_stage_3d', 'test_campaign', 'test_continuation', 'test_connected', 'test_hit_feedback', 'test_arm_rig', 'test_combat_hud', 'test_environment_art', 'test_decor_support', 'test_foreground', 'export_game_text')) {
-    $stageOutput = & $Godot --headless --path $projectDirectory --log-file (Join-Path $artifactDirectory "$fixture.log") --fixed-fps 60 --script "res://tests/$fixture.gd" 2>&1
+foreach ($fixture in @('test_paper_stage', 'test_stage_3d', 'test_campaign', 'test_continuation', 'test_connected', 'test_hit_feedback', 'test_claw_melee', 'test_campaign_state', 'test_campaign_session', 'test_campaign_dialogue_review', 'test_monastery_campaign', 'test_campaign_enemy', 'test_campaign_ui', 'test_campaign_residency', 'test_campaign_editor', 'test_arm_rig', 'test_combat_hud', 'test_environment_art', 'test_decor_support', 'test_foreground', 'export_game_text')) {
+    $stageOutput = & $Godot --headless --path $projectDirectory --log-file (Join-Path $artifactDirectory "$fixture.log") --fixed-fps 60 --script "res://tests/$fixture.gd" -- --campaign-test 2>&1
     $stageResult = $stageOutput | Select-String 'STAGE RESULT:'
     if ($LASTEXITCODE -ne 0 -or -not $stageResult -or ($stageOutput | Select-String 'SCRIPT ERROR:')) { $stageOutput | Write-Output; exit 1 }
     Write-Output $stageResult
@@ -37,3 +37,8 @@ $editorOutput = & $Godot --headless --editor --path $projectDirectory --quit-aft
 $editorResult = $editorOutput | Select-String '^MAP EDITOR RESULT:'
 if ($LASTEXITCODE -ne 0 -or -not $editorResult -or ($editorOutput | Select-String 'SCRIPT ERROR:')) { $editorOutput | Write-Output; exit 1 }
 Write-Output $editorResult
+
+$campaignEditorOutput = & $Godot --headless --editor --path $projectDirectory --quit-after 600 --log-file (Join-Path $artifactDirectory 'campaign-editor-smoke.log') -- --campaign-editor-smoke 2>&1
+$campaignEditorResult = $campaignEditorOutput | Select-String 'CAMPAIGN EDITOR.*RESULT:'
+if ($LASTEXITCODE -ne 0 -or -not $campaignEditorResult -or ($campaignEditorOutput | Select-String 'SCRIPT ERROR:')) { $campaignEditorOutput | Write-Output; exit 1 }
+Write-Output $campaignEditorResult

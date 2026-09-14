@@ -10,6 +10,7 @@ const VIEW_CENTER := Vector2(480, 144)
 const CAMERA_DISTANCE := 4.8
 const CAMERA_RISE := 1.18
 const CAMERA_FOV := 23.0
+@export var campaign_enabled := false
 # z-distance in metres; cursor reach is in logical screen pixels.
 const WEAPON_CAMERA := {
 	&"revolver": {"near": 4.8, "far": 7.2, "outside": 32.0},
@@ -29,6 +30,8 @@ var frozen_camera := false
 var materials: Array[StandardMaterial3D] = []
 var greybox := false
 var shadow_cards: Array[MeshInstance3D] = []
+var residency = preload("res://scripts/rooms/campaign_residency.gd").new()
+var residency_enabled := true
 var door_material: StandardMaterial3D
 var ui_host: Node
 var platform_visuals: Dictionary = {}
@@ -67,6 +70,7 @@ func _ready() -> void:
 	actors.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	add_child(actors)
 	game = load("res://scenes/crimson_slice.tscn").instantiate()
+	if campaign_enabled: game.campaign_enabled = true
 	game.presentation_host = ui_host if ui_host != null else self
 	game.projected_aim = mouse_world
 	game.trial_reset.connect(_room_reset)
@@ -98,6 +102,7 @@ func _build_lighting() -> void:
 	add_child(muzzle_light)
 
 func _room_reset() -> void:
+	residency.clear()
 	# Hide only the 2D scenery. Players, enemies, bullets and hit FX still render.
 	game.environment.hide()
 	game.camera.enabled = false
@@ -122,6 +127,12 @@ func _room_reset() -> void:
 	camera_distance = camera_profile().near
 	_update_camera(1.0)
 	_update_actor_window()
+	if campaign_enabled and residency_enabled:
+		residency.setup(self)
+		residency.update_at(game.player.position)
+
+func _exit_tree() -> void:
+	residency.clear()
 
 func _material(region: Rect2, color: Color, surface: String = "iron") -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
@@ -166,7 +177,7 @@ func _support_height(x: float, half_width: float, z: float, half_depth: float) -
 		if world_x - half_width < left or world_x + half_width > right: continue
 		if z - half_depth < -1.175 or z + half_depth > 0.675: continue
 		var floor_y: float = -module.position.y * PIXEL - scenery.global_position.y
-		if floor_y <= -3.0: best = maxf(best, floor_y)
+		if floor_y <= -3.0 and (not game.environment.get("campaign") or floor_y >= -4.0): best = maxf(best, floor_y)
 	return best
 
 func _build_platform_railing(module: PaperPlatform, dark: Material, gold: Material) -> void:
@@ -190,6 +201,7 @@ func _rose_support_height(x: float) -> float:
 		var right: float = left + support.width * PIXEL
 		if world_x - 0.32 < left - 0.0001 or world_x + 0.32 > right + 0.0001: continue
 		var floor_y: float = -support.position.y * PIXEL
+		if game.environment.get("campaign") and (floor_y - scenery.global_position.y < -4.0 or floor_y - scenery.global_position.y > -3.0): continue
 		var clear := true
 		for obstacle in game.environment.modules:
 			var obstacle_left: float = obstacle.position.x * PIXEL
@@ -214,6 +226,9 @@ func _build_room() -> void:
 	night = NightBackdrop.new()
 	night.name = "NightBackdrop"
 	scenery.add_child(night)
+	if game.environment.get("campaign"):
+		for index in range(5, 8):
+			night.layer("CastleSilhouette%d" % (index + 1), preload("res://assets/environments/crimson/castle_v3.png"), Vector3(index * 20.0 + 10, -5.1, -9), 20.0 / 1536.0)
 	for module in game.environment.modules:
 		var first_child := scenery.get_child_count()
 		var width: float = module.width * PIXEL
@@ -273,9 +288,16 @@ func _build_room() -> void:
 	var room_root := scenery
 	var foreground := preload("res://scenes/rooms/near_foreground.tscn").instantiate()
 	foreground.name = "NearForeground"
+	if game.environment.get("campaign"):
+		foreground.position.y = -15.4
 	room_root.add_child(foreground)
 	for piece in foreground.find_children("*", "MeshInstance3D", true, false):
 		if not materials.has(piece.material_override): materials.append(piece.material_override)
+	if game.environment.get("campaign"):
+		for index in [1, 2]:
+			var extension := foreground.duplicate()
+			extension.position.x = index * 48.0
+			room_root.add_child(extension)
 	for section in game.environment.visual_sections:
 		var group := Node3D.new()
 		group.name = "SectionArchitecture"
@@ -359,6 +381,7 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 	match section_architecture:
 		1:
 			# A real bell, beams and ropes create depth without painting fake platforms.
+			if game.environment.get("campaign") and (not is_finite(_support_height(5.95, 0.10, -0.88, 0.10)) or not is_finite(_support_height(7.85, 0.10, -0.88, 0.10))): return
 			for x in [5.95, 7.85]:
 				var floor_y := _support_height(x, 0.10, -0.88, 0.10)
 				if is_finite(floor_y):
@@ -410,6 +433,12 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 
 func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 	var at := to_stage(action.position, -0.18)
+	if action.has_meta("shortcut_gate"):
+		# Freight mouths are actual framed openings behind the play plane.
+		for side in [-1.0, 1.0]:
+			_box(at + Vector3(side * 0.42, 0.5, -1.12), Vector3(0.12, 1.0, 0.18), dark, "FreightDoorJamb")
+		_box(at + Vector3(0, 1.04, -1.12), Vector3(0.96, 0.12, 0.18), gold, "FreightDoorLintel")
+		_box(at + Vector3(0, -0.05, -0.88), Vector3(0.96, 0.10, 0.66), dark, "FreightThreshold")
 	var surface := "parchment" if action.kind == RoomAction.Kind.NOTE else ("glass" if action.kind == RoomAction.Kind.SUPPLY else "brass")
 	var indicator := _material(Rect2(), Color("d8b96f"), surface)
 	indicator.emission_enabled = true
@@ -505,6 +534,7 @@ func _physics_process(delta: float) -> void:
 		_update_camera(delta)
 	_update_actor_window()
 	night.follow_camera(camera.position)
+	if campaign_enabled and residency_enabled: residency.update_at(game.player.position)
 	for module in platform_visuals:
 		for piece in platform_visuals[module]: piece.visible = module.active
 	for action in action_visuals:
@@ -524,11 +554,16 @@ func _physics_process(delta: float) -> void:
 	if game.environment.exit_open:
 		door_material.albedo_color = Color("69b7ad")
 		door_material.emission = Color("245950")
+	# Quest encounters may spawn after the initial room geometry was built.
+	while shadow_cards.size() < game.enemies.size() + 1:
+		var extra := shadow_cards[0].duplicate() as MeshInstance3D
+		scenery.add_child(extra)
+		shadow_cards.append(extra)
 	for i in game.enemies.size() + 1:
 		var actor: CharacterBody2D = game.player if i == 0 else game.enemies[i - 1]
 		var query := PhysicsRayQueryParameters2D.create(actor.position + Vector2(0, -2), actor.position + Vector2(0, 162), 1 | 1024)
 		var hit := actor.get_world_2d().direct_space_state.intersect_ray(query)
-		shadow_cards[i].visible = not hit.is_empty()
+		shadow_cards[i].visible = not hit.is_empty() and actor.visible
 		if not hit.is_empty():
 			var altitude: float = maxf(0, hit.position.y - actor.position.y)
 			shadow_cards[i].position = to_stage(hit.position) + Vector3(0, 0.006, 0)
@@ -537,7 +572,10 @@ func _physics_process(delta: float) -> void:
 func _update_camera(delta: float) -> void:
 	var target_2d := game.player.position + Vector2(game.player.aim_direction.x * 20, -minf(52, camera_distance * 10))
 	target_2d.x = clampf(target_2d.x, 150, game.environment.bounds.end.x - 150)
-	target_2d.y = clampf(target_2d.y, -20, 350)
+	if game.environment.get("campaign"):
+		target_2d.y = clampf(target_2d.y, game.environment.bounds.position.y + 108, game.environment.bounds.end.y - 66)
+	else:
+		target_2d.y = clampf(target_2d.y, -20, 350)
 	camera_target = camera_target.lerp(to_stage(target_2d), 1 - exp(-delta / 0.16))
 	# A small, bounded dolly angle reveals side faces during movement, without orbit controls.
 	var desired_yaw := clampf(game.player.velocity.x / 420, -1, 1) * 0.32
@@ -551,5 +589,8 @@ func _update_camera(delta: float) -> void:
 func _update_actor_window() -> void:
 	# Keep the actor render target fixed-size as the continuous world grows.
 	var center_x := roundf(clampf(camera.position.x / PIXEL, 480, game.environment.bounds.end.x - 480))
-	actors.position = to_stage(Vector2(center_x, 144))
-	simulation.canvas_transform = Transform2D(Vector2(RENDER_SCALE, 0), Vector2(0, RENDER_SCALE), Vector2((480 - center_x) * RENDER_SCALE, 128 * RENDER_SCALE))
+	var center_y := 144.0
+	if game.environment.get("campaign"):
+		center_y = roundf(clampf(game.player.position.y - 56, game.environment.bounds.position.y + 272, game.environment.bounds.end.y - 272))
+	actors.position = to_stage(Vector2(center_x, center_y))
+	simulation.canvas_transform = Transform2D(Vector2(RENDER_SCALE, 0), Vector2(0, RENDER_SCALE), Vector2((480 - center_x) * RENDER_SCALE, (272 - center_y) * RENDER_SCALE))

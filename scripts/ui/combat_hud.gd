@@ -171,7 +171,7 @@ func _draw() -> void:
 		var ammo := int(metrics.get("ammo",0))
 		var magazine := int(metrics.get("magazine",0))
 		var tint := ammo_color(ammo, magazine)
-		text_at(Vector2(132,32), str(metrics.get("weapon_name", "")), 14)
+		text_at(Vector2(132,32), str(metrics.get("weapon_name", "")), 20)
 		text_at(Vector2(128,83), "%02d" % ammo, 56, tint)
 		text_at(Vector2(214,81), "/ %d" % magazine, 24)
 	var ring := ring_state()

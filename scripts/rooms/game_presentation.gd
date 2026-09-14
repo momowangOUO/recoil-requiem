@@ -1,6 +1,7 @@
 extends Control
 ## 640x360 pixel world, native-resolution UI. Logical gameplay remains 320x180.
 
+@export var campaign_enabled := true
 var stage: CrimsonStage3D
 var stage_viewport: SubViewport
 var mouse_screen := Vector2(160, 90)
@@ -26,6 +27,7 @@ func _ready() -> void:
 	display.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(display)
 	stage = load("res://scenes/crimson_stage_3d.tscn").instantiate()
+	stage.campaign_enabled = campaign_enabled
 	stage.ui_host = self
 	stage_viewport.add_child(stage)
 

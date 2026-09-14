@@ -1,11 +1,14 @@
 # Recoil Requiem project guidance
 
+- Start project work with `dev-design/README.md` and `dev-design/DEVELOPMENT_RULES.md`, then only the relevant indexed documents. `dev-design/IMPLEMENTATION.md` separates completed work, pending narrative review and unimplemented gameplay. User cancelled the 80% quota stop on 2026-09-14.
+- Story, character cards, motivation, relationship, narrative quest and dialogue work must read `tools/skills/game-story-workflow/SKILL.md` (also installed as `$game-story-workflow`) before drafting. Actually read its required existing skills and relevant templates; names alone are not invocation evidence. Do not route pure technical work through narrative skills. New story drafts are not canon until reviewed; revoked heart-replacement and corpse-auction premises must not return. Preserve the protagonist's existing name and all first-meeting relationships.
+
 - Latest hand rig: SMG uses smg_left_support_v5.png with palm facing viewer. Keep support_palm_front's body/near-hand occlusion mask; never repaint the entire far hand unconditionally above the torso. Validate complete 360-degree aiming via tests/test_arm_rig.gd and tests/capture_aim_sweep.gd. See assets/characters/requiem/SMG_SUPPORT_V5.md.
 
 - Current body artwork: player v5 sleeveless Gothic/steampunk vampire torso, Aegis v3, riflewoman v1. Use `requiem_*_v5_socket.png` with independently authored right-trigger and left-support parts. Bodies must have no sleeves; complete sleeves belong to upper arms. Fix shoulders to the torso, rotate upper/forearm around authored joints, and keep hand/gun registration. Never rotate the entire sleeved arm around the gun or duplicate a right hand as a left hand. Fit artwork on the whole character before splitting. See `assets/characters/requiem/GOTHIC_RIG_SOURCE.md` and `docs/screenshots/gothic_rig.png`.
-- Main gameplay is one 4800px connected map, `scenes/rooms/connected_monastery.tscn`; the five former rooms are reusable editing sections, not separate room-load boundaries. Preserve two-way traversal and continuous world/camera state.
+- Main gameplay now uses `scenes/rooms/monastery_campaign.tscn`: 12000×2400 logical pixels, 16 spaces, three tiers. Preserve continuous coordinates and two-way traversal. `connected_monastery.tscn` and the five former rooms are legacy regression fixtures; do not restore their withdrawn story to the main game.
 - Rooms are authored in `scenes/rooms/*.tscn` using PaperPlatform and RoomMarker; use the bundled Recoil Map editor and `docs/MAP_EDITOR.md`. New room gameplay and 3D geometry must share this data.
-- During this work the user requested periodic account-usage checks, wrapping up with records and GitHub sync if remaining quota falls below 80%. Usage percentages are account limits, not exact token counts.
+- User override (2026-09-14): the 80% remaining-quota stopping rule is cancelled. Do not stop work at that threshold. Account usage is not a per-task token count.
 
 - Latest user override (2026-09-10): use real 3D scenery, perspective Camera3D and lighting with pixel-art paper characters; retain existing 2D gameplay physics. This overrides the attached v1.3 document's pure-2D presentation restriction. Main scene is `scenes/game.tscn`.
 - Logical gameplay remains 320×180, but world rendering is now 640×360 and actor compositing is 2× to preserve artwork detail. UI renders on the native-resolution canvas. This user-requested quality upgrade overrides the older 320×180-only render rule below. Keep nearest sampling for game textures, clear native-resolution UI text, and no perspective scaling added to individual animation frames.
@@ -28,3 +31,5 @@
 - Stone platforms block from all sides; only visibly open metal grating may use one-way collision. PaperPlatform defaults to solid. Check complete routes after changing platform collision, including headroom and leaving upper platforms.
 - Keep exactly one Windows output: builds/windows/RecoilRequiem.exe. Update this filename instead of adding named variants.
 - The user's natural-writing-zh skill was downloaded from GitHub. New player-visible prose must have a reviewed standalone game-text draft before integration; retain IDs and verify decoded target text against the draft.
+
+- User override (2026-09-14): protagonist name is 莉芙 (two syllables); keep the accepted white-haired, red-eyed player v5 artwork unchanged. This is a name change, not permission to redesign her appearance.

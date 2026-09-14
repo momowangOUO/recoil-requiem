@@ -1,0 +1,143 @@
+extends SceneTree
+## Real scenes/game.tscn GPU acceptance, with explicit staged story/map states.
+var presentation: Control
+var game: RecoilLab
+var checks := 0
+var selected := ""
+
+func _initialize() -> void: run.call_deferred()
+func check(ok: bool, label: String) -> void:
+	checks += 1
+	assert(ok, label)
+func settle(count := 4) -> void:
+	for i in count: await process_frame
+func capture(label: String) -> void:
+	await RenderingServer.frame_post_draw
+	root.get_texture().get_image().save_png("res://artifacts/ui_acceptance_" + label + ".png")
+func click(button: Button) -> void:
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = button.get_global_rect().get_center()
+	root.push_input(press,true)
+	press = press.duplicate()
+	press.pressed = false
+	root.push_input(press,true)
+
+func run() -> void:
+	root.size = Vector2i(1280,720)
+	presentation = load("res://scenes/game.tscn").instantiate()
+	root.add_child(presentation)
+	await settle(20)
+	game = presentation.stage.game
+	game.player.manual_control = true
+	game.player.invulnerability = 10000
+	var session = game.campaign_session
+	var ui = session.ui
+	var hud = game.overlay.combat
+	await capture("combat_1280")
+	await RenderingServer.frame_post_draw
+	var background_pixel := root.get_texture().get_image().get_pixel(800,680)
+	ui.modulate.a = 0
+	hud.modulate.a = 0
+	await settle(2)
+	await capture("world_without_ui_1280")
+	check(root.get_texture().get_image().get_pixel(800,680) == background_pixel,"Bottom dark field belongs to rendered world, not UI background")
+	ui.modulate.a = 1
+	hud.modulate.a = 1
+	check(not hud.ring_state().visible,"Idle ammunition ring is hidden")
+	var input := InputFrame.new()
+	input.fire_pressed = true
+	input.aim_world = game.player.aim_origin() + Vector2(180,0)
+	game.player.step(input,1.0/60)
+	await settle(2)
+	check(hud.shot_time > 0 and hud.ring_state().visible,"Real successful shot shows transient ammo ring")
+	await capture("shot_1280")
+	await create_timer(0.4).timeout
+	check(not hud.ring_state().visible,"Shot-only ring disappears after its 0.35 second window")
+	var weapon = game.player.weapons.current()
+	weapon.start_reload()
+	weapon.tick(0.4,true)
+	await settle(2)
+	check(is_equal_approx(hud.ring_state().ratio,weapon.progress()),"HUD reload ring matches actual WeaponRuntime progress")
+	await capture("reload_1280")
+	session.pause()
+	var paused_progress: float = weapon.progress()
+	await settle(4)
+	check(is_equal_approx(weapon.progress(),paused_progress),"Paused world freezes actual reload progress")
+	session.close()
+	weapon.cancel_reload()
+	await settle(2)
+	check(not hud.ring_state().visible,"Cancelled reload removes the ring")
+	game.player.weapons.select_weapon(1)
+	weapon = game.player.weapons.current()
+	weapon.ammo = 0
+	weapon.start_reload()
+	weapon.tick(weapon.data.reload_time * 1.4,true)
+	await settle(2)
+	check(weapon.ammo == 1 and is_equal_approx(hud.ring_state().ratio,weapon.progress()),"Shotgun next-shell ring uses current shell progress")
+	await capture("shotgun_shell_1280")
+	var spaces: Dictionary = {}
+	for id in game.environment.space_bounds:
+		spaces[id] = {"rect":game.environment.space_bounds[id],"title":session.Data.SPACE_NAMES[int(id.trim_prefix("mon_"))-1]}
+	ui.choice_selected.connect(func(id): selected = id)
+	session.event("met_ina")
+	session.event("met_ruka")
+	session.close()
+	var journal_key := InputEventKey.new()
+	journal_key.physical_keycode = KEY_J
+	journal_key.pressed = true
+	Input.parse_input_event(journal_key)
+	await settle(3)
+	check(ui.panel_kind == "journal" and paused,"Actual J key opens journal and pauses world")
+	var tracking_buttons: Array = ui.find_children("*","Button",true,false)
+	var tracking_scroll: ScrollContainer = ui.find_children("*","ScrollContainer",true,false)[0]
+	tracking_scroll.scroll_vertical = int(tracking_scroll.get_v_scroll_bar().max_value)
+	await settle(2)
+	click(tracking_buttons[-1])
+	check(session.selected_side == "records","Real journal click selects one side quest")
+	session.close()
+	for dimensions in [Vector2i(1280,720),Vector2i(1920,1080),Vector2i(960,540)]:
+		root.size = dimensions
+		await settle(3)
+		await capture("tracker_%d" % dimensions.x)
+		check(ui._side.text.contains(session.text("mon.records.title")) and not ui._side.text.contains(session.text("mon.tools.title")),"Tracker shows exactly the chosen side quest")
+		session.pause()
+		ui.show_map(spaces,game.environment.connections,spaces.keys(),game.environment.gate_states,game.player.position,game.environment.checkpoints)
+		await settle(3)
+		check(ui.panel.get_rect().end.y <= 720,"Map panel fits canvas at " + str(dimensions))
+		var buttons: Array = ui.find_children("*","Button",true,false)
+		check(buttons.size() == 17,"Map has close + all 16 full room-name buttons")
+		for id in spaces:
+			var found := false
+			for button in buttons:
+				if button.text.ends_with(spaces[id].title): found = true
+			check(found,"Full explored room name available: " + str(id))
+		click(buttons[1])
+		check(not ui._map_selected.is_empty(),"Map legend selects/highlights known space")
+		check(ui.theme.default_font_size * dimensions.x / 1280.0 >= 24,"Native text is at least 24px")
+		await capture("map16_%d" % dimensions.x)
+		# Add enough approved text to verify scrolling beyond a short exchange.
+		var transcript: Array = []
+		for i in 8: transcript.append(session.text("mon.records.note"))
+		ui.show_dialogue("玛拉",transcript,[{"id":"ui_test","text":session.text("mon.records.keep.choice")}])
+		await settle(3)
+		check(ui.panel.get_rect().end.y <= 720,"Long dialogue stays within canvas")
+		var scroll: ScrollContainer = ui.find_children("*","ScrollContainer",true,false)[0]
+		check(scroll.get_v_scroll_bar().max_value > scroll.size.y,"Long dialogue has real scroll overflow")
+		scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
+		await settle(2)
+		buttons = ui.find_children("*","Button",true,false)
+		click(buttons[-1])
+		check(selected == "ui_test","Scrolled dialogue option accepts real mouse click while paused")
+		await capture("dialogue_bottom_%d" % dimensions.x)
+		session.close()
+	ui.show_map(spaces,game.environment.connections,[spaces.keys()[0]],game.environment.gate_states,game.player.position,game.environment.checkpoints)
+	await settle(3)
+	check(ui.find_children("*","Button",true,false).size() == 2,"Unexplored 15 room names are absent")
+	await capture("map_fog_960")
+	ui.close_panel()
+	check(ui.tracker.visible,"Tracker returns unchanged after closing map")
+	presentation.free()
+	print("UI ACCEPTANCE PASS: %d checks, actual main scene, 1280/1920/960, 16-room map, fog, paused scroll+click, live shot/reload" % checks)
+	quit()

@@ -15,3 +15,6 @@
 不随意删除 `.import` 和 `.uid`：它们可能是资源导入设置和稳定引用。清理临时截图后，Godot 再次扫描工程会刷新资源索引；不改变实际游戏资源的导入规则。
 
 清理后完整回归全部通过（含 5627 项手臂检查），唯一 Windows 输出已重新导出并启动验证。
+
+
+2026-09-14：当前AI策划与开发入口统一在dev-design；docs/history保存已撤回旧叙事，原文档路径仅作索引。通用叙事技能源码在tools/skills/game-story-workflow。新NPC未采用的首稿已移除，最终源图/提示词/裁切说明保留；制图脚本移入tools/art，截图夹具移入tests，比较截图移入docs/screenshots。具体清理与唯一运行文件状态以dev-design/VALIDATION.md为准。

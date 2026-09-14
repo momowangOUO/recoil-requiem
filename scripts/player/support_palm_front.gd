@@ -9,6 +9,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void: queue_redraw()
 func _draw() -> void:
 	if not is_instance_valid(rig.actor): return
+	if rig.actor.melee.active(): return
 	var weapon: WeaponRuntime = rig.actor.weapons.current()
 	var index := 1 if weapon.data.id == &"shotgun" else (2 if weapon.data.id == &"smg" else 0)
 	if index == 0 or weapon.reloading: return

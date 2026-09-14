@@ -1,9 +1,13 @@
 @tool
 extends RefCounted
-## Shared by editor validation and headless tests; room dimensions are intentional.
+## Shared validation reads authored data; campaign build() is never called here.
+static func editor_bounds(room: Node) -> Rect2:
+	if room != null and room.has_meta("world_bounds"):
+		return room.get_meta("world_bounds")
+	return Rect2(0, -128, room.room_width if room != null else 960, 528)
+
 static func validate(room: Node) -> PackedStringArray:
 	if room is ConnectedMonastery and room.has_node("Sections"):
-		# Validate the same composed coordinates the game actually loads.
 		var copy := room.duplicate()
 		copy.compose_sections()
 		var result := validate(copy)
@@ -13,49 +17,100 @@ static func validate(room: Node) -> PackedStringArray:
 	if room == null or not room.has_node("Gameplay"):
 		errors.append("Open a room scene containing Gameplay first.")
 		return errors
+	var bounds := editor_bounds(room)
+	var expanded := room.has_meta("world_bounds")
+	if not bounds.has_area(): errors.append("World bounds must have positive width and height.")
 	var starts := 0
 	var exits := 0
-	var surfaces: Array[Rect2] = []
 	var markers: Array[Node2D] = []
-	var action_ids: Array[String] = []
+	var actions: Dictionary = {}
 	var unlocks: Array[String] = []
-	var solid_surfaces: Array[Rect2] = []
+	var solid_surfaces: Array[Dictionary] = []
 	var initial_surfaces: Array[Rect2] = []
+	var gates: Dictionary = {}
+	var shortcut_counts: Dictionary = {}
+	var spaces: Dictionary = {}
+	if expanded and room.has_node("Sections"):
+		for section in room.get_node("Sections").get_children():
+			if section.has_meta("space_id"): spaces[str(section.get_meta("space_id"))] = section.get_meta("space_bounds", Rect2())
 	for node in room.get_node("Gameplay").get_children():
 		if node is PaperPlatform:
 			if not node.unlock_action.is_empty(): unlocks.append(node.unlock_action)
 			if node.width < 16 or node.collision_depth <= 0:
 				errors.append("%s: width >= 16 and collision depth > 0 required." % node.name)
-			if node.position.x < 0 or node.position.x + node.width > room.room_width or node.position.y < -128 or node.position.y > 400:
-				errors.append("%s: outside the configured room bounds." % node.name)
-			surfaces.append(Rect2(node.position, Vector2(node.width, node.collision_depth)))
+			var surface := Rect2(node.position, Vector2(node.width, node.collision_depth))
+			var out_of_bounds: bool = not bounds.encloses(surface) if expanded else (node.position.x < 0 or surface.end.x > bounds.end.x or node.position.y < -128 or node.position.y > 400)
+			if out_of_bounds: errors.append("%s: outside the configured room bounds." % node.name)
+			if node.has_meta("gate_id"):
+				var id := str(node.get_meta("gate_id"))
+				if id.is_empty() or gates.has(id): errors.append("%s: gate ID must be nonempty and unique." % node.name)
+				if node.one_way: errors.append("%s: a closed gate must block from both sides." % node.name)
+				gates[id] = node
 			if node.unlock_action.is_empty():
-				initial_surfaces.append(surfaces[-1])
-				if not node.one_way: solid_surfaces.append(surfaces[-1])
+				if not node.has_meta("gate_id"): initial_surfaces.append(surface)
+				if not node.one_way: solid_surfaces.append({"rect":surface,"node":node})
 		elif node is RoomAction:
 			markers.append(node)
-			if node.action_id.is_empty() or node.action_id in action_ids:
-				errors.append("%s: action ID must be nonempty and unique." % node.name)
-			action_ids.append(node.action_id)
+			if node.has_meta("shortcut_gate"):
+				var shortcut_id := str(node.get_meta("shortcut_gate"))
+				shortcut_counts[shortcut_id] = int(shortcut_counts.get(shortcut_id, 0)) + 1
+			if node.action_id.is_empty(): errors.append("%s: action ID must be nonempty and unique." % node.name)
+			if not actions.has(node.action_id): actions[node.action_id] = []
+			actions[node.action_id].append(node)
 			if node.kind == RoomAction.Kind.SUPPLY and node.required:
 				errors.append("%s: supplies cannot be required objectives." % node.name)
 		elif node is RoomMarker:
-			starts += int(node.kind == RoomMarker.Kind.SPAWN)
-			exits += int(node.kind == RoomMarker.Kind.EXIT)
+			var is_npc := node.has_meta("npc_id")
+			var is_checkpoint := node.has_meta("checkpoint_id")
+			if is_npc and is_checkpoint: errors.append("%s: a marker cannot be both NPC and checkpoint." % node.name)
+			if not is_npc and not is_checkpoint:
+				starts += int(node.kind == RoomMarker.Kind.SPAWN)
+				exits += int(node.kind == RoomMarker.Kind.EXIT)
 			markers.append(node)
 	if starts != 1: errors.append("Exactly one SPAWN marker is required.")
 	if exits != 1: errors.append("Exactly one EXIT marker is required.")
 	for unlock in unlocks:
-		if unlock not in action_ids: errors.append("Unknown platform unlock action: " + unlock)
+		if not actions.has(unlock): errors.append("Unknown platform unlock action: " + unlock)
+	for gate_id in shortcut_counts:
+		if shortcut_counts[gate_id] != 2: errors.append("%s: freight gate must have exactly two endpoints across all action IDs." % gate_id)
+	for id in actions:
+		var group: Array = actions[id]
+		var has_shortcut := false
+		for action in group: has_shortcut = has_shortcut or action.has_meta("shortcut_gate")
+		if has_shortcut:
+			if group.size() != 2:
+				errors.append("%s: freight shortcut must have exactly two endpoints." % id)
+				continue
+			var gate_id := str(group[0].get_meta("shortcut_gate", ""))
+			if gate_id.is_empty() or not gates.has(gate_id) or str(group[1].get_meta("shortcut_gate", "")) != gate_id:
+				errors.append("%s: freight endpoints must reference the same existing gate." % id)
+			if group[0].position.distance_to(group[1].position) < 96:
+				errors.append("%s: freight endpoints must be distinct locations." % id)
+		elif group.size() > 1:
+			errors.append("%s: action ID must be nonempty and unique." % id)
+	for gate_id in gates:
+		var gate: PaperPlatform = gates[gate_id]
+		var gate_rect := Rect2(gate.position, Vector2(gate.width, gate.collision_depth))
+		var anchored := false
+		for surface in initial_surfaces:
+			if gate_rect.grow(0.1).intersects(surface): anchored = true
+		if not anchored: errors.append("%s: gate must meet an authored floor or support." % gate.name)
 	for marker in markers:
+		if expanded:
+			if not bounds.has_point(marker.position): errors.append("%s: marker is outside world bounds." % marker.name)
+			if marker.has_meta("space_id"):
+				var id := str(marker.get_meta("space_id"))
+				if not spaces.has(id): errors.append("%s: unknown space ID %s." % [marker.name,id])
 		var supported := false
 		for surface in initial_surfaces:
-			if absf(surface.position.y - marker.position.y) <= 2 and marker.position.x >= surface.position.x + 12 and marker.position.x <= surface.end.x - 12:
-				supported = true
+			if absf(surface.position.y - marker.position.y) <= 2 and marker.position.x >= surface.position.x + 12 and marker.position.x <= surface.end.x - 12: supported = true
 		if not supported: errors.append("%s: feet must be on a platform, at least 12 px from its edge." % marker.name)
 		var body := Rect2(marker.position + Vector2(-9, -38), Vector2(18, 37))
-		for surface in solid_surfaces:
-			if body.intersects(surface):
-				errors.append("%s: standing space overlaps solid stone; leave 38 px headroom." % marker.name)
+		for solid in solid_surfaces:
+			if body.intersects(solid.rect):
+				# Door controls may use their own closed doorway; actor spawns may not.
+				var own_door := marker is RoomAction and marker.has_meta("shortcut_gate") and str(marker.get_meta("shortcut_gate")) == str(solid.node.get_meta("gate_id", ""))
+				if own_door: continue
+				errors.append("%s: standing space overlaps solid stone or a closed gate; leave 38 px headroom." % marker.name)
 				break
 	return errors

@@ -64,7 +64,8 @@ func _first_occupied_from(preferred: int) -> int:
 			return index
 	return 0
 
-func advance(delta: float, frame: InputFrame) -> WeaponData:
+func advance(delta: float, frame: InputFrame, melee_active := false) -> WeaponData:
+	if melee_active and current() != null and current().reloading: current().cancel_reload()
 	for index in slots.size():
 		if slots[index] != null:
 			slots[index].tick(delta, index == active_slot)
@@ -75,6 +76,9 @@ func advance(delta: float, frame: InputFrame) -> WeaponData:
 	for step in frame.wheel_steps: cycle_weapon(step)
 	var weapon := current()
 	if weapon == null: return null
+	if melee_active:
+		if weapon.reloading: weapon.cancel_reload()
+		return null
 	if frame.reload_pressed:
 		weapon.start_reload()
 	var wants_fire := frame.fire_held if weapon.data.automatic else frame.fire_pressed

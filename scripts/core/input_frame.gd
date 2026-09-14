@@ -10,5 +10,6 @@ var switch_pressed := false
 var wheel_steps: Array[int] = []
 var drop_pressed := false
 var jump_pressed := false
+var melee_pressed := false
 ## Zero-based direct weapon index; -1 means no numeric selection this frame.
 var weapon_slot_pressed := -1

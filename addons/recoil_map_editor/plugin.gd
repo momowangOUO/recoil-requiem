@@ -8,6 +8,7 @@ var status: Label
 var x_input: SpinBox
 var y_input: SpinBox
 var width_input: SpinBox
+var encounter_input: SpinBox
 var smoke_runner: RefCounted
 
 func _enter_tree() -> void:
@@ -17,6 +18,7 @@ func _enter_tree() -> void:
 	var heading := Label.new()
 	heading.text = "反冲挽歌 · 地图编辑器"
 	dock.add_child(heading)
+	_button("打开新版修道院（16空间）", _open.bind("res://scenes/rooms/monastery_campaign.tscn"))
 	_button(RecoilLab.ROOM_TEXT.editor_connected, _open.bind("res://scenes/rooms/connected_monastery.tscn"))
 	_button("打开东庭", _open.bind("res://scenes/rooms/crimson_environment.tscn"))
 	_button("打开钟楼外廊", _open.bind("res://scenes/rooms/bell_gallery.tscn"))
@@ -26,10 +28,15 @@ func _enter_tree() -> void:
 	x_input = _number("放置 X", 0, 4800, 16, 320)
 	y_input = _number("脚底 Y", -128, 400, 16, 288)
 	width_input = _number("平台宽度", 16, 960, 16, 128)
+	encounter_input = _number("遭遇组 ID", 1, 16, 1, 1)
 	_button("添加下穿平台", _platform.bind(true))
 	_button("添加实体平台", _platform.bind(false))
 	_button("添加盾兵", _marker.bind(RoomMarker.Kind.SHIELD))
 	_button("添加女枪手", _marker.bind(RoomMarker.Kind.RIFLE))
+	_button("添加突进敌人", _campaign_marker.bind("charger"))
+	_button("添加投弹敌人", _campaign_marker.bind("grenadier"))
+	_button("添加空中敌人", _campaign_marker.bind("flyer"))
+	_button("添加支援敌人", _campaign_marker.bind("support"))
 	_button("添加出生点", _marker.bind(RoomMarker.Kind.SPAWN))
 	_button("添加出口", _marker.bind(RoomMarker.Kind.EXIT))
 	_button("添加机关", _action.bind(RoomAction.Kind.SWITCH))
@@ -52,8 +59,13 @@ func _enter_tree() -> void:
 	dock_shell.add_child(scroll)
 	add_dock(dock_shell)
 	add_tool_menu_item("Recoil Map Editor", dock_shell.make_visible)
+	scene_changed.connect(_sync_bounds)
+	_sync_bounds(EditorInterface.get_edited_scene_root())
 	if "--map-editor-smoke" in OS.get_cmdline_user_args():
 		smoke_runner = load("res://tests/editor_smoke.gd").new()
+		smoke_runner.run.call_deferred(self)
+	elif "--campaign-editor-smoke" in OS.get_cmdline_user_args():
+		smoke_runner = load("res://addons/recoil_map_editor/campaign_editor_smoke.gd").new()
 		smoke_runner.run.call_deferred(self)
 
 func _exit_tree() -> void:
@@ -83,6 +95,15 @@ func _open(path: String) -> void:
 	EditorInterface.open_scene_from_path(path)
 	EditorInterface.set_main_screen_editor("2D")
 
+func _sync_bounds(room: Node) -> void:
+	if room == null or not room.has_node("Gameplay"): return
+	var bounds := Validator.editor_bounds(room)
+	x_input.min_value = bounds.position.x
+	x_input.max_value = bounds.end.x
+	y_input.min_value = bounds.position.y
+	y_input.max_value = bounds.end.y - 1 if room.has_meta("world_bounds") else 400
+	width_input.max_value = bounds.size.x
+
 func _platform(one_way: bool) -> void:
 	var node := PaperPlatform.new()
 	node.name = "Platform"
@@ -97,6 +118,17 @@ func _marker(kind: RoomMarker.Kind) -> void:
 	node.kind = kind
 	_insert(node)
 
+func _campaign_marker(archetype: String) -> void:
+	var room := EditorInterface.get_edited_scene_root()
+	if room == null or not room.has_meta("world_bounds"):
+		status.text = "这四类敌人使用新版战役行为，请先打开新版修道院地图。"
+		return
+	var node := RoomMarker.new()
+	node.name = archetype.capitalize()
+	node.kind = RoomMarker.Kind.RIFLE
+	node.set_meta("enemy_archetype", archetype)
+	_insert(node)
+
 func _insert(node: Node2D) -> void:
 	var room := EditorInterface.get_edited_scene_root()
 	if room == null or not room.has_node("Gameplay"):
@@ -104,6 +136,19 @@ func _insert(node: Node2D) -> void:
 		node.free()
 		return
 	node.position = Vector2(x_input.value, y_input.value)
+	if room.has_meta("world_bounds"):
+		var space_id := ""
+		for section in room.get_node("Sections").get_children():
+			var region: Rect2 = section.get_meta("space_bounds", Rect2())
+			if region.has_point(node.position):
+				space_id = section.get_meta("space_id", "")
+				break
+		if node is RoomMarker or node is RoomAction: node.set_meta("space_id", space_id)
+		if node is RoomMarker and node.kind in [RoomMarker.Kind.SHIELD, RoomMarker.Kind.RIFLE]:
+			node.set_meta("room_id", space_id)
+			node.set_meta("encounter_id", int(encounter_input.value))
+			if not node.has_meta("enemy_archetype"):
+				node.set_meta("enemy_archetype", "shield" if node.kind == RoomMarker.Kind.SHIELD else "rifle")
 	var parent := room.get_node("Gameplay")
 	var undo := get_undo_redo()
 	undo.create_action("Add Recoil map object", UndoRedo.MERGE_DISABLE, room)
@@ -139,5 +184,9 @@ func _preview() -> void:
 	if EditorInterface.save_scene() != OK:
 		status.text = "保存失败，未启动试玩。"
 		return
-	var process := OS.create_process(OS.get_executable_path(), ["--path", ProjectSettings.globalize_path("res://"), "--", "--room=" + room.scene_file_path])
+	var arguments := PackedStringArray(["--path", ProjectSettings.globalize_path("res://")])
+	# The canonical campaign uses its session (NPCs, capped encounters and gates).
+	if room.scene_file_path != "res://scenes/rooms/monastery_campaign.tscn":
+		arguments.append_array(["--", "--room=" + room.scene_file_path])
+	var process := OS.create_process(OS.get_executable_path(), arguments)
 	status.text = "已启动当前地图；关闭试玩窗口返回编辑。" if process > 0 else "启动失败，请查看输出。"

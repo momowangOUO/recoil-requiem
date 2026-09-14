@@ -1,0 +1,3141 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/monastery_campaign.gd" id="1"]
+
+[ext_resource type="Script" path="res://scripts/rooms/paper_platform.gd" id="2"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room_marker.gd" id="3"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room_action.gd" id="4"]
+
+[node name="MonasteryCampaign" type="Node2D"]
+script = ExtResource("1")
+metadata/world_bounds = Rect2(0, -160, 12000, 2400)
+
+[node name="Gameplay" type="Node2D" parent="."]
+
+[node name="RecoveryFoundation" type="Node2D" parent="Gameplay"]
+position = Vector2(0, 1840)
+script = ExtResource("2")
+width = 12000.0
+collision_depth = 400.0
+grounded = true
+
+
+[node name="MiddleRoad0" type="Node2D" parent="Gameplay"]
+position = Vector2(0, 1120)
+script = ExtResource("2")
+width = 800.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="MiddleStair0_0" type="Node2D" parent="Gameplay"]
+position = Vector2(800, 1816)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_1" type="Node2D" parent="Gameplay"]
+position = Vector2(848, 1792)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_2" type="Node2D" parent="Gameplay"]
+position = Vector2(896, 1768)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_3" type="Node2D" parent="Gameplay"]
+position = Vector2(944, 1744)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_4" type="Node2D" parent="Gameplay"]
+position = Vector2(992, 1720)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_5" type="Node2D" parent="Gameplay"]
+position = Vector2(1040, 1696)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_6" type="Node2D" parent="Gameplay"]
+position = Vector2(1088, 1672)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_7" type="Node2D" parent="Gameplay"]
+position = Vector2(1136, 1648)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_8" type="Node2D" parent="Gameplay"]
+position = Vector2(1184, 1624)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_9" type="Node2D" parent="Gameplay"]
+position = Vector2(1232, 1600)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_10" type="Node2D" parent="Gameplay"]
+position = Vector2(1280, 1576)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_11" type="Node2D" parent="Gameplay"]
+position = Vector2(1328, 1552)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_12" type="Node2D" parent="Gameplay"]
+position = Vector2(1376, 1528)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_13" type="Node2D" parent="Gameplay"]
+position = Vector2(1424, 1504)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_14" type="Node2D" parent="Gameplay"]
+position = Vector2(1472, 1480)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_15" type="Node2D" parent="Gameplay"]
+position = Vector2(1520, 1456)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_16" type="Node2D" parent="Gameplay"]
+position = Vector2(1568, 1432)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_17" type="Node2D" parent="Gameplay"]
+position = Vector2(1616, 1408)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_18" type="Node2D" parent="Gameplay"]
+position = Vector2(1664, 1384)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_19" type="Node2D" parent="Gameplay"]
+position = Vector2(1712, 1360)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_20" type="Node2D" parent="Gameplay"]
+position = Vector2(1760, 1336)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_21" type="Node2D" parent="Gameplay"]
+position = Vector2(1808, 1312)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_22" type="Node2D" parent="Gameplay"]
+position = Vector2(1856, 1288)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_23" type="Node2D" parent="Gameplay"]
+position = Vector2(1904, 1264)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_24" type="Node2D" parent="Gameplay"]
+position = Vector2(1952, 1240)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_25" type="Node2D" parent="Gameplay"]
+position = Vector2(2000, 1216)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_26" type="Node2D" parent="Gameplay"]
+position = Vector2(2048, 1192)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_27" type="Node2D" parent="Gameplay"]
+position = Vector2(2096, 1168)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_28" type="Node2D" parent="Gameplay"]
+position = Vector2(2144, 1144)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair0_29" type="Node2D" parent="Gameplay"]
+position = Vector2(2192, 1120)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStairBridge0" type="Node2D" parent="Gameplay"]
+position = Vector2(800, 1120)
+script = ExtResource("2")
+width = 1440.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleRoad1" type="Node2D" parent="Gameplay"]
+position = Vector2(2240, 1120)
+script = ExtResource("2")
+width = 2160.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="MiddleStair1_0" type="Node2D" parent="Gameplay"]
+position = Vector2(4400, 1816)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_1" type="Node2D" parent="Gameplay"]
+position = Vector2(4448, 1792)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_2" type="Node2D" parent="Gameplay"]
+position = Vector2(4496, 1768)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_3" type="Node2D" parent="Gameplay"]
+position = Vector2(4544, 1744)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_4" type="Node2D" parent="Gameplay"]
+position = Vector2(4592, 1720)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_5" type="Node2D" parent="Gameplay"]
+position = Vector2(4640, 1696)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_6" type="Node2D" parent="Gameplay"]
+position = Vector2(4688, 1672)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_7" type="Node2D" parent="Gameplay"]
+position = Vector2(4736, 1648)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_8" type="Node2D" parent="Gameplay"]
+position = Vector2(4784, 1624)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_9" type="Node2D" parent="Gameplay"]
+position = Vector2(4832, 1600)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_10" type="Node2D" parent="Gameplay"]
+position = Vector2(4880, 1576)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_11" type="Node2D" parent="Gameplay"]
+position = Vector2(4928, 1552)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_12" type="Node2D" parent="Gameplay"]
+position = Vector2(4976, 1528)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_13" type="Node2D" parent="Gameplay"]
+position = Vector2(5024, 1504)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_14" type="Node2D" parent="Gameplay"]
+position = Vector2(5072, 1480)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_15" type="Node2D" parent="Gameplay"]
+position = Vector2(5120, 1456)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_16" type="Node2D" parent="Gameplay"]
+position = Vector2(5168, 1432)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_17" type="Node2D" parent="Gameplay"]
+position = Vector2(5216, 1408)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_18" type="Node2D" parent="Gameplay"]
+position = Vector2(5264, 1384)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_19" type="Node2D" parent="Gameplay"]
+position = Vector2(5312, 1360)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_20" type="Node2D" parent="Gameplay"]
+position = Vector2(5360, 1336)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_21" type="Node2D" parent="Gameplay"]
+position = Vector2(5408, 1312)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_22" type="Node2D" parent="Gameplay"]
+position = Vector2(5456, 1288)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_23" type="Node2D" parent="Gameplay"]
+position = Vector2(5504, 1264)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_24" type="Node2D" parent="Gameplay"]
+position = Vector2(5552, 1240)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_25" type="Node2D" parent="Gameplay"]
+position = Vector2(5600, 1216)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_26" type="Node2D" parent="Gameplay"]
+position = Vector2(5648, 1192)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_27" type="Node2D" parent="Gameplay"]
+position = Vector2(5696, 1168)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_28" type="Node2D" parent="Gameplay"]
+position = Vector2(5744, 1144)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair1_29" type="Node2D" parent="Gameplay"]
+position = Vector2(5792, 1120)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStairBridge1" type="Node2D" parent="Gameplay"]
+position = Vector2(4400, 1120)
+script = ExtResource("2")
+width = 1440.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleRoad2" type="Node2D" parent="Gameplay"]
+position = Vector2(5840, 1120)
+script = ExtResource("2")
+width = 2160.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="MiddleStair2_0" type="Node2D" parent="Gameplay"]
+position = Vector2(8000, 1816)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_1" type="Node2D" parent="Gameplay"]
+position = Vector2(8048, 1792)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_2" type="Node2D" parent="Gameplay"]
+position = Vector2(8096, 1768)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_3" type="Node2D" parent="Gameplay"]
+position = Vector2(8144, 1744)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_4" type="Node2D" parent="Gameplay"]
+position = Vector2(8192, 1720)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_5" type="Node2D" parent="Gameplay"]
+position = Vector2(8240, 1696)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_6" type="Node2D" parent="Gameplay"]
+position = Vector2(8288, 1672)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_7" type="Node2D" parent="Gameplay"]
+position = Vector2(8336, 1648)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_8" type="Node2D" parent="Gameplay"]
+position = Vector2(8384, 1624)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_9" type="Node2D" parent="Gameplay"]
+position = Vector2(8432, 1600)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_10" type="Node2D" parent="Gameplay"]
+position = Vector2(8480, 1576)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_11" type="Node2D" parent="Gameplay"]
+position = Vector2(8528, 1552)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_12" type="Node2D" parent="Gameplay"]
+position = Vector2(8576, 1528)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_13" type="Node2D" parent="Gameplay"]
+position = Vector2(8624, 1504)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_14" type="Node2D" parent="Gameplay"]
+position = Vector2(8672, 1480)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_15" type="Node2D" parent="Gameplay"]
+position = Vector2(8720, 1456)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_16" type="Node2D" parent="Gameplay"]
+position = Vector2(8768, 1432)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_17" type="Node2D" parent="Gameplay"]
+position = Vector2(8816, 1408)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_18" type="Node2D" parent="Gameplay"]
+position = Vector2(8864, 1384)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_19" type="Node2D" parent="Gameplay"]
+position = Vector2(8912, 1360)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_20" type="Node2D" parent="Gameplay"]
+position = Vector2(8960, 1336)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_21" type="Node2D" parent="Gameplay"]
+position = Vector2(9008, 1312)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_22" type="Node2D" parent="Gameplay"]
+position = Vector2(9056, 1288)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_23" type="Node2D" parent="Gameplay"]
+position = Vector2(9104, 1264)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_24" type="Node2D" parent="Gameplay"]
+position = Vector2(9152, 1240)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_25" type="Node2D" parent="Gameplay"]
+position = Vector2(9200, 1216)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_26" type="Node2D" parent="Gameplay"]
+position = Vector2(9248, 1192)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_27" type="Node2D" parent="Gameplay"]
+position = Vector2(9296, 1168)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_28" type="Node2D" parent="Gameplay"]
+position = Vector2(9344, 1144)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStair2_29" type="Node2D" parent="Gameplay"]
+position = Vector2(9392, 1120)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleStairBridge2" type="Node2D" parent="Gameplay"]
+position = Vector2(8000, 1120)
+script = ExtResource("2")
+width = 1440.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="MiddleRoadEnd" type="Node2D" parent="Gameplay"]
+position = Vector2(9440, 1120)
+script = ExtResource("2")
+width = 2560.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="UpperRoad0" type="Node2D" parent="Gameplay"]
+position = Vector2(1600, 400)
+script = ExtResource("2")
+width = 800.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="UpperStair0_0" type="Node2D" parent="Gameplay"]
+position = Vector2(2400, 1096)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_1" type="Node2D" parent="Gameplay"]
+position = Vector2(2448, 1072)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_2" type="Node2D" parent="Gameplay"]
+position = Vector2(2496, 1048)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_3" type="Node2D" parent="Gameplay"]
+position = Vector2(2544, 1024)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_4" type="Node2D" parent="Gameplay"]
+position = Vector2(2592, 1000)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_5" type="Node2D" parent="Gameplay"]
+position = Vector2(2640, 976)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_6" type="Node2D" parent="Gameplay"]
+position = Vector2(2688, 952)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_7" type="Node2D" parent="Gameplay"]
+position = Vector2(2736, 928)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_8" type="Node2D" parent="Gameplay"]
+position = Vector2(2784, 904)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_9" type="Node2D" parent="Gameplay"]
+position = Vector2(2832, 880)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_10" type="Node2D" parent="Gameplay"]
+position = Vector2(2880, 856)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_11" type="Node2D" parent="Gameplay"]
+position = Vector2(2928, 832)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_12" type="Node2D" parent="Gameplay"]
+position = Vector2(2976, 808)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_13" type="Node2D" parent="Gameplay"]
+position = Vector2(3024, 784)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_14" type="Node2D" parent="Gameplay"]
+position = Vector2(3072, 760)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_15" type="Node2D" parent="Gameplay"]
+position = Vector2(3120, 736)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_16" type="Node2D" parent="Gameplay"]
+position = Vector2(3168, 712)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_17" type="Node2D" parent="Gameplay"]
+position = Vector2(3216, 688)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_18" type="Node2D" parent="Gameplay"]
+position = Vector2(3264, 664)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_19" type="Node2D" parent="Gameplay"]
+position = Vector2(3312, 640)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_20" type="Node2D" parent="Gameplay"]
+position = Vector2(3360, 616)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_21" type="Node2D" parent="Gameplay"]
+position = Vector2(3408, 592)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_22" type="Node2D" parent="Gameplay"]
+position = Vector2(3456, 568)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_23" type="Node2D" parent="Gameplay"]
+position = Vector2(3504, 544)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_24" type="Node2D" parent="Gameplay"]
+position = Vector2(3552, 520)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_25" type="Node2D" parent="Gameplay"]
+position = Vector2(3600, 496)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_26" type="Node2D" parent="Gameplay"]
+position = Vector2(3648, 472)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_27" type="Node2D" parent="Gameplay"]
+position = Vector2(3696, 448)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_28" type="Node2D" parent="Gameplay"]
+position = Vector2(3744, 424)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair0_29" type="Node2D" parent="Gameplay"]
+position = Vector2(3792, 400)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStairBridge0" type="Node2D" parent="Gameplay"]
+position = Vector2(2400, 400)
+script = ExtResource("2")
+width = 1440.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperRoad1" type="Node2D" parent="Gameplay"]
+position = Vector2(3840, 400)
+script = ExtResource("2")
+width = 2160.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="UpperStair1_0" type="Node2D" parent="Gameplay"]
+position = Vector2(6000, 1096)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_1" type="Node2D" parent="Gameplay"]
+position = Vector2(6048, 1072)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_2" type="Node2D" parent="Gameplay"]
+position = Vector2(6096, 1048)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_3" type="Node2D" parent="Gameplay"]
+position = Vector2(6144, 1024)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_4" type="Node2D" parent="Gameplay"]
+position = Vector2(6192, 1000)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_5" type="Node2D" parent="Gameplay"]
+position = Vector2(6240, 976)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_6" type="Node2D" parent="Gameplay"]
+position = Vector2(6288, 952)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_7" type="Node2D" parent="Gameplay"]
+position = Vector2(6336, 928)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_8" type="Node2D" parent="Gameplay"]
+position = Vector2(6384, 904)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_9" type="Node2D" parent="Gameplay"]
+position = Vector2(6432, 880)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_10" type="Node2D" parent="Gameplay"]
+position = Vector2(6480, 856)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_11" type="Node2D" parent="Gameplay"]
+position = Vector2(6528, 832)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_12" type="Node2D" parent="Gameplay"]
+position = Vector2(6576, 808)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_13" type="Node2D" parent="Gameplay"]
+position = Vector2(6624, 784)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_14" type="Node2D" parent="Gameplay"]
+position = Vector2(6672, 760)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_15" type="Node2D" parent="Gameplay"]
+position = Vector2(6720, 736)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_16" type="Node2D" parent="Gameplay"]
+position = Vector2(6768, 712)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_17" type="Node2D" parent="Gameplay"]
+position = Vector2(6816, 688)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_18" type="Node2D" parent="Gameplay"]
+position = Vector2(6864, 664)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_19" type="Node2D" parent="Gameplay"]
+position = Vector2(6912, 640)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_20" type="Node2D" parent="Gameplay"]
+position = Vector2(6960, 616)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_21" type="Node2D" parent="Gameplay"]
+position = Vector2(7008, 592)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_22" type="Node2D" parent="Gameplay"]
+position = Vector2(7056, 568)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_23" type="Node2D" parent="Gameplay"]
+position = Vector2(7104, 544)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_24" type="Node2D" parent="Gameplay"]
+position = Vector2(7152, 520)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_25" type="Node2D" parent="Gameplay"]
+position = Vector2(7200, 496)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_26" type="Node2D" parent="Gameplay"]
+position = Vector2(7248, 472)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_27" type="Node2D" parent="Gameplay"]
+position = Vector2(7296, 448)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_28" type="Node2D" parent="Gameplay"]
+position = Vector2(7344, 424)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair1_29" type="Node2D" parent="Gameplay"]
+position = Vector2(7392, 400)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStairBridge1" type="Node2D" parent="Gameplay"]
+position = Vector2(6000, 400)
+script = ExtResource("2")
+width = 1440.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperRoad2" type="Node2D" parent="Gameplay"]
+position = Vector2(7440, 400)
+script = ExtResource("2")
+width = 2160.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="UpperStair2_0" type="Node2D" parent="Gameplay"]
+position = Vector2(9600, 1096)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_1" type="Node2D" parent="Gameplay"]
+position = Vector2(9648, 1072)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_2" type="Node2D" parent="Gameplay"]
+position = Vector2(9696, 1048)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_3" type="Node2D" parent="Gameplay"]
+position = Vector2(9744, 1024)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_4" type="Node2D" parent="Gameplay"]
+position = Vector2(9792, 1000)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_5" type="Node2D" parent="Gameplay"]
+position = Vector2(9840, 976)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_6" type="Node2D" parent="Gameplay"]
+position = Vector2(9888, 952)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_7" type="Node2D" parent="Gameplay"]
+position = Vector2(9936, 928)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_8" type="Node2D" parent="Gameplay"]
+position = Vector2(9984, 904)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_9" type="Node2D" parent="Gameplay"]
+position = Vector2(10032, 880)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_10" type="Node2D" parent="Gameplay"]
+position = Vector2(10080, 856)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_11" type="Node2D" parent="Gameplay"]
+position = Vector2(10128, 832)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_12" type="Node2D" parent="Gameplay"]
+position = Vector2(10176, 808)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_13" type="Node2D" parent="Gameplay"]
+position = Vector2(10224, 784)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_14" type="Node2D" parent="Gameplay"]
+position = Vector2(10272, 760)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_15" type="Node2D" parent="Gameplay"]
+position = Vector2(10320, 736)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_16" type="Node2D" parent="Gameplay"]
+position = Vector2(10368, 712)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_17" type="Node2D" parent="Gameplay"]
+position = Vector2(10416, 688)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_18" type="Node2D" parent="Gameplay"]
+position = Vector2(10464, 664)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_19" type="Node2D" parent="Gameplay"]
+position = Vector2(10512, 640)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_20" type="Node2D" parent="Gameplay"]
+position = Vector2(10560, 616)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_21" type="Node2D" parent="Gameplay"]
+position = Vector2(10608, 592)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_22" type="Node2D" parent="Gameplay"]
+position = Vector2(10656, 568)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_23" type="Node2D" parent="Gameplay"]
+position = Vector2(10704, 544)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_24" type="Node2D" parent="Gameplay"]
+position = Vector2(10752, 520)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_25" type="Node2D" parent="Gameplay"]
+position = Vector2(10800, 496)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_26" type="Node2D" parent="Gameplay"]
+position = Vector2(10848, 472)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_27" type="Node2D" parent="Gameplay"]
+position = Vector2(10896, 448)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_28" type="Node2D" parent="Gameplay"]
+position = Vector2(10944, 424)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStair2_29" type="Node2D" parent="Gameplay"]
+position = Vector2(10992, 400)
+script = ExtResource("2")
+width = 96.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperStairBridge2" type="Node2D" parent="Gameplay"]
+position = Vector2(9600, 400)
+script = ExtResource("2")
+width = 1440.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="UpperRoadEnd" type="Node2D" parent="Gameplay"]
+position = Vector2(11040, 400)
+script = ExtResource("2")
+width = 560.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="gate_entry" type="Node2D" parent="Gameplay"]
+position = Vector2(180, 1780)
+script = ExtResource("2")
+width = 24.0
+collision_depth = 60.0
+grounded = false
+metadata/gate_id = "gate_entry"
+
+[node name="gate_entryRoof" type="Node2D" parent="Gameplay"]
+position = Vector2(100, 1756)
+script = ExtResource("2")
+width = 184.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="gate_west" type="Node2D" parent="Gameplay"]
+position = Vector2(3650, 1060)
+script = ExtResource("2")
+width = 24.0
+collision_depth = 60.0
+grounded = false
+metadata/gate_id = "gate_west"
+
+[node name="gate_westRoof" type="Node2D" parent="Gameplay"]
+position = Vector2(3570, 1036)
+script = ExtResource("2")
+width = 184.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="gate_east" type="Node2D" parent="Gameplay"]
+position = Vector2(10600, 1780)
+script = ExtResource("2")
+width = 24.0
+collision_depth = 60.0
+grounded = false
+metadata/gate_id = "gate_east"
+
+[node name="gate_eastRoof" type="Node2D" parent="Gameplay"]
+position = Vector2(10520, 1756)
+script = ExtResource("2")
+width = 184.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="gate_return" type="Node2D" parent="Gameplay"]
+position = Vector2(11400, 1060)
+script = ExtResource("2")
+width = 24.0
+collision_depth = 60.0
+grounded = false
+metadata/gate_id = "gate_return"
+
+[node name="gate_returnRoof" type="Node2D" parent="Gameplay"]
+position = Vector2(11320, 1036)
+script = ExtResource("2")
+width = 184.0
+collision_depth = 24.0
+grounded = false
+
+
+[node name="gate_departure" type="Node2D" parent="Gameplay"]
+position = Vector2(11040, -160)
+script = ExtResource("2")
+width = 24.0
+collision_depth = 584.0
+grounded = false
+metadata/gate_id = "gate_departure"
+
+[node name="Passage_gate_entry_a" type="Marker2D" parent="Gameplay"]
+position = Vector2(2400, 1120)
+script = ExtResource("4")
+action_id = "gate_entry_travel"
+title = ""
+metadata/space_id = "mon_02"
+metadata/shortcut_gate = "gate_entry"
+
+[node name="Passage_gate_entry_b" type="Marker2D" parent="Gameplay"]
+position = Vector2(400, 1840)
+script = ExtResource("4")
+action_id = "gate_entry_travel"
+title = ""
+metadata/space_id = "mon_10"
+metadata/shortcut_gate = "gate_entry"
+
+[node name="Passage_gate_west_a" type="Marker2D" parent="Gameplay"]
+position = Vector2(2000, 400)
+script = ExtResource("4")
+action_id = "gate_west_travel"
+title = ""
+metadata/space_id = "mon_04"
+metadata/shortcut_gate = "gate_west"
+
+[node name="Passage_gate_west_b" type="Marker2D" parent="Gameplay"]
+position = Vector2(6800, 1120)
+script = ExtResource("4")
+action_id = "gate_west_travel"
+title = ""
+metadata/space_id = "mon_08"
+metadata/shortcut_gate = "gate_west"
+
+[node name="Passage_gate_east_a" type="Marker2D" parent="Gameplay"]
+position = Vector2(7700, 400)
+script = ExtResource("4")
+action_id = "gate_east_travel"
+title = ""
+metadata/space_id = "mon_09"
+metadata/shortcut_gate = "gate_east"
+
+[node name="Passage_gate_east_b" type="Marker2D" parent="Gameplay"]
+position = Vector2(9600, 1120)
+script = ExtResource("4")
+action_id = "gate_east_travel"
+title = ""
+metadata/space_id = "mon_14"
+metadata/shortcut_gate = "gate_east"
+
+[node name="Passage_gate_return_a" type="Marker2D" parent="Gameplay"]
+position = Vector2(11600, 1120)
+script = ExtResource("4")
+action_id = "gate_return_travel"
+title = ""
+metadata/space_id = "mon_16"
+metadata/shortcut_gate = "gate_return"
+
+[node name="Passage_gate_return_b" type="Marker2D" parent="Gameplay"]
+position = Vector2(240, 1120)
+script = ExtResource("4")
+action_id = "gate_return_travel"
+title = ""
+metadata/space_id = "mon_01"
+metadata/shortcut_gate = "gate_return"
+
+[node name="Cover0" type="Node2D" parent="Gameplay"]
+position = Vector2(2700, 1808)
+script = ExtResource("2")
+width = 48.0
+collision_depth = 32.0
+grounded = false
+
+
+[node name="Grate0" type="Node2D" parent="Gameplay"]
+position = Vector2(2610, 1712)
+script = ExtResource("2")
+width = 220.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="Cover1" type="Node2D" parent="Gameplay"]
+position = Vector2(3600, 1808)
+script = ExtResource("2")
+width = 48.0
+collision_depth = 32.0
+grounded = false
+
+
+[node name="Grate1" type="Node2D" parent="Gameplay"]
+position = Vector2(3510, 1712)
+script = ExtResource("2")
+width = 220.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="Cover2" type="Node2D" parent="Gameplay"]
+position = Vector2(6700, 1808)
+script = ExtResource("2")
+width = 48.0
+collision_depth = 32.0
+grounded = false
+
+
+[node name="Grate2" type="Node2D" parent="Gameplay"]
+position = Vector2(6610, 1712)
+script = ExtResource("2")
+width = 220.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="Cover3" type="Node2D" parent="Gameplay"]
+position = Vector2(7300, 1808)
+script = ExtResource("2")
+width = 48.0
+collision_depth = 32.0
+grounded = false
+
+
+[node name="Grate3" type="Node2D" parent="Gameplay"]
+position = Vector2(7210, 1712)
+script = ExtResource("2")
+width = 220.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="Cover4" type="Node2D" parent="Gameplay"]
+position = Vector2(9900, 1808)
+script = ExtResource("2")
+width = 48.0
+collision_depth = 32.0
+grounded = false
+
+
+[node name="Grate4" type="Node2D" parent="Gameplay"]
+position = Vector2(9810, 1712)
+script = ExtResource("2")
+width = 220.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="Cover5" type="Node2D" parent="Gameplay"]
+position = Vector2(10900, 1808)
+script = ExtResource("2")
+width = 48.0
+collision_depth = 32.0
+grounded = false
+
+
+[node name="Grate5" type="Node2D" parent="Gameplay"]
+position = Vector2(10810, 1712)
+script = ExtResource("2")
+width = 220.0
+collision_depth = 6.0
+grounded = false
+
+one_way = true
+
+[node name="Checkpoint_mon_01" type="Marker2D" parent="Gameplay"]
+position = Vector2(120, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_01"
+metadata/space_id = "mon_01"
+
+[node name="Checkpoint_mon_02" type="Marker2D" parent="Gameplay"]
+position = Vector2(2400, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_02"
+metadata/space_id = "mon_02"
+
+[node name="Checkpoint_mon_03" type="Marker2D" parent="Gameplay"]
+position = Vector2(3500, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_03"
+metadata/space_id = "mon_03"
+
+[node name="Checkpoint_mon_08" type="Marker2D" parent="Gameplay"]
+position = Vector2(6800, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_08"
+metadata/space_id = "mon_08"
+
+[node name="Checkpoint_mon_14" type="Marker2D" parent="Gameplay"]
+position = Vector2(9600, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_14"
+metadata/space_id = "mon_14"
+
+[node name="Checkpoint_mon_16" type="Marker2D" parent="Gameplay"]
+position = Vector2(11600, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_16"
+metadata/space_id = "mon_16"
+
+[node name="Checkpoint_mon_04" type="Marker2D" parent="Gameplay"]
+position = Vector2(2000, 400)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_04"
+metadata/space_id = "mon_04"
+
+[node name="Checkpoint_mon_06" type="Marker2D" parent="Gameplay"]
+position = Vector2(3900, 400)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_06"
+metadata/space_id = "mon_06"
+
+[node name="Checkpoint_mon_09" type="Marker2D" parent="Gameplay"]
+position = Vector2(7700, 400)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_09"
+metadata/space_id = "mon_09"
+
+[node name="Checkpoint_mon_13" type="Marker2D" parent="Gameplay"]
+position = Vector2(8400, 400)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_13"
+metadata/space_id = "mon_13"
+
+[node name="Checkpoint_mon_15" type="Marker2D" parent="Gameplay"]
+position = Vector2(11300, 400)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_15"
+metadata/space_id = "mon_15"
+
+[node name="Checkpoint_mon_10" type="Marker2D" parent="Gameplay"]
+position = Vector2(400, 1840)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_10"
+metadata/space_id = "mon_10"
+
+[node name="Checkpoint_mon_05" type="Marker2D" parent="Gameplay"]
+position = Vector2(3000, 1840)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_05"
+metadata/space_id = "mon_05"
+
+[node name="Checkpoint_mon_07" type="Marker2D" parent="Gameplay"]
+position = Vector2(6100, 1840)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_07"
+metadata/space_id = "mon_07"
+
+[node name="Checkpoint_mon_11" type="Marker2D" parent="Gameplay"]
+position = Vector2(7200, 1840)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_11"
+metadata/space_id = "mon_11"
+
+[node name="Checkpoint_mon_12" type="Marker2D" parent="Gameplay"]
+position = Vector2(9700, 1840)
+script = ExtResource("3")
+kind = 0
+metadata/checkpoint_id = "cp_mon_12"
+metadata/space_id = "mon_12"
+
+[node name="Encounter1_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(3620, 1120)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 1
+metadata/space_id = "mon_03"
+metadata/room_id = "mon_03"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter1_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(3705, 1120)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 1
+metadata/space_id = "mon_03"
+metadata/room_id = "mon_03"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter1_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(3790, 1120)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 1
+metadata/space_id = "mon_03"
+metadata/room_id = "mon_03"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter2_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(3120, 1840)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 2
+metadata/space_id = "mon_05"
+metadata/room_id = "mon_05"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter2_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(3205, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 2
+metadata/space_id = "mon_05"
+metadata/room_id = "mon_05"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter2_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(3290, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 2
+metadata/space_id = "mon_05"
+metadata/room_id = "mon_05"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter3_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(4020, 400)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 3
+metadata/space_id = "mon_06"
+metadata/room_id = "mon_06"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter3_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(4105, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 3
+metadata/space_id = "mon_06"
+metadata/room_id = "mon_06"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter3_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(4190, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 3
+metadata/space_id = "mon_06"
+metadata/room_id = "mon_06"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter4_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(6220, 1840)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 4
+metadata/space_id = "mon_07"
+metadata/room_id = "mon_07"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter4_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(6305, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 4
+metadata/space_id = "mon_07"
+metadata/room_id = "mon_07"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter4_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(6390, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 4
+metadata/space_id = "mon_07"
+metadata/room_id = "mon_07"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter5_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(6920, 1120)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 5
+metadata/space_id = "mon_08"
+metadata/room_id = "mon_08"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter5_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(7005, 1120)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 5
+metadata/space_id = "mon_08"
+metadata/room_id = "mon_08"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter5_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(7090, 1120)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 5
+metadata/space_id = "mon_08"
+metadata/room_id = "mon_08"
+metadata/enemy_archetype = "charger"
+
+[node name="Encounter6_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(7820, 400)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 6
+metadata/space_id = "mon_09"
+metadata/room_id = "mon_09"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter6_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(7905, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 6
+metadata/space_id = "mon_09"
+metadata/room_id = "mon_09"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter6_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(7990, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 6
+metadata/space_id = "mon_09"
+metadata/room_id = "mon_09"
+metadata/enemy_archetype = "charger"
+
+[node name="Encounter7_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(520, 1840)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 7
+metadata/space_id = "mon_10"
+metadata/room_id = "mon_10"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter7_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(605, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 7
+metadata/space_id = "mon_10"
+metadata/room_id = "mon_10"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter7_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(690, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 7
+metadata/space_id = "mon_10"
+metadata/room_id = "mon_10"
+metadata/enemy_archetype = "grenadier"
+
+[node name="Encounter8_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(7380, 1840)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 8
+metadata/space_id = "mon_11"
+metadata/room_id = "mon_11"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter8_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(7405, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 8
+metadata/space_id = "mon_11"
+metadata/room_id = "mon_11"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter8_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(7490, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 8
+metadata/space_id = "mon_11"
+metadata/room_id = "mon_11"
+metadata/enemy_archetype = "grenadier"
+
+[node name="Encounter9_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(9820, 1840)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 9
+metadata/space_id = "mon_12"
+metadata/room_id = "mon_12"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter9_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(9980, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 9
+metadata/space_id = "mon_12"
+metadata/room_id = "mon_12"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter9_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(9990, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 9
+metadata/space_id = "mon_12"
+metadata/room_id = "mon_12"
+metadata/enemy_archetype = "flyer"
+
+[node name="Encounter10_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(8520, 400)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 10
+metadata/space_id = "mon_13"
+metadata/room_id = "mon_13"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter10_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(8605, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 10
+metadata/space_id = "mon_13"
+metadata/room_id = "mon_13"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter10_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(8690, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 10
+metadata/space_id = "mon_13"
+metadata/room_id = "mon_13"
+metadata/enemy_archetype = "flyer"
+
+[node name="Encounter11_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(9720, 1120)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 11
+metadata/space_id = "mon_14"
+metadata/room_id = "mon_14"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter11_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(9805, 1120)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 11
+metadata/space_id = "mon_14"
+metadata/room_id = "mon_14"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter11_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(9890, 1120)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 11
+metadata/space_id = "mon_14"
+metadata/room_id = "mon_14"
+metadata/enemy_archetype = "elite"
+
+[node name="Encounter12_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(11420, 400)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 12
+metadata/space_id = "mon_15"
+metadata/room_id = "mon_15"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter12_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(11505, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 12
+metadata/space_id = "mon_15"
+metadata/room_id = "mon_15"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter12_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(11560, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 12
+metadata/space_id = "mon_15"
+metadata/room_id = "mon_15"
+metadata/enemy_archetype = "boss"
+
+[node name="Encounter13_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(2420, 400)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 13
+metadata/space_id = "mon_04"
+metadata/room_id = "mon_04"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter13_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(2505, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 13
+metadata/space_id = "mon_04"
+metadata/room_id = "mon_04"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter13_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(2590, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 13
+metadata/space_id = "mon_04"
+metadata/room_id = "mon_04"
+metadata/enemy_archetype = "support"
+
+[node name="Encounter14_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(4320, 400)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 14
+metadata/space_id = "mon_06"
+metadata/room_id = "mon_06"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter14_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(4405, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 14
+metadata/space_id = "mon_06"
+metadata/room_id = "mon_06"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter14_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(4490, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 14
+metadata/space_id = "mon_06"
+metadata/room_id = "mon_06"
+metadata/enemy_archetype = "support"
+
+[node name="Encounter15_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(7620, 1840)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 15
+metadata/space_id = "mon_11"
+metadata/room_id = "mon_11"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter15_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(7705, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 15
+metadata/space_id = "mon_11"
+metadata/room_id = "mon_11"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter15_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(7790, 1840)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 15
+metadata/space_id = "mon_11"
+metadata/room_id = "mon_11"
+metadata/enemy_archetype = "support"
+
+[node name="Encounter16_0" type="Marker2D" parent="Gameplay"]
+position = Vector2(8820, 400)
+script = ExtResource("3")
+kind = 2
+metadata/encounter_id = 16
+metadata/space_id = "mon_13"
+metadata/room_id = "mon_13"
+metadata/enemy_archetype = "shield"
+
+[node name="Encounter16_1" type="Marker2D" parent="Gameplay"]
+position = Vector2(8905, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 16
+metadata/space_id = "mon_13"
+metadata/room_id = "mon_13"
+metadata/enemy_archetype = "rifle"
+
+[node name="Encounter16_2" type="Marker2D" parent="Gameplay"]
+position = Vector2(8990, 400)
+script = ExtResource("3")
+kind = 3
+metadata/encounter_id = 16
+metadata/space_id = "mon_13"
+metadata/room_id = "mon_13"
+metadata/enemy_archetype = "support"
+
+[node name="NPC_mara" type="Marker2D" parent="Gameplay"]
+position = Vector2(3000, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/npc_id = "mara"
+metadata/space_id = "mon_03"
+
+[node name="NPC_vira" type="Marker2D" parent="Gameplay"]
+position = Vector2(6000, 1840)
+script = ExtResource("3")
+kind = 0
+metadata/npc_id = "vira"
+metadata/space_id = "mon_07"
+
+[node name="NPC_ina" type="Marker2D" parent="Gameplay"]
+position = Vector2(2900, 1840)
+script = ExtResource("3")
+kind = 0
+metadata/npc_id = "ina"
+metadata/space_id = "mon_05"
+
+[node name="NPC_ruka" type="Marker2D" parent="Gameplay"]
+position = Vector2(7100, 1840)
+script = ExtResource("3")
+kind = 0
+metadata/npc_id = "ruka"
+metadata/space_id = "mon_11"
+
+[node name="NPC_celine" type="Marker2D" parent="Gameplay"]
+position = Vector2(6700, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/npc_id = "celine"
+metadata/space_id = "mon_08"
+
+[node name="Action_tools" type="Marker2D" parent="Gameplay"]
+position = Vector2(6240, 1840)
+script = ExtResource("4")
+action_id = "tools"
+title = "找到伊娜的工具箱"
+metadata/space_id = "mon_07"
+
+[node name="Action_records" type="Marker2D" parent="Gameplay"]
+position = Vector2(8360, 400)
+script = ExtResource("4")
+action_id = "records"
+kind = 1
+title = "找到闸门的维修记录"
+metadata/space_id = "mon_13"
+
+[node name="Action_luggage" type="Marker2D" parent="Gameplay"]
+position = Vector2(9560, 1120)
+script = ExtResource("4")
+action_id = "luggage"
+title = ""
+metadata/space_id = "mon_14"
+
+[node name="Action_departure" type="Marker2D" parent="Gameplay"]
+position = Vector2(10120, 1120)
+script = ExtResource("4")
+action_id = "departure"
+title = ""
+metadata/space_id = "mon_14"
+
+[node name="Action_exit" type="Marker2D" parent="Gameplay"]
+position = Vector2(11560, 1120)
+script = ExtResource("4")
+action_id = "exit"
+title = ""
+metadata/space_id = "mon_16"
+
+[node name="Sections" type="Node2D" parent="."]
+
+[node name="mon_01" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_01"
+metadata/space_bounds = Rect2(0, 640, 1600, 520)
+
+[node name="mon_02" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_02"
+metadata/space_bounds = Rect2(1600, 640, 1600, 520)
+
+[node name="mon_03" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_03"
+metadata/space_bounds = Rect2(3200, 640, 2000, 520)
+
+[node name="mon_08" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_08"
+metadata/space_bounds = Rect2(5200, 640, 2800, 520)
+
+[node name="mon_14" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_14"
+metadata/space_bounds = Rect2(8000, 640, 2000, 520)
+
+[node name="mon_16" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_16"
+metadata/space_bounds = Rect2(10000, 640, 2000, 520)
+
+[node name="mon_04" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_04"
+metadata/space_bounds = Rect2(1600, -160, 1900, 800)
+
+[node name="mon_06" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_06"
+metadata/space_bounds = Rect2(3500, -160, 2300, 800)
+
+[node name="mon_09" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_09"
+metadata/space_bounds = Rect2(5800, -160, 2200, 800)
+
+[node name="mon_13" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_13"
+metadata/space_bounds = Rect2(8000, -160, 2000, 800)
+
+[node name="mon_15" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_15"
+metadata/space_bounds = Rect2(10000, -160, 2000, 800)
+
+[node name="mon_10" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_10"
+metadata/space_bounds = Rect2(0, 1160, 2400, 1080)
+
+[node name="mon_05" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_05"
+metadata/space_bounds = Rect2(2400, 1160, 2000, 1080)
+
+[node name="mon_07" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_07"
+metadata/space_bounds = Rect2(4400, 1160, 2000, 1080)
+
+[node name="mon_11" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_11"
+metadata/space_bounds = Rect2(6400, 1160, 2400, 1080)
+
+[node name="mon_12" type="Node2D" parent="Sections"]
+metadata/space_id = "mon_12"
+metadata/space_bounds = Rect2(8800, 1160, 3200, 1080)
+
+[node name="Connections" type="Node2D" parent="."]
+
+[node name="Link0" type="Marker2D" parent="Connections"]
+metadata/from = "mon_01"
+metadata/to = "mon_02"
+
+[node name="Link1" type="Marker2D" parent="Connections"]
+metadata/from = "mon_02"
+metadata/to = "mon_03"
+
+[node name="Link2" type="Marker2D" parent="Connections"]
+metadata/from = "mon_03"
+metadata/to = "mon_08"
+
+[node name="Link3" type="Marker2D" parent="Connections"]
+metadata/from = "mon_08"
+metadata/to = "mon_14"
+
+[node name="Link4" type="Marker2D" parent="Connections"]
+metadata/from = "mon_14"
+metadata/to = "mon_16"
+
+[node name="Link5" type="Marker2D" parent="Connections"]
+metadata/from = "mon_04"
+metadata/to = "mon_06"
+
+[node name="Link6" type="Marker2D" parent="Connections"]
+metadata/from = "mon_06"
+metadata/to = "mon_09"
+
+[node name="Link7" type="Marker2D" parent="Connections"]
+metadata/from = "mon_09"
+metadata/to = "mon_13"
+
+[node name="Link8" type="Marker2D" parent="Connections"]
+metadata/from = "mon_13"
+metadata/to = "mon_15"
+
+[node name="Link9" type="Marker2D" parent="Connections"]
+metadata/from = "mon_10"
+metadata/to = "mon_05"
+
+[node name="Link10" type="Marker2D" parent="Connections"]
+metadata/from = "mon_05"
+metadata/to = "mon_07"
+
+[node name="Link11" type="Marker2D" parent="Connections"]
+metadata/from = "mon_07"
+metadata/to = "mon_11"
+
+[node name="Link12" type="Marker2D" parent="Connections"]
+metadata/from = "mon_11"
+metadata/to = "mon_12"
+
+[node name="Link13" type="Marker2D" parent="Connections"]
+metadata/from = "mon_01"
+metadata/to = "mon_10"
+
+[node name="Link14" type="Marker2D" parent="Connections"]
+metadata/from = "mon_02"
+metadata/to = "mon_04"
+
+[node name="Link15" type="Marker2D" parent="Connections"]
+metadata/from = "mon_07"
+metadata/to = "mon_08"
+
+[node name="Link16" type="Marker2D" parent="Connections"]
+metadata/from = "mon_08"
+metadata/to = "mon_09"
+
+[node name="Link17" type="Marker2D" parent="Connections"]
+metadata/from = "mon_12"
+metadata/to = "mon_14"
+
+[node name="Link18" type="Marker2D" parent="Connections"]
+metadata/from = "mon_14"
+metadata/to = "mon_15"
+
+[node name="Shortcut0" type="Marker2D" parent="Connections"]
+metadata/from = "mon_02"
+metadata/to = "mon_10"
+metadata/gate_id = "gate_entry"
+
+[node name="Shortcut1" type="Marker2D" parent="Connections"]
+metadata/from = "mon_04"
+metadata/to = "mon_08"
+metadata/gate_id = "gate_west"
+
+[node name="Shortcut2" type="Marker2D" parent="Connections"]
+metadata/from = "mon_09"
+metadata/to = "mon_14"
+metadata/gate_id = "gate_east"
+
+[node name="Shortcut3" type="Marker2D" parent="Connections"]
+metadata/from = "mon_16"
+metadata/to = "mon_01"
+metadata/gate_id = "gate_return"
+
+[node name="VisualSections" type="Node2D" parent="."]
+
+[node name="Decor_mon_01_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(0, 768)
+metadata/architecture = 0
+
+[node name="Decor_mon_02_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(1600, 768)
+metadata/architecture = 1
+
+[node name="Decor_mon_03_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(3200, 768)
+metadata/architecture = 2
+
+[node name="Decor_mon_03_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(4160, 768)
+metadata/architecture = 2
+
+[node name="Decor_mon_08_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(5200, 768)
+metadata/architecture = 3
+
+[node name="Decor_mon_08_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(6160, 768)
+metadata/architecture = 3
+
+[node name="Decor_mon_14_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(8000, 768)
+metadata/architecture = 0
+
+[node name="Decor_mon_14_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(8960, 768)
+metadata/architecture = 0
+
+[node name="Decor_mon_16_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(10000, 768)
+metadata/architecture = 1
+
+[node name="Decor_mon_16_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(10960, 768)
+metadata/architecture = 1
+
+[node name="Decor_mon_04_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(1600, 48)
+metadata/architecture = 2
+
+[node name="Decor_mon_06_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(3500, 48)
+metadata/architecture = 3
+
+[node name="Decor_mon_06_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(4460, 48)
+metadata/architecture = 3
+
+[node name="Decor_mon_09_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(5800, 48)
+metadata/architecture = 0
+
+[node name="Decor_mon_09_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(6760, 48)
+metadata/architecture = 0
+
+[node name="Decor_mon_13_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(8000, 48)
+metadata/architecture = 1
+
+[node name="Decor_mon_13_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(8960, 48)
+metadata/architecture = 1
+
+[node name="Decor_mon_15_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(10000, 48)
+metadata/architecture = 2
+
+[node name="Decor_mon_15_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(10960, 48)
+metadata/architecture = 2
+
+[node name="Decor_mon_10_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(0, 1488)
+metadata/architecture = 3
+
+[node name="Decor_mon_10_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(960, 1488)
+metadata/architecture = 3
+
+[node name="Decor_mon_05_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(2400, 1488)
+metadata/architecture = 0
+
+[node name="Decor_mon_05_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(3360, 1488)
+metadata/architecture = 0
+
+[node name="Decor_mon_07_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(4400, 1488)
+metadata/architecture = 1
+
+[node name="Decor_mon_07_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(5360, 1488)
+metadata/architecture = 1
+
+[node name="Decor_mon_11_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(6400, 1488)
+metadata/architecture = 2
+
+[node name="Decor_mon_11_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(7360, 1488)
+metadata/architecture = 2
+
+[node name="Decor_mon_12_0" type="Marker2D" parent="VisualSections"]
+position = Vector2(8800, 1488)
+metadata/architecture = 3
+
+[node name="Decor_mon_12_1" type="Marker2D" parent="VisualSections"]
+position = Vector2(9760, 1488)
+metadata/architecture = 3
+
+[node name="Decor_mon_12_2" type="Marker2D" parent="VisualSections"]
+position = Vector2(10720, 1488)
+metadata/architecture = 3
+
+[node name="RearShaftCap" type="Node2D" parent="Gameplay"]
+position = Vector2(11600, 400)
+script = ExtResource("2")
+width = 240.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftEastRoad" type="Node2D" parent="Gameplay"]
+position = Vector2(11840, 400)
+script = ExtResource("2")
+width = 160.0
+collision_depth = 24.0
+one_way = false
+
+[node name="RearShaftLanding1" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 1096)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding2" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 1072)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding3" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 1048)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding4" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 1024)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding5" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 1000)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding6" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 976)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding7" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 952)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding8" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 928)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding9" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 904)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding10" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 880)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding11" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 856)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding12" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 832)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding13" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 808)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding14" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 784)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding15" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 760)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding16" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 736)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding17" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 712)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding18" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 688)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding19" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 664)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding20" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 640)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding21" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 616)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding22" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 592)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding23" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 568)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding24" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 544)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding25" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 520)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding26" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 496)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding27" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 472)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding28" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 448)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="RearShaftLanding29" type="Node2D" parent="Gameplay"]
+position = Vector2(11624, 424)
+script = ExtResource("2")
+width = 192.0
+collision_depth = 6.0
+one_way = true
+
+[node name="ChapelRearDescent" type="Marker2D" parent="Connections"]
+position = Vector2(11720, 720)
+metadata/from = "mon_15"
+metadata/to = "mon_16"
+
+[node name="DepartureRearHatch" type="Node2D" parent="Gameplay"]
+position = Vector2(11600, 400)
+script = ExtResource("2")
+width = 240.0
+collision_depth = 24.0
+metadata/gate_id = "gate_departure_back"
+
+[node name="PlayerSpawn" type="Marker2D" parent="Gameplay"]
+position = Vector2(120, 1120)
+script = ExtResource("3")
+kind = 0
+metadata/space_id = "mon_01"
+
+[node name="CampaignExit" type="Marker2D" parent="Gameplay"]
+position = Vector2(11760, 1120)
+script = ExtResource("3")
+kind = 1
+metadata/space_id = "mon_16"

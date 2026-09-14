@@ -7,6 +7,7 @@ signal hurt
 
 var tuning := PlayerTuning.new()
 var weapons := WeaponController.new()
+var melee := preload("res://scripts/player/claw_melee.gd").new()
 var input_source: Callable
 var manual_control := false
 var aim_direction := Vector2.RIGHT
@@ -61,6 +62,10 @@ func _physics_process(delta: float) -> void:
 		step(input_source.call(), delta)
 
 func step(frame: InputFrame, delta: float) -> void:
+	if health <= 0:
+		melee.cancel()
+		return
+	melee.tick_cooldown(delta, is_on_floor())
 	if is_on_floor():
 		air_lift_age = 0.0
 		air_lift_started = false
@@ -85,7 +90,9 @@ func step(frame: InputFrame, delta: float) -> void:
 		return
 	coyote_time = COYOTE_SECONDS if is_on_floor() and drop_time <= 0.0 else maxf(0.0, coyote_time - delta)
 	jump_buffer_time = JUMP_BUFFER_SECONDS if frame.jump_pressed else maxf(0.0, jump_buffer_time - delta)
-	update_aim(frame.aim_world)
+	if not melee.active(): update_aim(frame.aim_world)
+	if frame.melee_pressed: melee.start(self)
+	if melee.active(): facing = melee.direction
 	move_intent_x = frame.move.x
 	if is_on_floor():
 		var acceleration := tuning.ground_acceleration if frame.move.x != 0.0 else tuning.ground_deceleration
@@ -112,7 +119,7 @@ func step(frame: InputFrame, delta: float) -> void:
 		velocity.y = minf(velocity.y, 0.0) - tuning.jump_impulse
 		jump_buffer_time = 0.0
 		coyote_time = 0.0
-	var weapon := weapons.advance(delta, frame)
+	var weapon := weapons.advance(delta, frame, melee.active())
 	if weapon:
 		last_recoil = -aim_direction * weapon.recoil_impulse
 		last_recoil.x *= tuning.horizontal_recoil_scale
@@ -145,7 +152,9 @@ func step(frame: InputFrame, delta: float) -> void:
 		velocity.x = move_toward(velocity.x, signf(velocity.x) * tuning.soft_cap_x, tuning.overspeed_drag_x * delta)
 	if absf(velocity.y) > tuning.soft_cap_y:
 		velocity.y = move_toward(velocity.y, signf(velocity.y) * tuning.soft_cap_y, tuning.overspeed_drag_y * delta)
+	var movement_start := global_position
 	move_and_slide()
+	melee.advance(self, delta, movement_start)
 	max_rise = maxf(max_rise, start_y - position.y)
 	visual.update_pose(delta)
 	queue_redraw()
@@ -161,6 +170,7 @@ func receive_damage(amount: int, push: Vector2) -> void:
 	hurt_stun = 0.18
 	hit_flash = 0.09
 	last_hit_direction = push.normalized()
+	melee.cancel()
 	clear_jump_buffer()
 	velocity += push
 	hurt.emit()
