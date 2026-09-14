@@ -35,6 +35,10 @@ func run() -> void:
 	var session = game.campaign_session
 	var ui = session.ui
 	var hud = game.overlay.combat
+	check(ui.panel.get_theme_stylebox("panel") is StyleBoxFlat,"Text panel uses a clean surface, never a stretched ornament atlas")
+	check(ui.panel.get_theme_stylebox("panel").content_margin_left >= 36,"Panel text has explicit safe inset")
+	check(not ui.theme.get_stylebox("focus","Button").draw_center,"Focus border cannot paint over the button surface")
+	check(ui.theme.has_stylebox("disabled","Button"),"Disabled buttons have an authored state")
 	await capture("combat_1280")
 	await RenderingServer.frame_post_draw
 	var background_pixel := root.get_texture().get_image().get_pixel(800,680)

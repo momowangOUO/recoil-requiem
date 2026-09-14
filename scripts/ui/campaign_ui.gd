@@ -23,7 +23,7 @@ var _map: Control
 var _map_data: Dictionary = {}
 var _map_selected := ""
 var _font_multiplier := 1.0
-var _tracker_art: TextureRect
+var _tracker_art: Panel
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -35,16 +35,23 @@ func _ready() -> void:
 	theme.default_font_size = 24
 	theme.set_color("font_color", "Label", INK)
 	theme.set_color("font_color", "Button", INK)
-	for state in ["normal", "hover", "pressed", "focus"]:
+	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
 		var style := StyleBoxFlat.new()
-		style.bg_color = Color("493039") if state != "normal" else Color("302330")
+		style.bg_color = Color("54333d") if state in ["hover", "pressed"] else Color("292630")
+		if state == "disabled": style.bg_color = Color("34313a")
 		style.border_color = SILVER
-		style.set_border_width_all(1)
+		style.set_border_width_all(2)
 		style.content_margin_left = 14
 		style.content_margin_right = 14
 		style.content_margin_top = 8
 		style.content_margin_bottom = 8
+		style.set_corner_radius_all(3)
+		if state == "focus":
+			style.draw_center = false
+			style.border_color = INK
 		theme.set_stylebox(state, "Button", style)
+	theme.set_color("font_disabled_color", "Button", Color("ada3a6"))
+	theme.set_color("font_hover_color", "Button", Color("fff2db"))
 	if ResourceLoader.exists("res://assets/ui/campaign/campaign_atlas.png"):
 		_atlas = load("res://assets/ui/campaign/campaign_atlas.png")
 	else:
@@ -58,20 +65,19 @@ func _ready() -> void:
 	tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tracker.add_theme_constant_override("separation", 8)
 	add_child(tracker)
-	if _atlas:
-		var tracker_art := TextureRect.new()
-		_tracker_art = tracker_art
-		var tracker_texture := AtlasTexture.new()
-		tracker_texture.atlas = _atlas
-		tracker_texture.region = Rect2(145, 644, 610, 250)
-		tracker_art.texture = tracker_texture
-		tracker_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tracker_art.size = Vector2(440, 188)
-		tracker_art.position = Vector2(820, 18)
-		tracker_art.modulate.a = 0.70
-		tracker_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(tracker_art)
-		move_child(tracker_art, 0)
+	_tracker_art = Panel.new()
+	_tracker_art.position = Vector2(824, 22)
+	_tracker_art.size = Vector2(422, 188)
+	_tracker_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tracker_surface := StyleBoxFlat.new()
+	tracker_surface.bg_color = Color(0.19, 0.13, 0.16, 0.96)
+	tracker_surface.border_color = Color("8e7277")
+	tracker_surface.border_width_left = 3
+	tracker_surface.corner_radius_top_left = 3
+	tracker_surface.corner_radius_bottom_left = 3
+	_tracker_art.add_theme_stylebox_override("panel", tracker_surface)
+	add_child(_tracker_art)
+	move_child(_tracker_art, 0)
 	_main = _label("", 26)
 	tracker.add_child(_main)
 	_side = _label("", 24)
@@ -81,19 +87,13 @@ func _ready() -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_force_pass_scroll_events = false
 	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.16, 0.10, 0.15, 0.96)
+	bg.bg_color = Color(0.19, 0.16, 0.20, 0.98)
 	bg.border_color = SILVER
 	bg.set_border_width_all(1)
-	bg.set_content_margin_all(26)
+	bg.set_content_margin_all(36)
+	bg.set_corner_radius_all(5)
+	bg.border_color = Color("8e7277")
 	panel.add_theme_stylebox_override("panel", bg)
-	if _atlas:
-		var surface := StyleBoxTexture.new()
-		surface.texture = _atlas
-		surface.region_rect = Rect2(81, 114, 1372, 376)
-		for edge in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-			surface.set_texture_margin(edge, 32)
-			surface.set_content_margin(edge, 28)
-		panel.add_theme_stylebox_override("panel", surface)
 	add_child(panel)
 	panel.hide()
 	content = VBoxContainer.new()
@@ -105,7 +105,7 @@ func _ready() -> void:
 
 func _fit_tracker() -> void:
 	if _tracker_art:
-		_tracker_art.size.y = maxf(188,tracker.get_combined_minimum_size().y + 32)
+		_tracker_art.size.y = maxf(188,tracker.get_combined_minimum_size().y + 40)
 
 func _adapt_type() -> void:
 	_font_multiplier = maxf(1.0, 1280.0 / maxf(get_window().size.x, 1))
