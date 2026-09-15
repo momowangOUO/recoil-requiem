@@ -1,0 +1,1279 @@
+[
+  {
+    "id": "F01",
+    "name": "站前街道",
+    "kind": "floor",
+    "source": [
+      [
+        16,
+        430
+      ],
+      [
+        388,
+        430
+      ]
+    ],
+    "start": [
+      128,
+      1120
+    ],
+    "end": [
+      3104,
+      1120
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F02",
+    "name": "装卸庭主地面",
+    "kind": "floor",
+    "source": [
+      [
+        460,
+        466
+      ],
+      [
+        806,
+        466
+      ]
+    ],
+    "start": [
+      3680,
+      1408
+    ],
+    "end": [
+      6448,
+      1408
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F03",
+    "name": "钟庭地面",
+    "kind": "floor",
+    "source": [
+      [
+        878,
+        502
+      ],
+      [
+        1160,
+        502
+      ]
+    ],
+    "start": [
+      7024,
+      1696
+    ],
+    "end": [
+      9280,
+      1696
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F04",
+    "name": "花园地面",
+    "kind": "floor",
+    "source": [
+      [
+        1228,
+        468
+      ],
+      [
+        1470,
+        468
+      ]
+    ],
+    "start": [
+      9824,
+      1424
+    ],
+    "end": [
+      11760,
+      1424
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F05",
+    "name": "礼堂地面",
+    "kind": "floor",
+    "source": [
+      [
+        1470,
+        468
+      ],
+      [
+        2020,
+        468
+      ]
+    ],
+    "start": [
+      11760,
+      1424
+    ],
+    "end": [
+      16160,
+      1424
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F06",
+    "name": "门楼阳台",
+    "kind": "floor",
+    "source": [
+      [
+        336,
+        290
+      ],
+      [
+        416,
+        290
+      ]
+    ],
+    "start": [
+      2688,
+      0
+    ],
+    "end": [
+      3328,
+      0
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F07",
+    "name": "侧楼廊台",
+    "kind": "floor",
+    "source": [
+      [
+        556,
+        376
+      ],
+      [
+        784,
+        376
+      ]
+    ],
+    "start": [
+      4448,
+      688
+    ],
+    "end": [
+      6272,
+      688
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F08",
+    "name": "货道地面",
+    "kind": "floor",
+    "source": [
+      [
+        420,
+        575
+      ],
+      [
+        770,
+        575
+      ]
+    ],
+    "start": [
+      3360,
+      2280
+    ],
+    "end": [
+      6160,
+      2280
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F09",
+    "name": "泵房地面",
+    "kind": "floor",
+    "source": [
+      [
+        858,
+        619
+      ],
+      [
+        998,
+        619
+      ]
+    ],
+    "start": [
+      6864,
+      2632
+    ],
+    "end": [
+      7984,
+      2632
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F10",
+    "name": "泵房东检修台",
+    "kind": "floor",
+    "source": [
+      [
+        1078,
+        579
+      ],
+      [
+        1128,
+        579
+      ]
+    ],
+    "start": [
+      8624,
+      2312
+    ],
+    "end": [
+      9024,
+      2312
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "F11",
+    "name": "礼堂后隧道",
+    "kind": "floor",
+    "source": [
+      [
+        1530,
+        630
+      ],
+      [
+        2000,
+        630
+      ]
+    ],
+    "start": [
+      12240,
+      2720
+    ],
+    "end": [
+      16000,
+      2720
+    ],
+    "depth": 48,
+    "status": "proposed"
+  },
+  {
+    "id": "S01",
+    "name": "补建门楼至装卸庭",
+    "kind": "stair",
+    "source": [
+      [
+        388,
+        430
+      ],
+      [
+        460,
+        466
+      ]
+    ],
+    "start": [
+      3104,
+      1120
+    ],
+    "end": [
+      3680,
+      1408
+    ],
+    "width": 576,
+    "rise": 288,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": true,
+    "status": "proposed"
+  },
+  {
+    "id": "S02",
+    "name": "门楼阳台梯",
+    "kind": "stair",
+    "source": [
+      [
+        208,
+        354
+      ],
+      [
+        336,
+        290
+      ]
+    ],
+    "start": [
+      1664,
+      512
+    ],
+    "end": [
+      2688,
+      0
+    ],
+    "width": 1024,
+    "rise": 512,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S03",
+    "name": "装卸庭至钟庭",
+    "kind": "stair",
+    "source": [
+      [
+        806,
+        466
+      ],
+      [
+        878,
+        502
+      ]
+    ],
+    "start": [
+      6448,
+      1408
+    ],
+    "end": [
+      7024,
+      1696
+    ],
+    "width": 576,
+    "rise": 288,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S04",
+    "name": "钟庭至花园",
+    "kind": "stair",
+    "source": [
+      [
+        1160,
+        502
+      ],
+      [
+        1228,
+        468
+      ]
+    ],
+    "start": [
+      9280,
+      1696
+    ],
+    "end": [
+      9824,
+      1424
+    ],
+    "width": 544,
+    "rise": 272,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S05",
+    "name": "侧楼长梯",
+    "kind": "stair",
+    "source": [
+      [
+        556,
+        376
+      ],
+      [
+        740,
+        468
+      ]
+    ],
+    "start": [
+      4448,
+      688
+    ],
+    "end": [
+      5920,
+      1424
+    ],
+    "width": 1472,
+    "rise": 736,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S06",
+    "name": "货道至泵房",
+    "kind": "stair",
+    "source": [
+      [
+        770,
+        575
+      ],
+      [
+        858,
+        619
+      ]
+    ],
+    "start": [
+      6160,
+      2280
+    ],
+    "end": [
+      6864,
+      2632
+    ],
+    "width": 704,
+    "rise": 352,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S07",
+    "name": "泵房东梯",
+    "kind": "stair",
+    "source": [
+      [
+        998,
+        619
+      ],
+      [
+        1078,
+        579
+      ]
+    ],
+    "start": [
+      7984,
+      2632
+    ],
+    "end": [
+      8624,
+      2312
+    ],
+    "width": 640,
+    "rise": 320,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S08",
+    "name": "补建门楼低梯",
+    "kind": "stair",
+    "source": [
+      [
+        40,
+        438
+      ],
+      [
+        208,
+        354
+      ]
+    ],
+    "start": [
+      320,
+      1184
+    ],
+    "end": [
+      1664,
+      512
+    ],
+    "width": 1344,
+    "rise": 672,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": true,
+    "status": "proposed"
+  },
+  {
+    "id": "S09",
+    "name": "补建货道入口梯",
+    "kind": "stair",
+    "source": [
+      [
+        570,
+        475
+      ],
+      [
+        770,
+        575
+      ]
+    ],
+    "start": [
+      4560,
+      1480
+    ],
+    "end": [
+      6160,
+      2280
+    ],
+    "width": 1600,
+    "rise": 800,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": true,
+    "status": "proposed"
+  },
+  {
+    "id": "S10",
+    "name": "补建礼堂后隧道梯",
+    "kind": "stair",
+    "source": [
+      [
+        1684,
+        468
+      ],
+      [
+        2008,
+        630
+      ]
+    ],
+    "start": [
+      13472,
+      1424
+    ],
+    "end": [
+      16064,
+      2720
+    ],
+    "width": 2592,
+    "rise": 1296,
+    "angle": 26.57,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": true,
+    "status": "proposed"
+  },
+  {
+    "id": "S11",
+    "name": "钟楼侧梯",
+    "kind": "stair",
+    "source": [
+      [
+        1220,
+        466
+      ],
+      [
+        1160,
+        430
+      ]
+    ],
+    "start": [
+      9760,
+      1408
+    ],
+    "end": [
+      9280,
+      1120
+    ],
+    "width": 480,
+    "rise": 288,
+    "angle": 30.96,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S12",
+    "name": "钟楼侧梯",
+    "kind": "stair",
+    "source": [
+      [
+        1160,
+        430
+      ],
+      [
+        1220,
+        394
+      ]
+    ],
+    "start": [
+      9280,
+      1120
+    ],
+    "end": [
+      9760,
+      832
+    ],
+    "width": 480,
+    "rise": 288,
+    "angle": 30.96,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S13",
+    "name": "钟楼侧梯",
+    "kind": "stair",
+    "source": [
+      [
+        1220,
+        394
+      ],
+      [
+        1160,
+        358
+      ]
+    ],
+    "start": [
+      9760,
+      832
+    ],
+    "end": [
+      9280,
+      544
+    ],
+    "width": 480,
+    "rise": 288,
+    "angle": 30.96,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S14",
+    "name": "钟楼侧梯",
+    "kind": "stair",
+    "source": [
+      [
+        1160,
+        358
+      ],
+      [
+        1220,
+        322
+      ]
+    ],
+    "start": [
+      9280,
+      544
+    ],
+    "end": [
+      9760,
+      256
+    ],
+    "width": 480,
+    "rise": 288,
+    "angle": 30.96,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S15",
+    "name": "钟楼侧梯",
+    "kind": "stair",
+    "source": [
+      [
+        1220,
+        322
+      ],
+      [
+        1160,
+        286
+      ]
+    ],
+    "start": [
+      9760,
+      256
+    ],
+    "end": [
+      9280,
+      -32
+    ],
+    "width": 480,
+    "rise": 288,
+    "angle": 30.96,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "S16",
+    "name": "钟楼侧梯",
+    "kind": "stair",
+    "source": [
+      [
+        1160,
+        286
+      ],
+      [
+        1220,
+        250
+      ]
+    ],
+    "start": [
+      9280,
+      -32
+    ],
+    "end": [
+      9760,
+      -320
+    ],
+    "width": 480,
+    "rise": 288,
+    "angle": 30.96,
+    "visual_tread": 12,
+    "visual_riser": 6,
+    "landing": 96,
+    "depth": 96,
+    "body": "closed_ramp",
+    "added_to_concept": false,
+    "status": "proposed"
+  },
+  {
+    "id": "J01",
+    "name": "门楼低梯接街道",
+    "kind": "ramp_join",
+    "source": [
+      [
+        28,
+        430
+      ],
+      [
+        40,
+        438
+      ]
+    ],
+    "start": [
+      224,
+      1120
+    ],
+    "end": [
+      320,
+      1184
+    ],
+    "body": "continuous_solid_join",
+    "status": "proposed"
+  },
+  {
+    "id": "J02",
+    "name": "货道梯入口接庭院",
+    "kind": "ramp_join",
+    "source": [
+      [
+        552,
+        466
+      ],
+      [
+        570,
+        475
+      ]
+    ],
+    "start": [
+      4416,
+      1408
+    ],
+    "end": [
+      4560,
+      1480
+    ],
+    "body": "continuous_solid_join",
+    "status": "proposed"
+  },
+  {
+    "id": "J03",
+    "name": "侧楼梯脚接庭院",
+    "kind": "ramp_join",
+    "source": [
+      [
+        736,
+        466
+      ],
+      [
+        740,
+        468
+      ]
+    ],
+    "start": [
+      5888,
+      1408
+    ],
+    "end": [
+      5920,
+      1424
+    ],
+    "body": "continuous_solid_join",
+    "status": "proposed"
+  },
+  {
+    "id": "J04",
+    "name": "钟楼梯脚接花园",
+    "kind": "ramp_join",
+    "source": [
+      [
+        1220,
+        466
+      ],
+      [
+        1228,
+        468
+      ]
+    ],
+    "start": [
+      9760,
+      1408
+    ],
+    "end": [
+      9824,
+      1424
+    ],
+    "body": "continuous_solid_join",
+    "status": "proposed"
+  },
+  {
+    "id": "B01",
+    "name": "门楼石墙",
+    "kind": "3D",
+    "source_bounds": [
+      192,
+      120,
+      218,
+      580
+    ],
+    "position": [
+      1536,
+      -1360
+    ],
+    "size": [
+      1744,
+      4640
+    ],
+    "depth": 192,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B02",
+    "name": "吊车房后墙",
+    "kind": "3D",
+    "source_bounds": [
+      410,
+      242,
+      155,
+      334
+    ],
+    "position": [
+      3280,
+      -384
+    ],
+    "size": [
+      1240,
+      2672
+    ],
+    "depth": 128,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B03",
+    "name": "装卸庭基础",
+    "kind": "3D",
+    "source_bounds": [
+      412,
+      476,
+      391,
+      230
+    ],
+    "position": [
+      3296,
+      1488
+    ],
+    "size": [
+      3128,
+      1840
+    ],
+    "depth": 192,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B04",
+    "name": "钟楼西墩",
+    "kind": "3D",
+    "source_bounds": [
+      884,
+      70,
+      59,
+      570
+    ],
+    "position": [
+      7072,
+      -1760
+    ],
+    "size": [
+      472,
+      4560
+    ],
+    "depth": 256,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B05",
+    "name": "钟楼东墩",
+    "kind": "3D",
+    "source_bounds": [
+      1118,
+      65,
+      42,
+      590
+    ],
+    "position": [
+      8944,
+      -1800
+    ],
+    "size": [
+      336,
+      4720
+    ],
+    "depth": 256,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B06",
+    "name": "钟架梁",
+    "kind": "3D",
+    "source_bounds": [
+      916,
+      111,
+      241,
+      30
+    ],
+    "position": [
+      7328,
+      -1432
+    ],
+    "size": [
+      1928,
+      240
+    ],
+    "depth": 128,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B07",
+    "name": "铜钟",
+    "kind": "3D",
+    "source_bounds": [
+      983,
+      132,
+      84,
+      87
+    ],
+    "position": [
+      7864,
+      -1264
+    ],
+    "size": [
+      672,
+      696
+    ],
+    "depth": 96,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B08",
+    "name": "泵房后墙",
+    "kind": "3D",
+    "source_bounds": [
+      842,
+      525,
+      298,
+      99
+    ],
+    "position": [
+      6736,
+      1880
+    ],
+    "size": [
+      2384,
+      792
+    ],
+    "depth": 128,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B09",
+    "name": "花园基础",
+    "kind": "3D",
+    "source_bounds": [
+      1232,
+      480,
+      237,
+      232
+    ],
+    "position": [
+      9856,
+      1520
+    ],
+    "size": [
+      1896,
+      1856
+    ],
+    "depth": 192,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B10",
+    "name": "花园棚",
+    "kind": "3D",
+    "source_bounds": [
+      1250,
+      306,
+      229,
+      32
+    ],
+    "position": [
+      10000,
+      128
+    ],
+    "size": [
+      1832,
+      256
+    ],
+    "depth": 96,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B11",
+    "name": "门框",
+    "kind": "3D",
+    "source_bounds": [
+      1470,
+      291,
+      111,
+      180
+    ],
+    "position": [
+      11760,
+      8
+    ],
+    "size": [
+      888,
+      1440
+    ],
+    "depth": 128,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B12",
+    "name": "礼堂后墙",
+    "kind": "3D",
+    "source_bounds": [
+      1618,
+      99,
+      359,
+      369
+    ],
+    "position": [
+      12944,
+      -1528
+    ],
+    "size": [
+      2872,
+      2952
+    ],
+    "depth": 192,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B13",
+    "name": "礼堂基础",
+    "kind": "3D",
+    "source_bounds": [
+      1590,
+      478,
+      458,
+      230
+    ],
+    "position": [
+      12720,
+      1504
+    ],
+    "size": [
+      3664,
+      1840
+    ],
+    "depth": 192,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B14",
+    "name": "高窗玻璃",
+    "kind": "2D贴片",
+    "source_bounds": [
+      1716,
+      155,
+      82,
+      165
+    ],
+    "position": [
+      13728,
+      -1080
+    ],
+    "size": [
+      656,
+      1320
+    ],
+    "depth": 8,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B15",
+    "name": "档案柜",
+    "kind": "3D柜体+2D书脊",
+    "source_bounds": [
+      804,
+      321,
+      92,
+      73
+    ],
+    "position": [
+      6432,
+      248
+    ],
+    "size": [
+      736,
+      584
+    ],
+    "depth": 48,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B16",
+    "name": "左泵罐",
+    "kind": "3D",
+    "source_bounds": [
+      875,
+      546,
+      53,
+      71
+    ],
+    "position": [
+      7000,
+      2048
+    ],
+    "size": [
+      424,
+      568
+    ],
+    "depth": 64,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  },
+  {
+    "id": "B17",
+    "name": "右泵罐",
+    "kind": "3D",
+    "source_bounds": [
+      945,
+      546,
+      53,
+      71
+    ],
+    "position": [
+      7560,
+      2048
+    ],
+    "size": [
+      424,
+      568
+    ],
+    "depth": 64,
+    "collision": "author_openings_first",
+    "status": "proposed"
+  }
+]
