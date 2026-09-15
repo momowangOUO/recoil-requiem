@@ -115,10 +115,20 @@ func add_enemy(guard: ShieldEnemy, at: Vector2, group_id: String) -> void:
 
 func spawn_special(archetype: String) -> void:
 	if groups.has(archetype): return
-	var at := Vector2(10350, 1120) if archetype == "elite" else Vector2(11500, 400)
+	var at := story_position(archetype)
 	var guard := Enemy.new()
 	guard.archetype = archetype
 	add_enemy(guard, at, archetype)
+
+func story_position(id: String) -> Vector2:
+	# Saves retain event IDs; spatial story points belong to each authored map.
+	var authored = lab.environment.get("story_positions")
+	if authored is Dictionary and authored.has(id): return authored[id]
+	var legacy := {
+		"elite": Vector2(10350,1120), "boss": Vector2(11500,400),
+		"celine_after": Vector2(10300,1120), "celine_return": Vector2(3400,1120)
+	}
+	return legacy[id]
 
 func enemy_down(group_id: String) -> void:
 	if not groups.has(group_id): return
@@ -139,7 +149,7 @@ func step(delta: float) -> void:
 		event("celine_returned")
 		dialogue("celine",["mon.player.return","mon.celine.return"])
 		return
-	if has("celine_defeated") and not has("vira_dead") and not has("boss_met") and lab.player.position.distance_to(Vector2(11500,400)) < 550:
+	if has("celine_defeated") and not has("vira_dead") and not has("boss_met") and lab.player.position.distance_to(story_position("boss")) < 550:
 		event("boss_met")
 		dialogue("vira",["mon.vira.fight","mon.player.fight","mon.vira.answer"])
 		return
@@ -184,7 +194,7 @@ func refresh() -> void:
 		var actor: Node2D = npc_actors[id]
 		actor.visible = not (id == "vira" and has("departed")) and not (id == "celine" and has("departed") and not has("celine_defeated"))
 		if id == "celine" and has("celine_defeated"):
-			actor.position = Vector2(3400,1120) if has("vira_dead") else Vector2(10300,1120)
+			actor.position = story_position("celine_return" if has("vira_dead") else "celine_after")
 			for point in points:
 				if point.id == "celine": point.position = actor.position
 	var title := "mon.main01.title"

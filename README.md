@@ -1,5 +1,7 @@
 # 反冲挽歌 · 猩红修道院
 
+> 2026-09-15施工进度：源码已切换到 image_monastery.tscn（16384px宽）。新地图尚未完整回归，EXE仍是此前版本。继续开发请先读 [施工交接](dev-design/levels/image-led/HANDOFF.md)。下方地图尺寸描述为此前发布版本。
+
 使用 Godot 4.7.2 打开 `project.godot`，按 **F5**。唯一 Windows 运行文件为 `builds/windows/RecoilRequiem.exe`。
 
 主角名为**莉芙**，保留已接受的白发、红眼 v5 美术形象。她主动追猎准备离开修道院的维拉。主线、三条支线、交付选择、赛琳战及维拉战已接入；详情见 [开发设定入口](dev-design/README.md) 与 [执行记录](dev-design/IMPLEMENTATION.md)。其他城区仍是明确标注的设计提案，不是已开放内容。

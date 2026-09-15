@@ -1,0 +1,41 @@
+extends SceneTree
+
+func _initialize() -> void:
+	call_deferred("run")
+
+func run() -> void:
+	var app = load("res://scenes/game.tscn").instantiate()
+	root.add_child(app)
+	var stage = app.stage
+	var game = stage.game
+	stage.frozen_camera = true
+	game.player.manual_control = true
+	game.player.set_physics_process(false)
+	var views := {"station": Vector2(700,1120), "s02": Vector2(3400,1268), "cargo": Vector2(4200,2280), "pump": Vector2(7100,2632), "gallery": Vector2(5200,688), "garden": Vector2(10500,1424), "hall": Vector2(13800,1424), "underpass": Vector2(5840,1540), "bell_underpass": Vector2(9680,1540), "tower_open_stair": Vector2(9592,932.8)}
+	for label in views:
+		game.player.position = views[label]
+		game.player.update_aim(game.player.position + Vector2(100,-26))
+		stage.camera_target = CrimsonStage3D.to_stage(game.player.position + Vector2(0,-58))
+		stage.camera.position = stage.camera_target + Vector3(0.12,1.18,5.2)
+		stage.camera.look_at(stage.camera_target)
+		stage.residency.update_at(game.player.position)
+		for i in 5:
+			await physics_frame
+			await process_frame
+		await RenderingServer.frame_post_draw
+		app.stage_viewport.get_texture().get_image().save_png("res://artifacts/image_arch_%s.png" % label)
+	for wall in stage.scenery.get_node("ImageMonasteryForeground").get_children():
+		for distance in [3.8, 7.2]:
+			game.player.position = Vector2((wall.position.x + wall.width * 0.5) * 100, wall.get_meta("floor_y"))
+			stage.camera_target = CrimsonStage3D.to_stage(game.player.position + Vector2(0, -minf(52, distance * 10)))
+			stage.camera.position = stage.camera_target + Vector3(0.12, 1.18, distance)
+			stage.camera.look_at(stage.camera_target)
+			stage.residency.update_at(game.player.position)
+			for i in 5:
+				await physics_frame
+				await process_frame
+			await RenderingServer.frame_post_draw
+			app.stage_viewport.get_texture().get_image().save_png("res://artifacts/image_foreground_%s_%s.png" % [wall.name, str(distance)])
+	app.free()
+	quit()
+

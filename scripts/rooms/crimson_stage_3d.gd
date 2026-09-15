@@ -217,6 +217,10 @@ func _rose_support_height(x: float) -> float:
 	return best
 
 func _build_room() -> void:
+	if game.environment.get("image_led"):
+		preload("res://scripts/rooms/image_monastery_visual.gd").new().build(self)
+		_build_room_finish(_material(Rect2(), Color("706977")), _material(Rect2(), Color("b8a58b"), "brass"))
+		return
 	# Plain masonry for structural faces; the arch motif belongs to architecture only.
 	var stone := _material(Rect2(668, 42, 526, 62), Color("8e829f"))
 	var paving := _material(PaperPlatform.TOP_REGION, Color("a39aa9"))
@@ -307,6 +311,9 @@ func _build_room() -> void:
 		_build_backdrop(dark, gold)
 		_build_room_identity(dark, gold, stone, section.architecture)
 		scenery = room_root
+	_build_room_finish(dark, gold)
+
+func _build_room_finish(dark: Material, gold: Material) -> void:
 	door_material = _material(Rect2(), Color("675362"), "wood")
 	door_material.emission_enabled = true
 	door_material.emission = Color("080308")
@@ -567,6 +574,7 @@ func _physics_process(delta: float) -> void:
 		if not hit.is_empty():
 			var altitude: float = maxf(0, hit.position.y - actor.position.y)
 			shadow_cards[i].position = to_stage(hit.position) + Vector3(0, 0.006, 0)
+			shadow_cards[i].rotation.z = atan2(hit.normal.x, -hit.normal.y)
 			shadow_cards[i].scale = Vector3.ONE * lerpf(1, 0.4, clampf(altitude / 160, 0, 1))
 
 func _update_camera(delta: float) -> void:

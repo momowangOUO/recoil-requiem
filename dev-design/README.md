@@ -22,7 +22,7 @@
 
 ## 当前可读资料
 
-- 2026-09-15最新动线重设计（待审，未施工）：[imagegen生成图与转换施工图](levels/image-led/construction.html)，[独立步行楼梯与布景规则](levels/image-led/README.md)。此前三层长路及跳格栅楼梯设计已被用户否定，不再使用。
+- 2026-09-15新动线已进入施工，尚未发布；先读 [施工交接与剩余问题](levels/image-led/HANDOFF.md)：[imagegen生成图与转换施工图](levels/image-led/construction.html)，[独立步行楼梯与布景规则](levels/image-led/README.md)。此前三层长路及跳格栅楼梯设计已被用户否定，不再使用。
 
 - 开发约束：根 AGENTS.md。
 - 当前美术与表现：docs/ART_STANDARD.md、docs/VISUAL_IMPLEMENTATION.md。

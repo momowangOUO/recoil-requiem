@@ -27,6 +27,7 @@ static func validate(room: Node) -> PackedStringArray:
 	var unlocks: Array[String] = []
 	var solid_surfaces: Array[Dictionary] = []
 	var initial_surfaces: Array[Rect2] = []
+	var stairs: Array[PaperStair] = []
 	var gates: Dictionary = {}
 	var shortcut_counts: Dictionary = {}
 	var spaces: Dictionary = {}
@@ -49,6 +50,16 @@ static func validate(room: Node) -> PackedStringArray:
 			if node.unlock_action.is_empty():
 				if not node.has_meta("gate_id"): initial_surfaces.append(surface)
 				if not node.one_way: solid_surfaces.append({"rect":surface,"node":node})
+		elif node is PaperStair:
+			stairs.append(node)
+			if absf(node.end_offset.x) < 1:
+				errors.append("%s: stair requires nonzero horizontal run." % node.name)
+			elif rad_to_deg(atan2(absf(node.end_offset.y), absf(node.end_offset.x))) > 35.001:
+				errors.append("%s: stair slope must not exceed 35 degrees." % node.name)
+			for corner in node.shell_polygon():
+				if not bounds.grow(0.001).has_point(node.position + corner):
+					errors.append("%s: stair shell is outside the configured room bounds." % node.name)
+					break
 		elif node is RoomAction:
 			markers.append(node)
 			if node.has_meta("shortcut_gate"):
@@ -102,9 +113,15 @@ static func validate(room: Node) -> PackedStringArray:
 				var id := str(marker.get_meta("space_id"))
 				if not spaces.has(id): errors.append("%s: unknown space ID %s." % [marker.name,id])
 		var supported := false
+		var supporting_stair: PaperStair
 		for surface in initial_surfaces:
 			if absf(surface.position.y - marker.position.y) <= 2 and marker.position.x >= surface.position.x + 12 and marker.position.x <= surface.end.x - 12: supported = true
-		if not supported: errors.append("%s: feet must be on a platform, at least 12 px from its edge." % marker.name)
+		for stair in stairs:
+			var local_x: float = marker.position.x - stair.position.x
+			if local_x >= minf(0, stair.end_offset.x) + 12 and local_x <= maxf(0, stair.end_offset.x) - 12 and absf(marker.position.y - stair.position.y - stair.surface_y(local_x)) <= 2:
+				supported = true
+				supporting_stair = stair
+		if not supported: errors.append("%s: feet must be on a platform or stair, at least 12 px from its edge." % marker.name)
 		var body := Rect2(marker.position + Vector2(-9, -38), Vector2(18, 37))
 		for solid in solid_surfaces:
 			if body.intersects(solid.rect):
@@ -112,5 +129,15 @@ static func validate(room: Node) -> PackedStringArray:
 				var own_door := marker is RoomAction and marker.has_meta("shortcut_gate") and str(marker.get_meta("shortcut_gate")) == str(solid.node.get_meta("gate_id", ""))
 				if own_door: continue
 				errors.append("%s: standing space overlaps solid stone or a closed gate; leave 38 px headroom." % marker.name)
+				break
+		var body_polygon := PackedVector2Array([body.position, Vector2(body.end.x, body.position.y), body.end, Vector2(body.position.x, body.end.y)])
+		for stair in stairs:
+			# A rectangular actor settles slightly above the slope center line;
+			# its supporting stair must not be diagnosed as a head obstruction.
+			if stair == supporting_stair or stair.one_way: continue
+			var polygon := stair.shell_polygon()
+			for index in polygon.size(): polygon[index] += stair.position
+			if not Geometry2D.intersect_polygons(body_polygon, polygon).is_empty():
+				errors.append("%s: standing space overlaps a solid stair; leave 38 px headroom." % marker.name)
 				break
 	return errors

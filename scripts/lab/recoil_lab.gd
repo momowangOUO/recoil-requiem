@@ -141,7 +141,7 @@ func reset_trial(index: int) -> void:
 	add_child(world)
 	var room_path: String = editor_room_path if not editor_room_path.is_empty() else CAMPAIGN_ROOMS[room_index]
 	if visual_slice and connected_map and editor_room_path.is_empty(): room_path = "res://scenes/rooms/connected_monastery.tscn"
-	if campaign_session != null: room_path = "res://scenes/rooms/monastery_campaign.tscn"
+	if campaign_session != null: room_path = "res://scenes/rooms/image_monastery.tscn"
 	environment = load(room_path).instantiate() if visual_slice else LabEnvironment.new()
 	world.add_child(environment)
 	environment.build(preset)

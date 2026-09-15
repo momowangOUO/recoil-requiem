@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/near_foreground.gd" id="1"]
+
+[node name="ImageMonasteryForeground" type="Node3D"]
+
+[node name="StationStreet" type="Node3D" parent="."]
+position = Vector3(4.8, -11.05, 1.8)
+script = ExtResource("1")
+width = 4.8
+metadata/floor_y = 1120.0
+
+[node name="LoadingCourt" type="Node3D" parent="."]
+position = Vector3(40.0, -13.93, 1.8)
+script = ExtResource("1")
+width = 4.8
+metadata/floor_y = 1408.0
+
+[node name="QuietGarden" type="Node3D" parent="."]
+position = Vector3(103.0, -14.09, 1.8)
+script = ExtResource("1")
+width = 4.8
+metadata/floor_y = 1424.0
+
+[node name="HallApproach" type="Node3D" parent="."]
+position = Vector3(125.2, -14.09, 1.8)
+script = ExtResource("1")
+width = 4.8
+metadata/floor_y = 1424.0

@@ -66,9 +66,9 @@ func build(_index: int) -> void:
 		connections.append({"from": node.get_meta("from"), "to": node.get_meta("to"), "gate_id": node.get_meta("gate_id", ""), "position": node.position})
 	for node in get_node("VisualSections").get_children():
 		visual_sections.append({"offset": node.position, "architecture": node.get_meta("architecture", 0)})
-	_collision(Rect2(-24, -184, 24, 2448), false)
-	_collision(Rect2(12000, -184, 24, 2448), false)
-	_collision(Rect2(0, -184, 12000, 24), false)
+	_collision(Rect2(bounds.position-Vector2(24,24),Vector2(24,bounds.size.y+48)), false)
+	_collision(Rect2(bounds.position+Vector2(bounds.size.x,-24),Vector2(24,bounds.size.y+48)), false)
+	_collision(Rect2(bounds.position-Vector2(0,24),Vector2(bounds.size.x,24)), false)
 
 func space_at(point: Vector2) -> String:
 	for id in space_bounds:

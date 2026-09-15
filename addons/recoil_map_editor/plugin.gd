@@ -2,12 +2,15 @@
 extends EditorPlugin
 
 const Validator = preload("res://addons/recoil_map_editor/room_validator.gd")
+const MAIN_ROOM := "res://scenes/rooms/image_monastery.tscn"
 var dock: VBoxContainer
 var dock_shell: EditorDock
 var status: Label
 var x_input: SpinBox
 var y_input: SpinBox
 var width_input: SpinBox
+var stair_run_input: SpinBox
+var stair_rise_input: SpinBox
 var encounter_input: SpinBox
 var smoke_runner: RefCounted
 
@@ -18,7 +21,7 @@ func _enter_tree() -> void:
 	var heading := Label.new()
 	heading.text = "反冲挽歌 · 地图编辑器"
 	dock.add_child(heading)
-	_button("打开新版修道院（16空间）", _open.bind("res://scenes/rooms/monastery_campaign.tscn"))
+	_button("打开新版修道院（16空间）", _open.bind(MAIN_ROOM))
 	_button(RecoilLab.ROOM_TEXT.editor_connected, _open.bind("res://scenes/rooms/connected_monastery.tscn"))
 	_button("打开东庭", _open.bind("res://scenes/rooms/crimson_environment.tscn"))
 	_button("打开钟楼外廊", _open.bind("res://scenes/rooms/bell_gallery.tscn"))
@@ -28,6 +31,10 @@ func _enter_tree() -> void:
 	x_input = _number("放置 X", 0, 4800, 16, 320)
 	y_input = _number("脚底 Y", -128, 400, 16, 288)
 	width_input = _number("平台宽度", 16, 960, 16, 128)
+	stair_run_input = _number("楼梯水平长度（向左为负）", -16384, 16384, 1, 384)
+	stair_rise_input = _number("楼梯高差（向上为负）", -2400, 2400, 1, -192)
+	_button("添加独立实体楼梯", _stair)
+	_button("更新所选楼梯尺寸", _edit_stair)
 	encounter_input = _number("遭遇组 ID", 1, 16, 1, 1)
 	_button("添加下穿平台", _platform.bind(true))
 	_button("添加实体平台", _platform.bind(false))
@@ -67,6 +74,9 @@ func _enter_tree() -> void:
 	elif "--campaign-editor-smoke" in OS.get_cmdline_user_args():
 		smoke_runner = load("res://addons/recoil_map_editor/campaign_editor_smoke.gd").new()
 		smoke_runner.run.call_deferred(self)
+	elif "--stair-editor-smoke" in OS.get_cmdline_user_args():
+		smoke_runner = load("res://addons/recoil_map_editor/stair_editor_smoke.gd").new()
+		smoke_runner.run.call_deferred(self)
 
 func _exit_tree() -> void:
 	remove_tool_menu_item("Recoil Map Editor")
@@ -103,6 +113,28 @@ func _sync_bounds(room: Node) -> void:
 	y_input.min_value = bounds.position.y
 	y_input.max_value = bounds.end.y - 1 if room.has_meta("world_bounds") else 400
 	width_input.max_value = bounds.size.x
+	stair_run_input.min_value = -bounds.size.x
+	stair_run_input.max_value = bounds.size.x
+	stair_rise_input.min_value = -bounds.size.y
+	stair_rise_input.max_value = bounds.size.y
+
+func _stair() -> void:
+	var node := preload("res://scenes/rooms/walkable_stair.tscn").instantiate() as PaperStair
+	node.name = "Stair"
+	node.end_offset = Vector2(stair_run_input.value, stair_rise_input.value)
+	_insert(node)
+
+func _edit_stair() -> void:
+	var selection := EditorInterface.get_selection().get_selected_nodes()
+	if selection.size() != 1 or not selection[0] is PaperStair:
+		status.text = "请先选择一个独立楼梯节点。"
+		return
+	var stair := selection[0] as PaperStair
+	var undo := get_undo_redo()
+	undo.create_action("Resize Recoil stair", UndoRedo.MERGE_DISABLE, EditorInterface.get_edited_scene_root())
+	undo.add_do_property(stair, "end_offset", Vector2(stair_run_input.value, stair_rise_input.value))
+	undo.add_undo_property(stair, "end_offset", stair.end_offset)
+	undo.commit_action()
 
 func _platform(one_way: bool) -> void:
 	var node := PaperPlatform.new()
@@ -184,9 +216,13 @@ func _preview() -> void:
 	if EditorInterface.save_scene() != OK:
 		status.text = "保存失败，未启动试玩。"
 		return
-	var arguments := PackedStringArray(["--path", ProjectSettings.globalize_path("res://")])
-	# The canonical campaign uses its session (NPCs, capped encounters and gates).
-	if room.scene_file_path != "res://scenes/rooms/monastery_campaign.tscn":
-		arguments.append_array(["--", "--room=" + room.scene_file_path])
+	var arguments := _preview_arguments(room.scene_file_path)
 	var process := OS.create_process(OS.get_executable_path(), arguments)
 	status.text = "已启动当前地图；关闭试玩窗口返回编辑。" if process > 0 else "启动失败，请查看输出。"
+
+func _preview_arguments(room_path: String) -> PackedStringArray:
+	var arguments := PackedStringArray(["--path", ProjectSettings.globalize_path("res://")])
+	# The canonical campaign uses its session (NPCs, capped encounters and gates).
+	if room_path != MAIN_ROOM:
+		arguments.append_array(["--", "--room=" + room_path])
+	return arguments
