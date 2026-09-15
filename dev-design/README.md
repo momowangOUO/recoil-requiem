@@ -22,6 +22,8 @@
 
 ## 当前可读资料
 
+- 2026-09-15动线重设计（待审，未施工）：[总图、16空间剖面与6楼梯节点图](levels/monastery-plan.html)，[逐物件施工说明](levels/CONSTRUCTION_REVIEW.md)。图中方案不能自动当作当前游戏状态。
+
 - 开发约束：根 AGENTS.md。
 - 当前美术与表现：docs/ART_STANDARD.md、docs/VISUAL_IMPLEMENTATION.md。
 - 编辑器使用：docs/MAP_EDITOR.md。
