@@ -1,5 +1,7 @@
 # 修道院地图实施记录
 
+> 2026-09-20：本文下方为旧平行路网版本的历史实施记录。当前主地图为image_monastery.tscn；实际施工及验证见 [按图施工记录](levels/image-led/VALIDATION.md)。
+
 记录日期：2026-09-14。本文只报告地图、接口与本轮验证；任务、敌人、美术素材和整体完成度由 [IMPLEMENTATION.md](IMPLEMENTATION.md) 汇总。城外区域仍为 [待审规划](narrative/CITY_AND_WORLD.md)。
 
 ## 实际范围与预算差异

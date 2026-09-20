@@ -7,6 +7,19 @@
       1120.0
     ],
     "end": [
+      240.0,
+      1120.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "F01_east",
+    "kind": "floor",
+    "start": [
+      896.0,
+      1120.0
+    ],
+    "end": [
       3104.0,
       1120.0
     ],
@@ -315,7 +328,7 @@
     "id": "S08",
     "kind": "stair",
     "start": [
-      320.0,
+      480.0,
       1120.0
     ],
     "end": [
@@ -594,6 +607,123 @@
     "end": [
       10088.0,
       1424.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "D04",
+    "kind": "stair",
+    "start": [
+      240.0,
+      1120.0
+    ],
+    "end": [
+      480.0,
+      1248.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "D05",
+    "kind": "stair",
+    "start": [
+      640.0,
+      1248.0
+    ],
+    "end": [
+      896.0,
+      1120.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "F18_GateUnderpass",
+    "kind": "floor",
+    "start": [
+      480.0,
+      1248.0
+    ],
+    "end": [
+      640.0,
+      1248.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "F19_GateEntryBridge",
+    "kind": "floor",
+    "start": [
+      240.0,
+      1120.0
+    ],
+    "end": [
+      480.0,
+      1120.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "F20_TowerLanding1",
+    "kind": "floor",
+    "start": [
+      9088.0,
+      1120.0
+    ],
+    "end": [
+      9280.0,
+      1120.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "F20_TowerLanding2",
+    "kind": "floor",
+    "start": [
+      9760.0,
+      832.0
+    ],
+    "end": [
+      9952.0,
+      832.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "F20_TowerLanding3",
+    "kind": "floor",
+    "start": [
+      9088.0,
+      544.0
+    ],
+    "end": [
+      9280.0,
+      544.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "F20_TowerLanding4",
+    "kind": "floor",
+    "start": [
+      9760.0,
+      256.0
+    ],
+    "end": [
+      9952.0,
+      256.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "F20_TowerLanding5",
+    "kind": "floor",
+    "start": [
+      9088.0,
+      -32.0
+    ],
+    "end": [
+      9280.0,
+      -32.0
     ],
     "one_way": true
   },

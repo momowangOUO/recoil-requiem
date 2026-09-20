@@ -7,15 +7,15 @@ func check(ok: bool, label: String) -> void:
 		push_error(label)
 func run(plugin: EditorPlugin) -> void:
 	await plugin.get_tree().create_timer(2.0).timeout
-	plugin._open("res://scenes/rooms/monastery_campaign.tscn")
+	plugin._open("res://scenes/rooms/image_monastery.tscn")
 	for i in 12: await plugin.get_tree().process_frame
 	var room := EditorInterface.get_edited_scene_root()
 	check(room != null and room.has_meta("world_bounds"), "Editor opens the sixteen-space scene")
-	check(plugin.x_input.max_value == 12000 and plugin.y_input.min_value == -160 and plugin.y_input.max_value == 2239, "Editor controls adopt expanded scene bounds")
+	check(plugin.x_input.max_value == 16384 and plugin.y_input.min_value == -2080 and plugin.y_input.max_value == 4119, "Editor controls adopt image-led scene bounds")
 	check(plugin._validate(), "Authored campaign validates inside real editor")
 	var before: int = room.get_node("Gameplay").get_child_count()
-	plugin.x_input.value = 5000
-	plugin.y_input.value = 1120
+	plugin.x_input.value = 4240
+	plugin.y_input.value = 1408
 	plugin.encounter_input.value = 6
 	for archetype in ["charger","grenadier","flyer","support"]:
 		plugin._campaign_marker(archetype)

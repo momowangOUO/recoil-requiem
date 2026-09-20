@@ -26,7 +26,7 @@ $replayOutput = & $Godot --headless --path $projectDirectory --log-file (Join-Pa
 $replayResult = $replayOutput | Select-String '^REPLAY RESULT:'
 if ($LASTEXITCODE -ne 0 -or -not $replayResult -or ($replayOutput | Select-String 'SCRIPT ERROR:')) { $replayOutput | Write-Output; exit 1 }
 Write-Output "Keyboard/mouse engine-event replay (60 FPS): $replayResult"
-foreach ($fixture in @('test_walkable_stairs', 'test_image_campaign', 'test_image_monastery_routes', 'test_image_monastery_branches', 'test_image_monastery_visual', 'test_paper_stage', 'test_stage_3d', 'test_campaign', 'test_continuation', 'test_connected', 'test_hit_feedback', 'test_claw_melee', 'test_campaign_state', 'test_campaign_session', 'test_campaign_dialogue_review', 'test_monastery_campaign', 'test_campaign_enemy', 'test_campaign_ui', 'test_campaign_residency', 'test_campaign_editor', 'test_arm_rig', 'test_combat_hud', 'test_environment_art', 'test_decor_support', 'test_foreground', 'export_game_text')) {
+foreach ($fixture in @('test_stair_editor', 'test_image_editor', 'test_image_map_ui', 'test_image_monastery_tower', 'test_sky_coverage', 'test_walkable_stairs', 'test_image_campaign', 'test_image_monastery_routes', 'test_image_monastery_branches', 'test_image_monastery_visual', 'test_paper_stage', 'test_stage_3d', 'test_campaign', 'test_continuation', 'test_connected', 'test_hit_feedback', 'test_claw_melee', 'test_campaign_state', 'test_campaign_session', 'test_campaign_dialogue_review', 'test_monastery_campaign', 'test_campaign_enemy', 'test_campaign_ui', 'test_campaign_residency', 'test_campaign_editor', 'test_arm_rig', 'test_combat_hud', 'test_environment_art', 'test_decor_support', 'test_foreground', 'export_game_text')) {
     $stageOutput = & $Godot --headless --path $projectDirectory --log-file (Join-Path $artifactDirectory "$fixture.log") --fixed-fps 60 --script "res://tests/$fixture.gd" -- --campaign-test 2>&1
     $stageResult = $stageOutput | Select-String 'STAGE RESULT:'
     if ($LASTEXITCODE -ne 0 -or -not $stageResult -or ($stageOutput | Select-String 'SCRIPT ERROR:')) { $stageOutput | Write-Output; exit 1 }
@@ -42,3 +42,8 @@ $campaignEditorOutput = & $Godot --headless --editor --path $projectDirectory --
 $campaignEditorResult = $campaignEditorOutput | Select-String 'CAMPAIGN EDITOR.*RESULT:'
 if ($LASTEXITCODE -ne 0 -or -not $campaignEditorResult -or ($campaignEditorOutput | Select-String 'SCRIPT ERROR:')) { $campaignEditorOutput | Write-Output; exit 1 }
 Write-Output $campaignEditorResult
+
+$stairEditorOutput = & $Godot --headless --editor --path $projectDirectory --quit-after 600 --log-file (Join-Path $artifactDirectory 'stair-editor-smoke.log') -- --stair-editor-smoke 2>&1
+$stairEditorResult = $stairEditorOutput | Select-String '^STAIR EDITOR SMOKE RESULT:'
+if ($LASTEXITCODE -ne 0 -or -not $stairEditorResult -or ($stairEditorOutput | Select-String 'SCRIPT ERROR:')) { $stairEditorOutput | Write-Output; exit 1 }
+Write-Output $stairEditorResult

@@ -19,7 +19,15 @@ metadata/world_bounds = Rect2(0, -2080, 16384, 6200)
 [node name="F01" type="Node2D" parent="Gameplay"]
 position = Vector2(0, 1120)
 script = ExtResource("2")
-width = 3104
+width = 240
+collision_depth = 48
+one_way = false
+metadata/structural_id = "F01"
+
+[node name="F01_east" type="Node2D" parent="Gameplay"]
+position = Vector2(896, 1120)
+script = ExtResource("2")
+width = 2208
 collision_depth = 48
 one_way = false
 metadata/structural_id = "F01"
@@ -202,9 +210,9 @@ stair_depth = 48
 metadata/structural_id = "S07"
 
 [node name="S08" type="Node2D" parent="Gameplay"]
-position = Vector2(320, 1120)
+position = Vector2(480, 1120)
 script = ExtResource("5")
-end_offset = Vector2(1344, -608)
+end_offset = Vector2(1184, -608)
 stair_depth = 48
 metadata/structural_id = "S08"
 
@@ -365,6 +373,75 @@ collision_depth = 48
 one_way = true
 metadata/structural_id = "F17"
 
+[node name="D04" type="Node2D" parent="Gameplay"]
+position = Vector2(240, 1120)
+script = ExtResource("5")
+end_offset = Vector2(240, 128)
+metadata/structural_id = "D04"
+
+[node name="D05" type="Node2D" parent="Gameplay"]
+position = Vector2(640, 1248)
+script = ExtResource("5")
+end_offset = Vector2(256, -128)
+metadata/structural_id = "D05"
+
+[node name="F18_GateUnderpass" type="Node2D" parent="Gameplay"]
+position = Vector2(480, 1248)
+script = ExtResource("2")
+width = 160
+collision_depth = 48
+one_way = false
+metadata/structural_id = "F18"
+metadata/interior_backwall = true
+
+[node name="F19_GateEntryBridge" type="Node2D" parent="Gameplay"]
+position = Vector2(240, 1120)
+script = ExtResource("2")
+width = 240
+collision_depth = 48
+one_way = true
+metadata/structural_id = "F19"
+
+[node name="F20_TowerLanding1" type="Node2D" parent="Gameplay"]
+position = Vector2(9088, 1120)
+script = ExtResource("2")
+width = 192
+collision_depth = 48
+one_way = true
+metadata/structural_id = "F20"
+
+[node name="F20_TowerLanding2" type="Node2D" parent="Gameplay"]
+position = Vector2(9760, 832)
+script = ExtResource("2")
+width = 192
+collision_depth = 48
+one_way = true
+metadata/structural_id = "F20"
+
+[node name="F20_TowerLanding3" type="Node2D" parent="Gameplay"]
+position = Vector2(9088, 544)
+script = ExtResource("2")
+width = 192
+collision_depth = 48
+one_way = true
+metadata/structural_id = "F20"
+
+[node name="F20_TowerLanding4" type="Node2D" parent="Gameplay"]
+position = Vector2(9760, 256)
+script = ExtResource("2")
+width = 192
+collision_depth = 48
+one_way = true
+metadata/structural_id = "F20"
+
+[node name="F20_TowerLanding5" type="Node2D" parent="Gameplay"]
+position = Vector2(9088, -32)
+script = ExtResource("2")
+width = 192
+collision_depth = 48
+one_way = true
+metadata/structural_id = "F20"
+
 [node name="RecoveryRoad" type="Node2D" parent="Gameplay"]
 position = Vector2(0, 3840)
 script = ExtResource("2")
@@ -462,7 +539,7 @@ metadata/space_id = "mon_14"
 metadata/shortcut_gate = "gate_east"
 
 [node name="gate_return" type="Node2D" parent="Gameplay"]
-position = Vector2(15920, 2720)
+position = Vector2(16120, 2720)
 script = ExtResource("2")
 width = 16
 collision_depth = 16
@@ -470,7 +547,7 @@ metadata/gate_id = "gate_return"
 metadata/freight_plate = true
 
 [node name="gate_return_travel0" type="Marker2D" parent="Gameplay"]
-position = Vector2(15920, 2720)
+position = Vector2(16120, 2720)
 script = ExtResource("4")
 action_id = "gate_return_travel"
 title = ""
@@ -478,7 +555,7 @@ metadata/space_id = "mon_16"
 metadata/shortcut_gate = "gate_return"
 
 [node name="gate_return_travel1" type="Marker2D" parent="Gameplay"]
-position = Vector2(800, 1120)
+position = Vector2(1000, 1120)
 script = ExtResource("4")
 action_id = "gate_return_travel"
 title = ""
@@ -500,7 +577,7 @@ metadata/npc_id = "ina"
 metadata/space_id = "mon_05"
 
 [node name="NPC_vira" type="Marker2D" parent="Gameplay"]
-position = Vector2(5840, 1540.0)
+position = Vector2(6416, 1408)
 script = ExtResource("3")
 kind = 0
 metadata/npc_id = "vira"
@@ -759,7 +836,7 @@ metadata/room_id = "mon_06"
 metadata/enemy_archetype = "rifle"
 
 [node name="Encounter4_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(5664, 1540.0)
+position = Vector2(5696, 1540.0)
 script = ExtResource("3")
 kind = 3
 metadata/encounter_id = 4

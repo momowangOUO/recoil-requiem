@@ -21,6 +21,14 @@ func run() -> void:
 	root.add_child(app)
 	var stage = app.stage
 	stage.residency.clear()
+	var castle_count := 0
+	for card in stage.night.get_children():
+		if card is Sprite3D and card != stage.night.sky and card != stage.night.moon:
+			castle_count += 1
+			if card.material_override != stage.night.castle_haze:
+				push_error("An expanded-map castle layer is missing its lower-edge transition")
+				failures += 1
+	if castle_count != 11: failures += 1
 	var open_count := 0
 	for stair in stage.game.environment.stairs:
 		if not stair.get("one_way"): continue
@@ -35,6 +43,46 @@ func run() -> void:
 	if open_count < 6:
 		push_error("All six tower flights must use visibly open metal construction")
 		failures += 1
+	var corbels: Array = stage.scenery.find_children("BellStairwellLandingCorbel*", "MeshInstance3D", false, false)
+	var wall_supports: Array = stage.scenery.find_children("BellStairwellRearMasonry*", "MeshInstance3D", false, false)
+	wall_supports.append_array(stage.scenery.find_children("B05TowerPier*", "MeshInstance3D", false, false))
+	var landing_count := 0
+	for module in stage.game.environment.modules:
+		if module.get_meta("structural_id", "") != "F20": continue
+		landing_count += 1
+		var pieces: Array = stage.platform_visuals[module]
+		var floor_pieces: Array = pieces.filter(func(node): return str(node.name).contains("GrateSlat") or str(node.name).contains("EdgeGirder"))
+		var rails: Array = pieces.filter(func(node): return str(node.name).begins_with("F20RearRailPost"))
+		if rails.size() < 2:
+			push_error("Tower landing has no attached rear railing: " + str(module.name))
+			failures += 1
+		for post in rails:
+			if not touches_any(post, floor_pieces):
+				push_error("Tower landing railing is not seated on a real grating beam")
+				failures += 1
+		var supported := false
+		for corbel in corbels:
+			if touches_any(corbel, floor_pieces) and touches_any(corbel, wall_supports): supported = true
+		if not supported:
+			push_error("Tower landing has no continuous wall-to-grating corbel: " + str(module.name))
+			failures += 1
+	var mounts: Array = stage.scenery.find_children("BellStairwellSconceMount*", "MeshInstance3D", false, false)
+	var brackets: Array = stage.scenery.find_children("BellStairwellSconceWallBracket*", "MeshInstance3D", false, false)
+	for mount in mounts:
+		var connected := false
+		for bracket in brackets:
+			if touches_any(bracket, [mount]) and touches_any(bracket, wall_supports): connected = true
+		if not connected:
+			push_error("Stairwell sconce has no continuous attachment to masonry")
+			failures += 1
+	if landing_count != 5 or mounts.size() != 5: failures += 1
 	app.free()
-	print("IMAGE VISUAL STAGE RESULT: stair surface error <= 6px, open flights=", open_count, ", failures=", failures)
+	print("IMAGE VISUAL STAGE RESULT: stair surface error <= 6px, open flights=", open_count, ", supported landing checks=", landing_count, ", failures=", failures)
 	quit(1 if failures else 0)
+
+func touches_any(node: MeshInstance3D, candidates: Array) -> bool:
+	var bounds: AABB = node.global_transform * node.get_aabb()
+	for candidate: MeshInstance3D in candidates:
+		var other: AABB = candidate.global_transform * candidate.get_aabb()
+		if bounds.grow(0.001).intersects(other.grow(0.001)): return true
+	return false

@@ -121,7 +121,8 @@ static func validate(room: Node) -> PackedStringArray:
 			if local_x >= minf(0, stair.end_offset.x) + 12 and local_x <= maxf(0, stair.end_offset.x) - 12 and absf(marker.position.y - stair.position.y - stair.surface_y(local_x)) <= 2:
 				supported = true
 				supporting_stair = stair
-		if not supported: errors.append("%s: feet must be on a platform or stair, at least 12 px from its edge." % marker.name)
+		var airborne: bool = marker is RoomMarker and marker.kind in [RoomMarker.Kind.SHIELD, RoomMarker.Kind.RIFLE] and marker.get_meta("enemy_archetype", "") == "flyer"
+		if not supported and not airborne: errors.append("%s: feet must be on a platform or stair, at least 12 px from its edge." % marker.name)
 		var body := Rect2(marker.position + Vector2(-9, -38), Vector2(18, 37))
 		for solid in solid_surfaces:
 			if body.intersects(solid.rect):

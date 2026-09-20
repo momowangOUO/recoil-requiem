@@ -39,6 +39,21 @@ func run() -> void:
 	floor.position.y = -32
 	spawn.position.y = -32
 	check(has_error(room, "standing space"), "stair underside blocks marker standing headroom")
+	spawn.position = Vector2(96, -48)
+	floor.position.y = 80
+	var flyer := RoomMarker.new()
+	flyer.kind = RoomMarker.Kind.RIFLE
+	flyer.set_meta("enemy_archetype", "flyer")
+	flyer.position = Vector2(600, -100)
+	gameplay.add_child(flyer)
+	check(Validator.validate(room).is_empty(), "flying enemies may be authored above ground")
+	flyer.set_meta("enemy_archetype", "rifle")
+	check(has_error(room, "feet"), "ground enemies still require supporting terrain")
+	flyer.set_meta("enemy_archetype", "flyer")
+	flyer.position = Vector2(96, -25)
+	check(has_error(room, "standing space"), "airborne spawns still cannot intersect solid stairs")
+	flyer.position = Vector2(950, -100)
+	check(has_error(room, "outside world bounds"), "airborne spawns still require valid world bounds")
 	room.free()
 	print("STAIR EDITOR STAGE RESULT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

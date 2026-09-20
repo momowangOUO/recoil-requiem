@@ -307,15 +307,16 @@ func _draw_map() -> void:
 			var middle := (start + end) * 0.5
 			_map.draw_line(middle - Vector2(5, 5), middle + Vector2(5, 5), Color("ca6471"), 3)
 			_map.draw_line(middle - Vector2(5, -5), middle + Vector2(5, -5), Color("ca6471"), 3)
-	for id in visited:
-		if not spaces.has(id): continue
-		var source: Rect2 = spaces[id].rect
-		var rect := Rect2(source.position * factor + offset, source.size * factor)
+	var number_rects := _map_number_rects(factor, offset)
+	for id in number_rects:
 		var number := "%02d" % (visited.find(id) + 1)
-		var font_size := roundi(24 * _font_multiplier)
-		var text_size := ThemeDB.fallback_font.get_string_size(number,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size)
-		var position := rect.get_center() + Vector2(-text_size.x * 0.5, font_size * 0.32)
-		_map.draw_rect(Rect2(position + Vector2(-2,-font_size),text_size + Vector2(4,2)),Color("302330"))
+		var font_size := roundi(20 * _font_multiplier)
+		var label_rect: Rect2 = number_rects[id]
+		var room_center: Vector2 = spaces[id].rect.get_center() * factor + offset
+		if room_center.distance_to(label_rect.get_center()) > label_rect.size.y:
+			_map.draw_line(room_center,label_rect.get_center(),SILVER,1)
+		var position := label_rect.position + Vector2(2,font_size)
+		_map.draw_rect(label_rect,Color("302330"))
 		_map.draw_string(ThemeDB.fallback_font,position,number,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,INK)
 	for checkpoint in _map_data.checkpoints:
 		var point := Vector2.ZERO
@@ -331,6 +332,37 @@ func _draw_map() -> void:
 			var at := point * factor + offset
 			_map.draw_polyline(PackedVector2Array([at + Vector2(0,-7), at + Vector2(7,0), at + Vector2(0,7), at + Vector2(-7,0), at + Vector2(0,-7)]), INK, 2)
 	_map.draw_circle(_map_data.player * factor + offset, 6, Color("e5ba89"))
+
+func _map_number_rects(factor: Vector2, offset: Vector2) -> Dictionary:
+	# Keep compact region numbers apart and clear of positional markers.
+	var occupied: Array[Rect2] = [Rect2(_map_data.player * factor + offset - Vector2(9,9),Vector2(18,18))]
+	for checkpoint in _map_data.checkpoints:
+		var point: Vector2 = checkpoint if checkpoint is Vector2 else checkpoint.get("position",Vector2.ZERO)
+		occupied.append(Rect2(point * factor + offset - Vector2(10,10),Vector2(20,20)))
+	var result := {}
+	for id in _map_data.visited:
+		if not _map_data.spaces.has(id): continue
+		var center: Vector2 = _map_data.spaces[id].rect.get_center() * factor + offset
+		var font_size := roundi(20 * _font_multiplier)
+		var extent := ThemeDB.fallback_font.get_string_size("%02d" % (_map_data.visited.find(id)+1),HORIZONTAL_ALIGNMENT_LEFT,-1,font_size) + Vector2(4,2)
+		var candidate := Rect2(center - extent * 0.5, extent)
+		var best_score := INF
+		var room := Rect2(_map_data.spaces[id].rect.position * factor + offset,_map_data.spaces[id].rect.size * factor)
+		for y in range(-8,9):
+			for x in range(-4,5):
+				var trial := Rect2(center - extent * 0.5 + Vector2(x * 8,y * 8),extent)
+				if not Rect2(Vector2.ZERO,_map.size).encloses(trial): continue
+				var overlaps := false
+				for other in occupied:
+					if trial.grow(2).intersects(other): overlaps = true; break
+				if overlaps: continue
+				var score := trial.get_center().distance_squared_to(center) + (0 if room.encloses(trial) else 10000)
+				if score < best_score:
+					best_score = score
+					candidate = trial
+		result[id] = candidate
+		occupied.append(candidate)
+	return result
 
 func _edge(rect: Rect2, direction: Vector2) -> Vector2:
 	var distance := minf(rect.size.x * 0.5 / maxf(absf(direction.x), 0.001), rect.size.y * 0.5 / maxf(absf(direction.y), 0.001))

@@ -540,7 +540,7 @@ func _physics_process(delta: float) -> void:
 	if not frozen_camera:
 		_update_camera(delta)
 	_update_actor_window()
-	night.follow_camera(camera.position)
+	night.follow_camera(camera.position, camera)
 	if campaign_enabled and residency_enabled: residency.update_at(game.player.position)
 	for module in platform_visuals:
 		for piece in platform_visuals[module]: piece.visible = module.active
