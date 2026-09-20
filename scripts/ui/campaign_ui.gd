@@ -21,6 +21,8 @@ var _side: Label
 var _entries: Array = []
 var _category := "tasks"
 var _map: Control
+var _map_preview: TextureRect
+var _map_preview_title: Label
 var _map_data: Dictionary = {}
 var _map_selected := ""
 var _font_multiplier := 1.0
@@ -229,10 +231,16 @@ func show_journal(entries: Array, selected_category: String = "tasks") -> void:
 	if count == 0:
 		body.add_child(_label(COPY.empty, 24, SILVER))
 
-func show_map(spaces: Dictionary, connections: Array, visited: Array, gate_states: Dictionary, player_position: Vector2, checkpoints: Array) -> void:
+func show_map(spaces: Dictionary, connections: Array, visited: Array, gate_states: Dictionary, player_position: Vector2, checkpoints: Array, shortcuts: Array = [], gate_platforms: Dictionary = {}) -> void:
 	_open("map", COPY.map)
-	_map_data = {"spaces":spaces, "connections":connections, "visited":visited, "gates":gate_states, "player":player_position, "checkpoints":checkpoints}
+	var known := visited.duplicate()
+	known.sort_custom(func(a, b): return int(str(a).trim_prefix("mon_")) < int(str(b).trim_prefix("mon_")))
+	_map_data = {"spaces":spaces, "connections":connections, "visited":known, "gates":gate_states, "player":player_position, "checkpoints":checkpoints, "shortcuts":shortcuts, "gate_platforms":gate_platforms}
 	_map_selected = ""
+	for id in known:
+		if spaces.has(id) and spaces[id].rect.has_point(player_position):
+			_map_selected = str(id)
+			break
 	_map_focus = player_position
 	_map_pan = Vector2.ZERO
 	_map_full = false
@@ -261,30 +269,47 @@ func show_map(spaces: Dictionary, connections: Array, visited: Array, gate_state
 	_map.draw.connect(_draw_map)
 	_map.resized.connect(func(): _map.queue_redraw())
 	_map.gui_input.connect(_on_map_input)
+	var sidebar := VBoxContainer.new()
+	sidebar.custom_minimum_size.x = 204
+	sidebar.add_theme_constant_override("separation", 6)
+	row.add_child(sidebar)
+	var preview := HBoxContainer.new()
+	preview.custom_minimum_size.y = 49
+	preview.add_theme_constant_override("separation", 7)
+	sidebar.add_child(preview)
+	_map_preview = TextureRect.new()
+	_map_preview.custom_minimum_size = Vector2(46, 46)
+	_map_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_map_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	preview.add_child(_map_preview)
+	_map_preview_title = _label("", 18)
+	_map_preview_title.custom_minimum_size.x = 130
+	_map_preview_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_map_preview_title.clip_text = true
+	_map_preview_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	preview.add_child(_map_preview_title)
+	_update_map_preview()
+	sidebar.add_child(_label("同字母＝捷径两端\n点线＝已开通", 15, SILVER))
 	var legend_scroll := ScrollContainer.new()
-	legend_scroll.custom_minimum_size.x = 232
+	legend_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	legend_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	row.add_child(legend_scroll)
+	sidebar.add_child(legend_scroll)
 	var legend := VBoxContainer.new()
 	legend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	legend.add_theme_constant_override("separation", 6)
 	legend_scroll.add_child(legend)
-	for id in visited:
+	for id in known:
 		if not spaces.has(id): continue
 		var button := Button.new()
-		button.text = "%02d  %s" % [visited.find(id) + 1, str(spaces[id].get("title",id))]
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.text = "%02d  %s" % [int(str(id).trim_prefix("mon_")), str(spaces[id].get("title",id))]
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.autowrap_mode = TextServer.AUTOWRAP_OFF
+		button.add_theme_font_size_override("font_size", roundi(20 * _font_multiplier))
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.custom_minimum_size.y = 45
 		for state in ["normal", "hover", "pressed", "focus", "disabled"]:
 			button.add_theme_stylebox_override(state, _style("button_" + state, 22, 14, 22, 14, 17, 9, 17, 9, state != "focus"))
-		button.pressed.connect(func():
-			_map_selected = str(id)
-			_map_focus = spaces[id].rect.get_center()
-			_map_pan = Vector2.ZERO
-			_map_zoom = _local_map_zoom()
-			_map_full = false
-			_map.queue_redraw())
+		button.pressed.connect(_select_map_region.bind(str(id)))
 		legend.add_child(button)
 	var legend_row := HBoxContainer.new()
 	legend_row.add_theme_constant_override("separation", 8)
@@ -304,6 +329,31 @@ func show_map(spaces: Dictionary, connections: Array, visited: Array, gate_state
 		pair.add_child(caption)
 	_reset_map_view.call_deferred()
 
+func _landmark_art(id: String) -> String:
+	for landmark in _map_source.get("landmarks", []):
+		if landmark.get("space_id", "") == id: return str(landmark.get("art", ""))
+	return ""
+
+func _map_anchor(id: String) -> Vector2:
+	var anchors: Dictionary = _map_source.get("label_anchors", {})
+	return _source_point(anchors[id]) if anchors.has(id) else _map_data.spaces[id].rect.get_center()
+
+func _select_map_region(id: String) -> void:
+	if not _map_data.spaces.has(id) or not id in _map_data.visited: return
+	_map_selected = id
+	_map_focus = _map_anchor(id)
+	_map_pan = Vector2.ZERO
+	_map_zoom = _local_map_zoom()
+	_map_full = false
+	_update_map_preview()
+	_map.queue_redraw()
+
+func _update_map_preview() -> void:
+	if not is_instance_valid(_map_preview) or not is_instance_valid(_map_preview_title): return
+	var art := _landmark_art(_map_selected)
+	_map_preview.texture = _texture(art if not art.is_empty() else "map_player")
+	_map_preview_title.text = str(_map_data.spaces.get(_map_selected, {}).get("title", ""))
+
 func _draw_map() -> void:
 	if _map_data.is_empty() or _map.size.x < 10: return
 	var parchment := _texture("map_parchment")
@@ -311,46 +361,26 @@ func _draw_map() -> void:
 		_map.draw_texture_rect(parchment, Rect2(Vector2.ZERO, _map.size), false, Color(0.85, 0.79, 0.72, 0.90))
 	var offset := _map_offset()
 	var factor := Vector2.ONE * _map_zoom
-	var spaces: Dictionary = _map_data.spaces
-	var visited: Array = _map_data.visited
 	var strip := AtlasTexture.new()
 	strip.atlas = _texture("map_route")
 	strip.region = Rect2(82, 29, 280, 20)
+	_draw_shortcut_links(offset)
 	for segment in _map_source.get("segments", []):
 		var start := _source_point(segment.get("start", []))
 		var end := _source_point(segment.get("end", []))
-		for id in visited:
-			if not spaces.has(id): continue
-			var piece := _clip_segment(start, end, spaces[id].rect.grow(5))
-			if piece.size() == 2:
-				_draw_route(piece[0] * _map_zoom + offset, piece[1] * _map_zoom + offset, strip, bool(segment.get("one_way", false)))
-	var landmark_size := clampf(_map_zoom * 750.0, 62.0, 108.0)
-	var marker_size := clampf(_map_zoom * 155.0, 11.0, 25.0)
-	for landmark in _map_source.get("landmarks", []):
-		if not landmark.get("space_id", "") in visited: continue
-		var at := _source_point(landmark.get("position", [])) * _map_zoom + offset
-		if _map_view().grow(80).has_point(at):
-			_draw_icon(str(landmark.get("art", "")), at - Vector2(0, landmark_size * 0.33), Vector2.ONE * landmark_size, Color(1, 1, 1, 0.83))
-	for connection in _map_data.connections:
-		var a: String = str(connection.get("from", ""))
-		var b: String = str(connection.get("to", ""))
-		if not spaces.has(a) or not spaces.has(b): continue
-		var known_a := a in visited
-		var known_b := b in visited
-		if not known_a and not known_b: continue
-		var from_point: Vector2 = spaces[a].rect.get_center()
-		var to_point: Vector2 = spaces[b].rect.get_center()
-		if known_a != known_b:
-			var known: String = a if known_a else b
-			var hidden: String = b if known_a else a
-			var toward: Vector2 = (spaces[hidden].rect.get_center() - spaces[known].rect.get_center()).normalized()
-			var entrance: Vector2 = _edge(spaces[known].rect, toward) * _map_zoom + offset
-			_draw_icon("map_unknown", entrance, Vector2.ONE * marker_size)
-			continue
-		var gate: String = str(connection.get("gate_id", ""))
-		if gate.is_empty(): continue
-		var between := (from_point + to_point) * 0.5 * _map_zoom + offset
-		_draw_icon("map_open" if bool(_map_data.gates.get(gate, false)) else "map_lock", between, Vector2.ONE * marker_size)
+		for piece in _visible_route_pieces(start, end, str(segment.get("id", ""))):
+			_draw_route(piece[0] * _map_zoom + offset, piece[1] * _map_zoom + offset, strip, bool(segment.get("one_way", false)), str(segment.get("kind", "")) == "stair")
+	var marker_size := clampf(_map_zoom * 112.0, 12.0, 19.0)
+	for exit in _unknown_route_exits():
+		_draw_icon("map_unknown", exit * _map_zoom + offset, Vector2.ONE * marker_size)
+	for mark in _map_shortcut_marks():
+		var at: Vector2 = mark.position * _map_zoom + offset
+		_draw_icon("map_open" if mark.opened else "map_lock", at, Vector2.ONE * maxf(18.0, marker_size))
+		_map.draw_string(ThemeDB.fallback_font, at + Vector2(9, -9), str(mark.label), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, INK)
+	var gate_points := _map_gate_world_points()
+	for gate in ["gate_departure", "gate_departure_back"]:
+		if gate_points.has(gate) and _known_point(gate_points[gate]):
+			_draw_icon("map_open" if bool(_map_data.gates.get(gate, false)) else "map_lock", gate_points[gate] * _map_zoom + offset, Vector2.ONE * marker_size)
 	for checkpoint in _map_data.checkpoints:
 		var point: Vector2 = checkpoint if checkpoint is Vector2 else checkpoint.get("position", Vector2.ZERO)
 		if _known_point(point): _draw_icon("map_checkpoint", point * _map_zoom + offset, Vector2.ONE * marker_size)
@@ -359,9 +389,9 @@ func _draw_map() -> void:
 		if _map_zoom < 0.06 and str(id) != _map_selected: continue
 		var rect: Rect2 = numbers[id]
 		_draw_icon("map_selection", rect.get_center(), Vector2(30, 30), Color(1, 1, 1, 0.9 if str(id) == _map_selected else 0.65))
-		var number := "%02d" % (visited.find(id) + 1)
+		var number := "%02d" % int(str(id).trim_prefix("mon_"))
 		_map.draw_string(ThemeDB.fallback_font, rect.position + Vector2(2, 19), number, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, INK)
-	_draw_icon("map_player", _map_data.player * _map_zoom + offset, Vector2.ONE * maxf(18.0, marker_size * 1.2))
+	_draw_icon("map_player", _map_data.player * _map_zoom + offset, Vector2.ONE * maxf(20.0, marker_size * 1.3))
 
 func _source_point(raw: Array) -> Vector2:
 	return Vector2(float(raw[0]), float(raw[1])) if raw.size() >= 2 else Vector2.ZERO
@@ -433,16 +463,119 @@ func _draw_icon(name: String, at: Vector2, extent: Vector2, tint := Color.WHITE)
 	if texture == null or not _map_view().grow(40).has_point(at): return
 	_map.draw_texture_rect(texture, Rect2(at - extent * 0.5, extent), false, tint)
 
-func _draw_route(start: Vector2, finish: Vector2, strip: Texture2D, one_way: bool) -> void:
+func _draw_route(start: Vector2, finish: Vector2, strip: Texture2D, one_way: bool, stair: bool) -> void:
 	var length := start.distance_to(finish)
 	if length < 2: return
-	# The generated engraved strip is widened into the actual stone deck or metal stair footprint.
-	# Both passes use authored art; no speculative room-to-room connectors are painted.
-	var width := clampf(_map_zoom * (112.0 if one_way else 168.0), 5.0, 24.0)
+	# Source geometry is a walkable deck or stair; the narrow inlay never covers junctions.
+	var width := clampf(_map_zoom * (54.0 if one_way else 72.0), 3.5, 10.0)
 	_map.draw_set_transform(start, (finish - start).angle())
-	_map.draw_texture_rect(strip, Rect2(0, -width * 0.5, length, width), false, Color("7d645e") if one_way else Color("aa9080"))
-	_map.draw_texture_rect(strip, Rect2(0, -width * 0.22, length, width * 0.44), false, Color("d8ba9f") if one_way else Color("fff0ca"))
+	_map.draw_texture_rect(strip, Rect2(0, -width * 0.5, length, width), false, Color("6f656c") if one_way else Color("a49087"))
+	_map.draw_line(Vector2.ZERO, Vector2(length, 0), Color("d7c9ba") if one_way else Color("f4dfbf"), 1.4 if stair else 2.0, true)
+	if stair:
+		var step := 14.0 if _map_zoom > 0.075 else 10.0
+		for i in range(1, int(length / step)):
+			var at := i * step
+			_map.draw_line(Vector2(at, -width * 0.38), Vector2(at, width * 0.38), Color("a98e81", 0.8), 1.0, true)
+	elif one_way:
+		for i in range(1, int(length / 11.0)):
+			var at := i * 11.0
+			_map.draw_line(Vector2(at, -width * 0.36), Vector2(at, width * 0.36), Color("8f7777", 0.8), 1.0, true)
 	_map.draw_set_transform(Vector2.ZERO)
+
+func _visible_route_pieces(start: Vector2, finish: Vector2, segment_id: String = "") -> Array:
+	# Regions overlap in the authored scene. Merge their intervals on this one
+	# physical segment before painting, or the overlap becomes a bright double road.
+	var delta := finish - start
+	if delta.length_squared() < 1.0: return []
+	var owners: Array = _map_source.get("transition_visibility", {}).get(segment_id, [])
+	if not owners.is_empty() and owners.all(func(id): return id in _map_data.visited):
+		return [PackedVector2Array([start, finish])]
+	var intervals: Array[Vector2] = []
+	for id in _map_data.visited:
+		if not _map_data.spaces.has(id): continue
+		var piece := _clip_segment(start, finish, _map_data.spaces[id].rect.grow(5))
+		if piece.size() != 2: continue
+		var a := (piece[0] - start).dot(delta) / delta.length_squared()
+		var b := (piece[1] - start).dot(delta) / delta.length_squared()
+		intervals.append(Vector2(minf(a,b), maxf(a,b)))
+	intervals.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.x < b.x)
+	var joined: Array[Vector2] = []
+	for interval in intervals:
+		if not joined.is_empty() and interval.x <= joined[-1].y + 0.002:
+			joined[-1].y = maxf(joined[-1].y, interval.y)
+		else:
+			joined.append(interval)
+	var result := []
+	for interval in joined:
+		result.append(PackedVector2Array([start + delta * interval.x, start + delta * interval.y]))
+	return result
+
+func _unknown_route_exits() -> Array[Vector2]:
+	var result: Array[Vector2] = []
+	for segment in _map_source.get("segments", []):
+		var start := _source_point(segment.get("start", []))
+		var finish := _source_point(segment.get("end", []))
+		var direction := (finish - start).normalized()
+		if direction == Vector2.ZERO: continue
+		for piece in _visible_route_pieces(start, finish, str(segment.get("id", ""))):
+			for point in [piece[0], piece[1]]:
+				if point.distance_to(start) < 12 or point.distance_to(finish) < 12: continue
+				var outside: Vector2 = point + direction * (-24 if point == piece[0] else 24)
+				if _known_point(outside): continue
+				var hidden := false
+				for id in _map_data.spaces:
+					if id in _map_data.visited: continue
+					if _map_data.spaces[id].rect.has_point(outside): hidden = true; break
+				if not hidden: continue
+				var duplicate := false
+				for old in result:
+					if old.distance_to(point) < 70: duplicate = true; break
+				if not duplicate: result.append(point)
+	return result
+
+func _map_shortcut_marks() -> Array:
+	var marks := []
+	for index in _map_data.get("shortcuts", []).size():
+		var shortcut: Dictionary = _map_data.shortcuts[index]
+		var gate: String = shortcut.gate_id
+		for side in ["from", "to"]:
+			if not shortcut.get(side + "_space", "") in _map_data.visited: continue
+			marks.append({"gate_id": gate, "label": char(65 + index), "position": shortcut[side], "opened": bool(_map_data.gates.get(gate, false))})
+	return marks
+
+func _draw_shortcut_links(offset: Vector2) -> void:
+	# Dotted arcs mean an unlocked freight transfer, never a walkable passage.
+	for shortcut in _map_data.get("shortcuts", []):
+		if not bool(_map_data.gates.get(shortcut.gate_id, false)): continue
+		if not shortcut.from_space in _map_data.visited or not shortcut.to_space in _map_data.visited: continue
+		var from_point: Vector2 = shortcut.from * _map_zoom + offset
+		var to_point: Vector2 = shortcut.to * _map_zoom + offset
+		if from_point.distance_to(to_point) > 340: continue # The return loop is paired by letter instead.
+		var control := (from_point + to_point) * 0.5 + Vector2(0, -minf(55, from_point.distance_to(to_point) * 0.28))
+		var dots := maxi(5, roundi(from_point.distance_to(to_point) / 8.0))
+		for i in range(1, dots):
+			var t := float(i) / dots
+			var at: Vector2 = from_point * ((1.0-t)*(1.0-t)) + control * (2.0*t*(1.0-t)) + to_point * (t*t)
+			if _map_view().has_point(at): _map.draw_circle(at, 1.25, Color("c18f7d", 0.60), true)
+
+func _map_gate_world_points() -> Dictionary:
+	var locations := {}
+	for id in _map_data.get("gate_platforms", {}):
+		var gate: PaperPlatform = _map_data.gate_platforms[id]
+		var centre := gate.position + Vector2(gate.width, gate.collision_depth) * 0.5
+		var best := INF
+		for segment in _map_source.get("segments", []):
+			if segment.get("kind", "") != "floor": continue
+			var start := _source_point(segment.get("start", []))
+			var finish := _source_point(segment.get("end", []))
+			var at := Vector2(clampf(centre.x, minf(start.x,finish.x), maxf(start.x,finish.x)), start.y)
+			if absf(at.x - centre.x) > gate.width * 0.5 + 20: continue
+			if at.y < gate.position.y - 24 or at.y > gate.position.y + gate.collision_depth + 24: continue
+			var score := at.distance_squared_to(centre)
+			if score < best:
+				best = score
+				locations[id] = at
+	return locations
 
 func _clip_segment(start: Vector2, finish: Vector2, rect: Rect2) -> PackedVector2Array:
 	# Clip authored floor/stair data to each known region before drawing; hidden routes stay hidden.
@@ -475,7 +608,8 @@ func _map_number_rects(factor: Vector2, offset: Vector2) -> Dictionary:
 	var result := {}
 	for id in _map_data.visited:
 		if not _map_data.spaces.has(id): continue
-		var center: Vector2 = _map_data.spaces[id].rect.get_center() * factor + offset
+		var world := _map_anchor(str(id))
+		var center: Vector2 = world * factor + offset + Vector2(0, -20)
 		if not _map_view().grow(-16).has_point(center): continue
 		var extent := Vector2(29, 27)
 		var candidate := Rect2(center - extent * 0.5, extent)
@@ -496,10 +630,6 @@ func _map_number_rects(factor: Vector2, offset: Vector2) -> Dictionary:
 		result[id] = candidate
 		occupied.append(candidate)
 	return result
-
-func _edge(rect: Rect2, direction: Vector2) -> Vector2:
-	var distance := minf(rect.size.x * 0.5 / maxf(absf(direction.x), 0.001), rect.size.y * 0.5 / maxf(absf(direction.y), 0.001))
-	return rect.get_center() + direction * distance
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not is_panel_open() or not event is InputEventKey or not event.pressed: return

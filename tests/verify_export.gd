@@ -12,7 +12,7 @@ func run() -> void:
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/monastery_text.json"))
 	if not parsed is Dictionary or parsed.is_empty(): failures += 1
 	var map_ui = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/monastery_map_ui.json"))
-	if not map_ui is Dictionary or map_ui.get("segments", []).size() != 56: failures += 1
+	if not map_ui is Dictionary or map_ui.get("segments", []).size() != 56 or map_ui.get("label_anchors", {}).size() != 16 or map_ui.get("transition_visibility", {}).size() != 5: failures += 1
 	var packed = load("res://scenes/rooms/image_monastery.tscn")
 	if packed == null:
 		failures += 1

@@ -251,7 +251,7 @@ func handle_input(input: InputEvent) -> bool:
 			var spaces: Dictionary = {}
 			for id in lab.environment.space_bounds:
 				spaces[id] = {"rect":lab.environment.space_bounds[id], "title":Data.SPACE_NAMES[int(id.trim_prefix("mon_"))-1]}
-			ui.show_map(spaces,lab.environment.connections,state.snapshot().visited_regions,lab.environment.gate_states,lab.player.position,lab.environment.checkpoints)
+			ui.show_map(spaces,lab.environment.connections,state.snapshot().visited_regions,lab.environment.gate_states,lab.player.position,lab.environment.checkpoints,lab.environment.shortcut_points,lab.environment.gates)
 			return true
 	return false
 

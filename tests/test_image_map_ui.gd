@@ -57,6 +57,41 @@ func run() -> void:
 				check(session.state.snapshot() == before, "Viewing map does not mutate campaign state")
 				check(ui._map_source.get("segments", []).size() == 56, "Map uses the actual 56 floor/stair segments")
 				check(ui._map_source.get("landmarks", []).size() == 7, "Map uses seven authored imagegen landmarks")
+				check(ui._map_source.get("label_anchors", {}).size() == 16, "Every room number has an authored anchor on a real route")
+				if dimensions.x == 1280 and explored == 3 and not opened:
+					for id in ui._map_source.label_anchors:
+						var raw: Array = ui._map_source.label_anchors[id]
+						var anchor := Vector2(raw[0],raw[1])
+						check(ui._map_data.spaces[id].rect.grow(8).has_point(anchor), "Map number %s is in its actual region" % id)
+						var on_deck := false
+						for segment in ui._map_source.segments:
+							if segment.kind != "floor": continue
+							if is_equal_approx(anchor.y,float(segment.start[1])) and anchor.x >= float(segment.start[0])-1 and anchor.x <= float(segment.end[0])+1: on_deck = true; break
+						check(on_deck, "Map number %s is on an authored walking deck" % id)
+				check(ui._map_data.get("shortcuts", []).size() == 4, "Map receives the four real freight shortcut endpoint pairs")
+				if ui.has_method("_visible_route_pieces"):
+					var joined: Array = ui.call("_visible_route_pieces", Vector2(896,1120), Vector2(3104,1120), "F01_east")
+					check(joined.size() == 1 and joined[0][0].distance_to(Vector2(896,1120)) < 1 and joined[0][1].distance_to(Vector2(3104,1120)) < 1, "Visited overlapping regions draw one continuous road, not duplicate strips")
+					if explored == 16:
+						for segment in ui._map_source.segments:
+							var route: Array = ui.call("_visible_route_pieces", Vector2(segment.start[0],segment.start[1]), Vector2(segment.end[0],segment.end[1]), str(segment.id))
+							check(route.size() == 1 and route[0][0].distance_to(Vector2(segment.start[0],segment.start[1])) < 1 and route[0][1].distance_to(Vector2(segment.end[0],segment.end[1])) < 1 if not route.is_empty() else false, "Fully explored map shows all of real segment " + str(segment.id))
+					else:
+						var hidden_stair: Array = ui.call("_visible_route_pieces", Vector2(480,1120), Vector2(1664,512), "S08")
+						check(hidden_stair.size() == 1 and hidden_stair[0][1].distance_to(Vector2(1664,512)) > 50, "Undiscovered end of the gate stair stays hidden")
+				else: check(false, "Map can merge visible route intervals")
+				if ui.has_method("_map_gate_world_points"):
+					var gate_points: Dictionary = ui.call("_map_gate_world_points")
+					check(gate_points.get("gate_departure", Vector2.ZERO).distance_to(Vector2(13184,1424)) < 1, "Departure lock sits on the upper road at its physical gate")
+					check(gate_points.get("gate_departure_back", Vector2.ZERO).distance_to(Vector2(13184,2720)) < 1, "Lower departure lock sits on the lower road")
+				else: check(false, "Map locates gates from real gate geometry")
+				if ui.has_method("_map_shortcut_marks"):
+					var marks: Array = ui.call("_map_shortcut_marks")
+					check(marks.size() == (2 if explored == 3 else 8), "Shortcut marks reveal only explored physical endpoints")
+					var entry_marks := marks.filter(func(mark): return mark.gate_id == "gate_entry")
+					check(entry_marks.size() == (1 if explored == 3 else 2), "Unknown freight destination is hidden until visited")
+					check(entry_marks[0].position.distance_to(Vector2(2720,1120)) < 1 if not entry_marks.is_empty() else false, "Freight entrance uses its actual interaction position")
+				else: check(false, "Map exposes discovered freight shortcut endpoints")
 				check(ui._map_zoom > ui._full_map_zoom(), "Default view is readable and zoomed around player")
 				check(ui._world_at_map(ui._map.size * 0.5).distance_to(game.player.position) < 2, "Default center follows player")
 				var factor: Vector2 = Vector2.ONE * ui._map_zoom
@@ -81,6 +116,15 @@ func run() -> void:
 				check(ui._map_view().grow(1).encloses(Rect2(ui._map_bounds().position * ui._map_zoom + ui._map_offset(), ui._map_bounds().size * ui._map_zoom)), "Full-map artwork remains within canvas")
 				ui._map_action("player")
 				check(ui._world_at_map(ui._map.size * 0.5).distance_to(game.player.position) < 2, "Return-player control resets the view")
+				if dimensions.x == 1280 and explored == 16 and opened:
+					if ui.has_method("_select_map_region"):
+						ui.call("_select_map_region", "mon_15")
+						check(ui._map_focus.distance_to(Vector2(14600,1424)) < 1, "Selecting the chapel centres its actual walking deck, not the tall region rectangle")
+						if DisplayServer.get_name() != "headless":
+							await RenderingServer.frame_post_draw
+							root.get_texture().get_image().save_png("res://artifacts/image_map_ui_1280_selected_chapel.png")
+						ui._map_action("player")
+					else: check(false, "Selecting a map region focuses its authored route anchor")
 				var known_piece: PackedVector2Array = ui._clip_segment(Vector2(0,1120),Vector2(16384,1120),Rect2(0,1000,1200,400))
 				check(known_piece.size() == 2 and is_equal_approx(known_piece[1].x,1200), "Route geometry clips at the visible boundary")
 				check(ui._clip_segment(Vector2(5000,0),Vector2(6000,0),Rect2(0,1000,1200,400)).is_empty(), "Geometry wholly outside a visible region cannot leak")
@@ -91,6 +135,12 @@ func run() -> void:
 					check(captured == dimensions or (dimensions.x > 1920 and captured == Vector2i(1920,1080)), "Capture is native resolution unless desktop hardware clamps the wide window")
 					var suffix := "" if captured == dimensions else "_display_clamped"
 					picture.save_png("res://artifacts/image_map_ui_%d_%d_%s%s.png" % [dimensions.x,explored,"open" if opened else "locked",suffix])
+					if dimensions.x == 1280 and explored == 3 and not opened:
+						ui._map_selected = "mon_02"
+						ui._update_map_preview()
+						check(ui._map_preview_title.text == "装卸入口" and ui._map_preview.texture != null, "Selecting a place shows its generated architectural emblem and correct name")
+						await RenderingServer.frame_post_draw
+						root.get_texture().get_image().save_png("res://artifacts/image_map_ui_1280_selected_gatehouse.png")
 					if explored == 16 and opened and dimensions.x in [1280,1920]:
 						ui._map_action("full")
 						await RenderingServer.frame_post_draw

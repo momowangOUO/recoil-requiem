@@ -72,3 +72,5 @@
 后续 UI v2 和布景构建已覆盖同一路径：140464240 bytes，SHA-256 `5d1fd028cf45f2c06679ee5cd57c793150717d7fbb6c74c844c2ee06bbf648dc`。嵌入资源检查0失败，新地图几何 JSON、UI v2 运行素材在包中，开发源图和策划资料不在包中；从 `builds/windows` 实际 GPU 启动180帧退出码0，日志只有系统证书存储读取警告，无脚本错误。前一段大小与哈希是历史值。
 
 源码、素材与记录同步到现有 GitHub 主分支；EXE 按项目既有规则保存在本地 builds/windows（未加入 Git）。导出方式参考 [Godot 4.7 官方导出说明](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_projects.html)。
+
+2026-09-20 地图导航 UI 修订后的输出已再次覆盖同一路径：140469984 bytes，SHA-256 `4774bc92647d5d6515a8c214e5da217236619843da216b15f085a03be545b1d8`。脚本、实机截图、完整回归和可见边界见 [UI验收](../../UI_ACCEPTANCE.md)；上文旧哈希均为历史值。
