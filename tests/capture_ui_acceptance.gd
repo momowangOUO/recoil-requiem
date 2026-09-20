@@ -15,14 +15,20 @@ func capture(label: String) -> void:
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://artifacts/ui_acceptance_" + label + ".png")
 func click(button: Button) -> void:
+	var move := InputEventMouseMotion.new()
+	move.position = button.get_global_rect().get_center()
+	root.push_input(move,true)
+	await process_frame
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.pressed = true
 	press.position = button.get_global_rect().get_center()
 	root.push_input(press,true)
+	await process_frame
 	press = press.duplicate()
 	press.pressed = false
 	root.push_input(press,true)
+	await process_frame
 
 func run() -> void:
 	root.size = Vector2i(1280,720)
@@ -35,8 +41,8 @@ func run() -> void:
 	var session = game.campaign_session
 	var ui = session.ui
 	var hud = game.overlay.combat
-	check(ui.panel.get_theme_stylebox("panel") is StyleBoxFlat,"Text panel uses a clean surface, never a stretched ornament atlas")
-	check(ui.panel.get_theme_stylebox("panel").content_margin_left >= 36,"Panel text has explicit safe inset")
+	check(ui.panel.get_theme_stylebox("panel") is StyleBoxTexture,"Panel uses authored imagegen nine-patch artwork")
+	check(ui.panel.get_theme_stylebox("panel").content_margin_left >= 82,"Panel text stays in the quiet center, clear of corner ornament")
 	check(not ui.theme.get_stylebox("focus","Button").draw_center,"Focus border cannot paint over the button surface")
 	check(ui.theme.has_stylebox("disabled","Button"),"Disabled buttons have an authored state")
 	await capture("combat_1280")
@@ -46,7 +52,8 @@ func run() -> void:
 	hud.modulate.a = 0
 	await settle(2)
 	await capture("world_without_ui_1280")
-	check(root.get_texture().get_image().get_pixel(800,680) == background_pixel,"Bottom dark field belongs to rendered world, not UI background")
+	var world_pixel: Color = root.get_texture().get_image().get_pixel(800,680)
+	check(absf(world_pixel.r - background_pixel.r) + absf(world_pixel.g - background_pixel.g) + absf(world_pixel.b - background_pixel.b) < 0.025,"Bottom dark field belongs to rendered world, allowing tiny animated-light variance")
 	ui.modulate.a = 1
 	hud.modulate.a = 1
 	check(not hud.ring_state().visible,"Idle ammunition ring is hidden")
@@ -98,10 +105,10 @@ func run() -> void:
 	var tracking_scroll: ScrollContainer = ui.find_children("*","ScrollContainer",true,false)[0]
 	tracking_scroll.scroll_vertical = int(tracking_scroll.get_v_scroll_bar().max_value)
 	await settle(2)
-	click(tracking_buttons[-1])
+	await click(tracking_buttons[-1])
 	check(session.selected_side == "records","Real journal click selects one side quest")
 	session.close()
-	for dimensions in [Vector2i(1280,720),Vector2i(1920,1080),Vector2i(960,540)]:
+	for dimensions in [Vector2i(1280,720),Vector2i(1920,1080),Vector2i(960,540),Vector2i(2560,1080)]:
 		root.size = dimensions
 		await settle(3)
 		await capture("tracker_%d" % dimensions.x)
@@ -111,13 +118,54 @@ func run() -> void:
 		await settle(3)
 		check(ui.panel.get_rect().end.y <= 720,"Map panel fits canvas at " + str(dimensions))
 		var buttons: Array = ui.find_children("*","Button",true,false)
-		check(buttons.size() == 17,"Map has close + all 16 full room-name buttons")
+		check(buttons.size() == 21,"Map has close, four navigation controls, and all 16 visited room names")
 		for id in spaces:
 			var found := false
 			for button in buttons:
 				if button.text.ends_with(spaces[id].title): found = true
 			check(found,"Full explored room name available: " + str(id))
-		click(buttons[1])
+		if dimensions.x == 1280:
+			var wheel := InputEventMouseButton.new()
+			wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+			wheel.pressed = true
+			wheel.position = ui._map.get_global_rect().get_center()
+			var old_zoom: float = ui._map_zoom
+			root.push_input(wheel,true)
+			var wheel_release := wheel.duplicate()
+			wheel_release.pressed = false
+			root.push_input(wheel_release,true)
+			await settle(2)
+			check(ui._map_zoom > old_zoom,"Real mouse wheel zooms the paused M map")
+			await click(buttons[4])
+			await settle(2)
+			check(ui._map_full and is_equal_approx(ui._map_zoom,ui._full_map_zoom()),"Full-map button works while paused")
+			await click(buttons[3])
+			await settle(2)
+			check(ui._world_at_map(ui._map.size * 0.5).distance_to(game.player.position) < 2,"Return-player button works while paused")
+			var map_center: Vector2 = ui._map.get_global_rect().get_center()
+			var hover_map := InputEventMouseMotion.new()
+			hover_map.position = map_center
+			root.push_input(hover_map,true)
+			await settle(1)
+			var drag_press := InputEventMouseButton.new()
+			drag_press.button_index = MOUSE_BUTTON_LEFT
+			drag_press.pressed = true
+			drag_press.position = map_center
+			root.push_input(drag_press,true)
+			await settle(1)
+			var drag_move := InputEventMouseMotion.new()
+			drag_move.position = map_center + Vector2(30,-10)
+			drag_move.relative = Vector2(30,-10)
+			root.push_input(drag_move,true)
+			await settle(1)
+			var drag_release := drag_press.duplicate()
+			drag_release.position = drag_move.position
+			drag_release.pressed = false
+			root.push_input(drag_release,true)
+			await settle(1)
+			check(ui._map_pan.length() > 10,"Real mouse drag pans the paused M map")
+		await click(buttons[5])
+		await settle(2)
 		check(not ui._map_selected.is_empty(),"Map legend selects/highlights known space")
 		check(ui.theme.default_font_size * dimensions.x / 1280.0 >= 24,"Native text is at least 24px")
 		await capture("map16_%d" % dimensions.x)
@@ -132,16 +180,16 @@ func run() -> void:
 		scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
 		await settle(2)
 		buttons = ui.find_children("*","Button",true,false)
-		click(buttons[-1])
+		await click(buttons[-1])
 		check(selected == "ui_test","Scrolled dialogue option accepts real mouse click while paused")
 		await capture("dialogue_bottom_%d" % dimensions.x)
 		session.close()
 	ui.show_map(spaces,game.environment.connections,[spaces.keys()[0]],game.environment.gate_states,game.player.position,game.environment.checkpoints)
 	await settle(3)
-	check(ui.find_children("*","Button",true,false).size() == 2,"Unexplored 15 room names are absent")
+	check(ui.find_children("*","Button",true,false).size() == 6,"Unexplored 15 room names are absent")
 	await capture("map_fog_960")
 	ui.close_panel()
 	check(ui.tracker.visible,"Tracker returns unchanged after closing map")
 	presentation.free()
-	print("UI ACCEPTANCE PASS: %d checks, actual main scene, 1280/1920/960, 16-room map, fog, paused scroll+click, live shot/reload" % checks)
+	print("UI ACCEPTANCE PASS: %d checks, actual main scene, 960/1280/1920/wide requested, 16-room map, fog, paused map wheel/buttons and dialogue click, live shot/reload" % checks)
 	quit()

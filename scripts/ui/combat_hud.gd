@@ -26,6 +26,16 @@ var failure := 0.0
 var shot_time := 0.0
 var icons: Array[Texture2D] = []
 static var icon_cache: Array[Texture2D] = []
+const ART_PATHS := [
+	"res://assets/ui/v2/runtime/weapon_frame.png",
+	"res://assets/ui/v2/runtime/health_full.png",
+	"res://assets/ui/v2/runtime/health_empty.png",
+	"res://assets/ui/v2/runtime/gun_revolver.png",
+	"res://assets/ui/v2/runtime/gun_shotgun.png",
+	"res://assets/ui/v2/runtime/gun_smg.png",
+	"res://assets/ui/v2/runtime/slot_frame.png",
+	"res://assets/ui/v2/runtime/divider.png",
+]
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -34,17 +44,8 @@ func _ready() -> void:
 	if not icon_cache.is_empty():
 		icons = icon_cache
 		return
-	var atlas := preload("res://assets/ui/combat_atlas_v1.png").get_image()
-	atlas.convert(Image.FORMAT_RGBA8)
-	for y in atlas.get_height():
-		for x in atlas.get_width():
-			var c := atlas.get_pixel(x,y)
-			if c.r > 0.5 and c.b > 0.5 and c.g < minf(c.r,c.b) * 0.6: atlas.set_pixel(x,y,Color.TRANSPARENT)
-	for i in 6:
-		var split := int(atlas.get_height() * 0.585)
-		var cell := Rect2i((i % 3) * atlas.get_width() / 3, 0 if i < 3 else split, atlas.get_width() / 3, split if i < 3 else atlas.get_height()-split)
-		var image := atlas.get_region(cell)
-		icons.append(ImageTexture.create_from_image(image.get_region(image.get_used_rect())))
+	for path in ART_PATHS:
+		icons.append(load(path) as Texture2D)
 	icon_cache = icons
 
 func suspend(value: bool) -> void:
@@ -93,6 +94,18 @@ func others() -> Array[int]:
 	for i in range(1, order.size()): result.append(order[(start + i) % order.size()])
 	return result
 
+func visible_slots() -> Array[int]:
+	if opening <= 0.0:
+		var next := others()
+		var collapsed: Array[int] = []
+		if not next.is_empty(): collapsed.append(next[0])
+		return collapsed
+	var slots: Array[int] = []
+	var active := int(metrics.get("active_slot", -1))
+	for slot in 6:
+		if slot != active: slots.append(slot)
+	return slots
+
 func _process(delta: float) -> void:
 	scale = Vector2.ONE * 0.25 * ui_scale
 	visible = not blocked
@@ -120,16 +133,17 @@ func text_at(at: Vector2, value: String, size_px: int, tint := BONE) -> void:
 func icon(index: int, rect: Rect2, tint := Color.WHITE) -> void:
 	if index >= icons.size(): return
 	var tex := icons[index]
+	if tex == null: return
 	var factor := minf(rect.size.x / tex.get_width(), rect.size.y / tex.get_height())
 	var dim := tex.get_size() * factor
 	draw_texture_rect(tex, Rect2(rect.get_center() - dim * 0.5, dim), false, tint)
 
 func weapon_icon(slot: int, center: Vector2, diameter: float, alpha := 1.0) -> void:
-	draw_arc(center, diameter * 0.5, 0, TAU, 48, Color(BONE, alpha), 1.2, true)
+	icon(0 if diameter >= 48 else 6, Rect2(center - Vector2.ONE * diameter * 0.5, Vector2.ONE * diameter), Color(1,1,1,alpha))
 	var inv: Array = metrics.get("inventory", [])
 	if slot < 0 or slot >= inv.size() or not inv[slot].get("occupied", false): return
 	var index: int = {"revolver":3,"shotgun":4,"smg":5}.get(str(inv[slot].get("id", "")), -1)
-	if index >= 0: icon(index, Rect2(center - Vector2(diameter * 0.40,diameter * 0.32), Vector2(diameter * 0.80,diameter * 0.64)), Color(1,1,1,alpha))
+	if index >= 0: icon(index, Rect2(center - Vector2(diameter * 0.34,diameter * 0.22), Vector2(diameter * 0.68,diameter * 0.44)), Color(1,1,1,alpha))
 	else: text_at(center + Vector2(-4,5), "?", 16)
 
 func _draw() -> void:
@@ -145,27 +159,16 @@ func _draw() -> void:
 		var full := i < int(metrics.get("health", 5))
 		var tint := Color(1.6,1.6,1.6) if i == hurt_cell and hurt_time > 0 else Color.WHITE
 		icon(1 if full else 2, Rect2(132+i*31,-18,20,29), tint)
-	draw_line(Vector2(116,26),Vector2(116,104),Color(0.6,0.57,0.48,0.6),1.0,true)
+	icon(7, Rect2(128,13,157,10))
 	var active := int(metrics.get("active_slot", -1))
-	var available := others()
-	var previous := Vector2(64,59)
+	var available := visible_slots()
 	for i in available.size():
-		if i > 0 and opening <= 0: break
-		var p: Vector2 = POINTS[i]
-		var a := 1.0 if i == 0 else opening
-		draw_line(previous, p, Color(0.55,0.56,0.65,a * 0.65), 1.0, true)
-		previous = p
-	for i in available.size():
-		if i > 0 and opening <= 0: break
 		var p: Vector2 = POINTS[i]
 		if i > 0 and not reduced_motion: p += Vector2(-4,4) * (1.0-opening)
-		weapon_icon(available[i], p, 32, 1.0 if i == 0 else opening)
-		text_at(p + Vector2(-5,32), str(available[i]+1), 16, Color(BONE, 1.0 if i == 0 else opening))
+		var a := 1.0 if opening <= 0.0 else opening
+		weapon_icon(available[i], p, 36, a)
+		text_at(p + Vector2(-5,32), str(available[i]+1), 16, Color(BONE, a))
 	weapon_icon(active, Vector2(64,59), 64)
-	icon(0, Rect2(24,19,80,80))
-	var diamond := PackedVector2Array([Vector2(64,88),Vector2(74,99),Vector2(64,110),Vector2(54,99),Vector2(64,88)])
-	draw_colored_polygon(diamond, Color("10121d"))
-	draw_polyline(diamond, BONE, 1.5, true)
 	text_at(Vector2(59,105), str(active+1) if active in order else "—", 16)
 	if active in order:
 		var ammo := int(metrics.get("ammo",0))
@@ -175,12 +178,11 @@ func _draw() -> void:
 		text_at(Vector2(128,83), "%02d" % ammo, 56, tint)
 		text_at(Vector2(214,81), "/ %d" % magazine, 24)
 	var ring := ring_state()
-	if ring.visible and active in order:
-		var alpha := 1.0 if float(metrics.get("reload_progress",-1)) >= 0 else clampf(shot_time / 0.1,0,1)
-		draw_arc(Vector2(64,59),36,0,TAU,64,Color(Color("39343f"),alpha),4,true)
-		draw_arc(Vector2(64,59),36,-PI*0.5,-PI*0.5+TAU*ring.ratio,64,Color(ring.color,alpha),4,true)
 	if failure > 0: text_at(Vector2(108,-17), COPY.data.empty, 16)
 	draw_set_transform(Vector2.ZERO)
+	if ring.visible and active in order:
+		var alpha := 1.0 if float(metrics.get("reload_progress",-1)) >= 0 else clampf(shot_time / 0.1,0,1)
+		ReloadFeedback.draw_ring(self, weapon_origin() + Vector2(64,59), ring.ratio, alpha, 37.0)
 
 func weapon_origin() -> Vector2:
 	return Vector2(0, get_viewport_rect().size.y / scale.y - 140)

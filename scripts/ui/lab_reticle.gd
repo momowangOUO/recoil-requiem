@@ -1,6 +1,6 @@
 class_name LabReticle
 extends Node2D
-const ART := preload("res://assets/ui/gothic_reticle_v1.png")
+const ART := preload("res://assets/ui/v2/runtime/reticle.png")
 
 var player: PlayerController
 var measurement := true
@@ -13,9 +13,6 @@ var screen_position_source: Callable
 func _ready() -> void:
 	z_index = 1000
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	var keyed := ShaderMaterial.new()
-	keyed.shader = preload("res://assets/characters/requiem/chroma_key.gdshader")
-	material = keyed
 
 func _process(delta: float) -> void:
 	shot_time = maxf(0.0, shot_time - delta) if visible else 0.0
@@ -39,12 +36,12 @@ func _draw() -> void:
 	target = target.round()
 	# The authored sight has an empty center registered to the exact aim point.
 	# It renders on the native UI canvas; the pixel-world sampler is not involved.
-	draw_texture_rect(ART, Rect2(target - Vector2(12, 12), Vector2(24, 24)), false)
+	draw_texture_rect(ART, Rect2(target - Vector2(6, 6), Vector2(12, 12)), false)
 	var progress := player.weapons.current().progress()
 	if progress >= 0.0:
-		ReloadFeedback.draw_ring(self, target, progress)
+		ReloadFeedback.draw_ring(self, target, progress, 1.0, 5.5)
 	elif completion_time > 0.0:
-		ReloadFeedback.draw_ring(self, target, 1.0)
+		ReloadFeedback.draw_ring(self, target, 1.0, 1.0, 5.5)
 	elif shot_time > 0.0:
 		var weapon := player.weapons.current()
-		ReloadFeedback.draw_ring(self, target, float(weapon.ammo) / maxi(1,weapon.data.magazine_size), clampf(shot_time/0.1,0,1))
+		ReloadFeedback.draw_ring(self, target, float(weapon.ammo) / maxi(1,weapon.data.magazine_size), clampf(shot_time/0.1,0,1), 5.5)

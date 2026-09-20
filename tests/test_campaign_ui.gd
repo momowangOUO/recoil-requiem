@@ -43,21 +43,21 @@ func _run() -> void:
 	paused = false
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://docs/screenshots/campaign_dialogue_1280.png")
+		root.get_texture().get_image().save_png("res://artifacts/ui_campaign_dialogue_1280.png")
 	ui.show_journal([{"title":"装卸入口", "body":"从装卸入口进入外庭。", "category":"tasks"}])
 	await process_frame
 	await process_frame
 	assert(ui.panel.get_rect().end.y <= 720)
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://docs/screenshots/campaign_journal_1280.png")
+		root.get_texture().get_image().save_png("res://artifacts/ui_campaign_journal_1280.png")
 	root.size = Vector2i(1920, 1080)
 	ui.show_map({"a":{"rect":Rect2(0,0,400,240),"title":"外庭"}, "b":{"rect":Rect2(450,0,500,240),"title":"货梯"}, "secret":{"rect":Rect2(1050,0,600,240),"title":"SECRET MUST NOT RENDER"}}, [{"from":"a","to":"b","gate_id":"g"}, {"from":"b","to":"secret","gate_id":""}], ["a","b"], {"g":false}, Vector2(120,180), [Vector2(80,180)])
 	await process_frame
 	await process_frame
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://docs/screenshots/campaign_map_1920.png")
+		root.get_texture().get_image().save_png("res://artifacts/ui_campaign_map_1920.png")
 	ui.close_panel()
 	assert(not ui.is_panel_open() and ui.tracker.visible)
 	print("CAMPAIGN UI STAGE RESULT: PASS; panel bounds, paused choice/close signals, tracker persistence; 1280/1920 fixtures")

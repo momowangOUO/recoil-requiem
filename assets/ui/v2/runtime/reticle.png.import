@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://x5u3t3vqggfe"
-path="res://.godot/imported/campaign_atlas.png-179ff3555b6ba22487ef785212289def.ctex"
+uid="uid://vxcgop1knxap"
+path="res://.godot/imported/reticle.png-d0a3bc255f9dee8eb996daa28a0972cf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/campaign/campaign_atlas.png"
-dest_files=["res://.godot/imported/campaign_atlas.png-179ff3555b6ba22487ef785212289def.ctex"]
+source_file="res://assets/ui/v2/runtime/reticle.png"
+dest_files=["res://.godot/imported/reticle.png-d0a3bc255f9dee8eb996daa28a0972cf.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8xeyuqk5ihc2"
-path="res://.godot/imported/combat_atlas_v1.png-6bd4c738d7709475f3d555095a0c893a.ctex"
+uid="uid://tfqdcg3s2u6q"
+path="res://.godot/imported/slot_frame.png-d6443a6828b284470bd8ef319fdd28d8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/combat_atlas_v1.png"
-dest_files=["res://.godot/imported/combat_atlas_v1.png-6bd4c738d7709475f3d555095a0c893a.ctex"]
+source_file="res://assets/ui/v2/runtime/slot_frame.png"
+dest_files=["res://.godot/imported/slot_frame.png-d6443a6828b284470bd8ef319fdd28d8.ctex"]
 
 [params]
 

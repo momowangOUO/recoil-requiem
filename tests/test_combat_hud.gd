@@ -10,6 +10,12 @@ func run() -> void:
 	root.add_child(hud)
 	hud.sync({"active_slot":2,"cycle_order":[0,2,5],"health":5})
 	check(hud.others() == [5,0])
+	hud.opening = 1.0
+	check(hud.visible_slots() == [0,1,3,4,5])
+	hud.opening = 0.0
+	check(hud.visible_slots() == [5])
+	check(hud.icons.size() >= 8)
+	check(ReloadFeedback.SEGMENT != null)
 	hud.result(2,true,false,"number")
 	check(hud.hold == 0)
 	hud.result(5,true,true,"wheel")

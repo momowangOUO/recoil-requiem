@@ -11,9 +11,13 @@ func run() -> void:
 	stage.frozen_camera = true
 	game.player.manual_control = true
 	game.player.set_physics_process(false)
-	var views := {"station": Vector2(700,1120), "s02": Vector2(3400,1268), "cargo": Vector2(4200,2280), "pump": Vector2(7100,2632), "gallery": Vector2(5200,688), "garden": Vector2(10500,1424), "hall": Vector2(13800,1424), "underpass": Vector2(5840,1540), "bell_underpass": Vector2(9680,1540), "tower_open_stair": Vector2(9592,932.8)}
+	var views := {"station": Vector2(700,1120), "station_carriage": Vector2(1260,1120), "s02": Vector2(3400,1268), "cargo": Vector2(4200,2280), "pump": Vector2(7100,2632), "gallery": Vector2(5200,688), "garden": Vector2(10500,1424), "hall": Vector2(13800,1424), "hall_stores": Vector2(13000,2720), "underpass": Vector2(5840,1540), "bell_underpass": Vector2(9680,1540), "tower_open_stair": Vector2(9592,932.8)}
 	var tower_only := "--tower-only" in OS.get_cmdline_user_args()
 	if tower_only: views = {"tower_open_stair": views.tower_open_stair}
+	var station_only := "--station-only" in OS.get_cmdline_user_args()
+	if station_only: views = {"station_carriage": views.station_carriage}
+	var setdress_only := "--setdress-only" in OS.get_cmdline_user_args()
+	if setdress_only: views = {"station_carriage": views.station_carriage, "cargo": views.cargo, "hall_stores": views.hall_stores}
 	for label in views:
 		game.player.position = views[label]
 		game.player.update_aim(game.player.position + Vector2(100,-26))
@@ -26,7 +30,7 @@ func run() -> void:
 			await process_frame
 		await RenderingServer.frame_post_draw
 		app.stage_viewport.get_texture().get_image().save_png("res://artifacts/image_arch_%s.png" % label)
-	if tower_only:
+	if tower_only or station_only or setdress_only:
 		app.free()
 		quit()
 		return

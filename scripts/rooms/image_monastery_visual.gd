@@ -348,6 +348,32 @@ func _local_rooms() -> void:
 		_box(Rect2(at - Vector2(0, 182), Vector2(width, 8)), -1.30, 0.08, iron, id + "ServicePipe")
 		for x in range(int(at.x + 40), int(at.x + width), 320):
 			_box(Rect2(x, at.y - 190, 6, 24), -1.29, 0.14, brass, id + "PipeBracket")
+	_cargo_setdress()
+
+func _cargo_setdress() -> void:
+	# The lower halls were visually empty between architectural ribs. Place a
+	# few textured, non-colliding freight groups on real floor spans, behind the
+	# rear railing. Keep their centers away from interaction/checkpoint markers.
+	for group in [
+		{"id":"WestCargo", "x":4070.0, "floor":2280.0},
+		{"id":"EastCargo", "x":5420.0, "floor":2280.0},
+		{"id":"HallStoresWest", "x":12960.0, "floor":2720.0},
+		{"id":"HallStoresEast", "x":15160.0, "floor":2720.0},
+	]:
+		var x: float = group.x
+		var floor_y: float = group.floor
+		var label: String = group.id
+		_box(Rect2(x, floor_y - 60, 72, 60), -1.17, 0.15, wood, label + "CargoCrateBase")
+		_box(Rect2(x + 76, floor_y - 48, 58, 48), -1.17, 0.15, wood, label + "CargoCrateSide")
+		_box(Rect2(x + 8, floor_y - 100, 62, 40), -1.16, 0.16, wood, label + "CargoCrateUpper")
+		for y in [floor_y - 58, floor_y - 7]:
+			_box(Rect2(x, y, 72, 4), -1.08, 0.08, iron, label + "CargoCrateBand")
+		for edge in [x + 4, x + 65]:
+			_box(Rect2(edge, floor_y - 56, 3, 52), -1.08, 0.08, brass, label + "CargoCrateReinforcement")
+		var barrel_x := x + 170
+		stage._cylinder(Vector3(barrel_x * P, -(floor_y - 27) * P, -1.17), 0.25, 0.25, 0.54, wood, label + "CargoBarrel")
+		for y in [floor_y - 12, floor_y - 42]:
+			stage._cylinder(Vector3(barrel_x * P, -y * P, -1.17), 0.26, 0.26, 0.04, iron, label + "CargoBarrelHoop")
 
 func _lamp(at: Vector2, id: String) -> void:
 	_box(Rect2(at - Vector2(4, 0), Vector2(8, 18)), -1.30, 0.12, brass, id + "SconceMount")
@@ -373,6 +399,38 @@ func _arrival_station() -> void:
 		_box(Rect2(x - 45, rect.end.y - 22, 90, 8), -1.38, 0.3, wood, "StationBench")
 		for leg in [-36, 36]:
 			_box(Rect2(x + leg, rect.end.y - 14, 6, 14), -1.38, 0.24, iron, "StationBenchLeg")
+	_station_carriage()
+
+func _station_carriage() -> void:
+	# The carriage belongs to the arrival platform, not to its paper backdrop.
+	# Its body, roof, axle and wheel faces have real depth; every part samples a
+	# wood, metal, brass or stone texture already used by this scene.
+	var ground := 1120.0
+	_box(Rect2(1154, 1015, 218, 76), -0.84, 0.64, wood, "StationCarriageBody")
+	_box(Rect2(1150, 1007, 226, 10), -0.48, 0.72, brass, "StationCarriageUpperBand")
+	_box(Rect2(1160, 980, 208, 25), -0.84, 0.75, roof, "StationCarriageCanopy")
+	_box(Rect2(1156, 978, 216, 6), -0.47, 0.78, brass, "StationCarriageRoofLip")
+	for x in [1160.0, 1360.0]:
+		_box(Rect2(x, 1001, 9, 49), -0.47, 0.14, brass, "StationCarriageCanopyPost")
+	for x in [1180.0, 1285.0]:
+		_box(Rect2(x, 1024, 71, 42), -0.47, 0.09, roof, "StationCarriageWindowRecess")
+		_box(Rect2(x - 4, 1021, 79, 5), -0.39, 0.10, brass, "StationCarriageWindowHead")
+		_box(Rect2(x - 4, 1066, 79, 5), -0.39, 0.10, brass, "StationCarriageWindowSill")
+	_box(Rect2(1148, 1086, 231, 8), -0.43, 0.18, iron, "StationCarriageAxleFrame")
+	_beam(Vector2(1373, 1083), Vector2(1432, 1100), 7, -0.60, 0.15, iron, "StationCarriageHitch")
+	for wheel_index in 2:
+		var x := 1202.0 if wheel_index == 0 else 1328.0
+		var wheel: MeshInstance3D = stage._cylinder(Vector3(x * P, -(ground - 28) * P, -0.37), 0.28, 0.28, 0.08, iron, "StationCarriageWheel%d" % (wheel_index + 1))
+		wheel.rotation.x = PI * 0.5
+		for arc in 16:
+			var center := Vector2(x, ground - 28)
+			var a := center + Vector2.from_angle(TAU * arc / 16.0) * 27
+			var b := center + Vector2.from_angle(TAU * (arc + 1) / 16.0) * 27
+			_beam(a, b, 3, -0.29, 0.05, brass, "StationCarriageWheelRim")
+		for spoke in 8:
+			var angle := TAU * spoke / 8.0
+			_beam(Vector2(x, ground - 28), Vector2(x, ground - 28) + Vector2.from_angle(angle) * 23, 3, -0.30, 0.05, brass, "StationCarriageWheelSpoke")
+		_box(Rect2(x - 5, ground - 33, 10, 10), -0.25, 0.10, trim, "StationCarriageWheelHub")
 
 func _crane() -> void:
 	var base := _source_point(Vector2(527, 466))

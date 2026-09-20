@@ -55,6 +55,12 @@
 
 最终完整检查日志：`artifacts/final-checks-20260920.log`。新地图仍需要真人连续通关与难度调整。
 
+## 2026-09-20 后续布景修订
+
+入口站台增设带木／铁／黄铜纹理的真实三维马车，车厢、顶棚、车轴、两轮和轮辐分件；轮底落在入口道路，非碰撞布景不改变任务和通行。货运下层及礼堂下层另增四组接地木箱和木桶，位于栏杆后方，使用真实木／铁材质，见 `artifacts/image_arch_station_carriage.png`、`image_arch_cargo.png`、`image_arch_hall_stores.png` 三张实际透视截图；`tests/test_image_monastery_visual.gd` 检查马车双轮与既有楼梯支承。花棚仍使用原先接在花槽上的玫瑰灌木；曾尝试的独立“玫瑰树”概念已按用户反馈删除，没有进入运行包。
+
+新 UI 与地图美术另见 `dev-design/UI_ACCEPTANCE.md`。修改后完整回归记录为 `artifacts/ui-v2-full-checks.log`，全部通过。仍未补齐原图所有车辆、树种、墙面磨损和室内陈设；也没有新增真人连续通关记录。
+
 ## 2026-09-20 构建交付
 
 唯一输出 `builds/windows/RecoilRequiem.exe` 已覆盖。使用现有 Godot 4.7.2 Windows 调试模板导出（本机未安装 release 模板），不是另建第二个版本。独立运行包检查为 0 失败：新地图宽度、实体／开放梯属性、彩窗和城堡材质存在，开发资料没有打入包。EXE 使用 RTX 3070 实际启动 180 帧，退出码 0，日志无脚本错误。
@@ -62,5 +68,7 @@
 最后一轮结构审查修正了钟楼接台与后墙之间的间隙、遗漏的后栏杆和悬空灯架。新增真实网格接触检查从 15 失败降至 0；`artifacts/final-visual-20260920.log` 记录 5 个接台和 7 段开放梯通过。完整回归先已通过，结构修复后重新执行相关视觉检查；没有把相关检查冒称为再次运行全部测试。
 
 文件大小：140201824 bytes。SHA-256：`b7c1ea9f7cbfd90bf0b330fc90c599af6092ef95c9360558adb6cdbdf0180ac3`。
+
+后续 UI v2 和布景构建已覆盖同一路径：140464240 bytes，SHA-256 `5d1fd028cf45f2c06679ee5cd57c793150717d7fbb6c74c844c2ee06bbf648dc`。嵌入资源检查0失败，新地图几何 JSON、UI v2 运行素材在包中，开发源图和策划资料不在包中；从 `builds/windows` 实际 GPU 启动180帧退出码0，日志只有系统证书存储读取警告，无脚本错误。前一段大小与哈希是历史值。
 
 源码、素材与记录同步到现有 GitHub 主分支；EXE 按项目既有规则保存在本地 builds/windows（未加入 Git）。导出方式参考 [Godot 4.7 官方导出说明](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_projects.html)。

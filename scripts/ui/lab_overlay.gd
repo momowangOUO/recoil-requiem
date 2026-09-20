@@ -14,6 +14,7 @@ const MUTED := Color("8c969e")
 const RED := Color("ed675d")
 const CYAN := Color("6cddd3")
 const INK := Color("111820")
+const UI_ART := "res://assets/ui/v2/runtime/"
 const PLAYER_FIELDS := [
 	["gravity", "Gravity", 100.0, 4000.0, 25.0, 1500.0],
 	["jump_impulse", "Jump impulse", 100.0, 900.0, 10.0, 460.0],
@@ -161,8 +162,56 @@ func _style(color: Color, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
 	style.set_content_margin_all(2)
 	return style
 
-func _theme() -> Theme:
+func _art_style(file: String, source_border: Vector4, padding: Vector4 = Vector4.ZERO) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = load(UI_ART + file)
+	style.set_texture_margin(SIDE_LEFT, source_border.x)
+	style.set_texture_margin(SIDE_TOP, source_border.y)
+	style.set_texture_margin(SIDE_RIGHT, source_border.z)
+	style.set_texture_margin(SIDE_BOTTOM, source_border.w)
+	style.set_content_margin(SIDE_LEFT, padding.x)
+	style.set_content_margin(SIDE_TOP, padding.y)
+	style.set_content_margin(SIDE_RIGHT, padding.z)
+	style.set_content_margin(SIDE_BOTTOM, padding.w)
+	return style
+
+func _theme(formal: bool = false) -> Theme:
 	var result := Theme.new()
+	if formal:
+		result.default_font_size = 24
+		result.set_color("font_color", "Label", BONE)
+		result.set_color("font_color", "Button", BONE)
+		result.set_color("font_hover_color", "Button", CYAN)
+		result.set_color("font_focus_color", "Button", BONE)
+		result.set_color("font_disabled_color", "Button", MUTED)
+		for kind in ["Button", "OptionButton"]:
+			for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+				result.set_stylebox(state, kind, _art_style("button_%s.png" % state, Vector4(26, 21, 26, 21), Vector4(18, 8, 18, 8)))
+		result.set_stylebox("normal", "LineEdit", _art_style("button_normal.png", Vector4(26, 21, 26, 21), Vector4(18, 8, 18, 8)))
+		result.set_stylebox("focus", "LineEdit", _art_style("button_focus.png", Vector4(26, 21, 26, 21), Vector4(18, 8, 18, 8)))
+		result.set_color("font_color", "LineEdit", CYAN)
+		result.set_constant("minimum_character_width", "SpinBox", 4)
+		result.set_stylebox("panel", "TabContainer", _style(Color.TRANSPARENT))
+		result.set_stylebox("tab_selected", "TabContainer", _art_style("button_pressed.png", Vector4(26, 21, 26, 21), Vector4(20, 8, 20, 8)))
+		result.set_stylebox("tab_unselected", "TabContainer", _art_style("button_normal.png", Vector4(26, 21, 26, 21), Vector4(20, 8, 20, 8)))
+		result.set_stylebox("tab_hovered", "TabContainer", _art_style("button_hover.png", Vector4(26, 21, 26, 21), Vector4(20, 8, 20, 8)))
+		result.set_color("font_selected_color", "TabContainer", BONE)
+		result.set_color("font_unselected_color", "TabContainer", MUTED)
+		result.set_font_size("font_size", "TabContainer", 23)
+		result.set_stylebox("background", "ProgressBar", _art_style("button_normal.png", Vector4(26, 21, 26, 21)))
+		result.set_stylebox("fill", "ProgressBar", _art_style("button_hover.png", Vector4(26, 21, 26, 21)))
+		var unchecked: Image = load(UI_ART + "health_empty.png").get_image()
+		unchecked.resize(27, 27, Image.INTERPOLATE_LANCZOS)
+		var checked: Image = load(UI_ART + "health_full.png").get_image()
+		checked.resize(27, 27, Image.INTERPOLATE_LANCZOS)
+		for state in ["unchecked", "unchecked_disabled", "radio_unchecked", "radio_unchecked_disabled"]:
+			result.set_icon(state, "CheckBox", ImageTexture.create_from_image(unchecked))
+		for state in ["checked", "checked_disabled", "radio_checked", "radio_checked_disabled"]:
+			result.set_icon(state, "CheckBox", ImageTexture.create_from_image(checked))
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			result.set_stylebox(state, "CheckBox", _style(Color.TRANSPARENT))
+		result.set_stylebox("focus", "CheckBox", _art_style("button_focus.png", Vector4(26, 21, 26, 21)))
+		return result
 	result.default_font_size = 8
 	result.set_color("font_color", "Label", BONE)
 	result.set_color("font_color", "Button", BONE)
@@ -216,7 +265,7 @@ func _build() -> void:
 	_root.name = "LabInterface"
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_root.theme = _theme()
+	_root.theme = _theme(not lab_navigation)
 	add_child(_root)
 	for rect in [Rect2(0, 0, 320, 26 if lab_navigation else 18), Rect2(0, 145, 320, 35)]:
 		var plate := ColorRect.new()
@@ -280,20 +329,38 @@ func _build() -> void:
 		combat.name = "CombatHud"
 		_root.add_child(combat)
 	_story.name = "StoryCard"
-	_story.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if lab_navigation:
+		_story.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	else:
+		_story.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		_story.size = Vector2(1280, 720)
+		_story.scale = Vector2.ONE * 0.25
+		_story.mouse_filter = Control.MOUSE_FILTER_STOP
 	_root.add_child(_story)
+	if not lab_navigation:
+		var story_shade := ColorRect.new()
+		story_shade.name = "StoryShade"
+		story_shade.color = Color(0.075, 0.03, 0.05, 0.43)
+		story_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		story_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_story.add_child(story_shade)
 	var story_back := Panel.new()
-	story_back.add_theme_stylebox_override("panel", _style(Color("111820"), Color("84705a")))
+	story_back.name = "StoryFrame"
+	story_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	story_back.add_theme_stylebox_override("panel", _style(Color("111820"), Color("84705a")) if lab_navigation else _art_style("dialogue_frame.png", Vector4(82, 64, 82, 59), Vector4(76, 62, 76, 58)))
 	_story.add_child(story_back)
-	_place(story_back, Rect2(28, 34, 264, 108))
+	_place(story_back, Rect2(28, 34, 264, 108) if lab_navigation else Rect2(108, 125, 1064, 470))
 	_story_title = _label(_story, "", CYAN)
-	_place(_story_title, Rect2(40, 43, 240, 14))
+	_place(_story_title, Rect2(40, 43, 240, 14) if lab_navigation else Rect2(206, 176, 870, 38))
+	if not lab_navigation:
+		_story_title.add_theme_font_size_override("font_size", 32)
 	_story_scroll = ScrollContainer.new()
+	_story_scroll.name = "StoryScroll"
 	_story_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_story.add_child(_story_scroll)
-	_place(_story_scroll, Rect2(40, 62, 240, 59))
+	_place(_story_scroll, Rect2(40, 62, 240, 59) if lab_navigation else Rect2(206, 231, 868, 272))
 	var scroll_bar := _story_scroll.get_v_scroll_bar()
-	scroll_bar.add_theme_stylebox_override("scroll", _style(Color("202c34")))
+	scroll_bar.add_theme_stylebox_override("scroll", _style(Color("202c34") if lab_navigation else Color("332627")))
 	scroll_bar.add_theme_stylebox_override("grabber", _style(Color("84705a")))
 	scroll_bar.add_theme_stylebox_override("grabber_highlight", _style(CYAN))
 	scroll_bar.add_theme_stylebox_override("grabber_pressed", _style(CYAN))
@@ -305,35 +372,49 @@ func _build() -> void:
 	_story_body = _label(_story_scroll, "", BONE)
 	_story_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_story_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_story_body.add_theme_font_size_override("font_size", 8)
+	_story_body.add_theme_font_size_override("font_size", 8 if lab_navigation else 26)
 	var story_hint := _label(_story, "滚轮阅读 · E / ESC 返回 · 世界已暂停", MUTED)
-	_place(story_hint, Rect2(40, 127, 240, 10))
+	story_hint.name = "StoryHint"
+	_place(story_hint, Rect2(40, 127, 240, 10) if lab_navigation else Rect2(206, 530, 868, 28))
+	if not lab_navigation:
+		story_hint.add_theme_font_size_override("font_size", 20)
 	_story.hide()
 	_panel = Control.new()
 	_panel.name = "TuningPanel"
-	_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if lab_navigation:
+		_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	else:
+		_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		_panel.size = Vector2(1280, 720)
+		_panel.scale = Vector2.ONE * 0.25
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_root.add_child(_panel)
 	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.035, 0.05, 0.93)
+	shade.color = Color(0.02, 0.035, 0.05, 0.93) if lab_navigation else Color(0.07, 0.035, 0.055, 0.53)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.add_child(shade)
 	var frame := PanelContainer.new()
-	frame.add_theme_stylebox_override("panel", _style(INK, Color("42525c")))
+	frame.name = "PauseFrame"
+	frame.add_theme_stylebox_override("panel", _style(INK, Color("42525c")) if lab_navigation else _art_style("journal_frame.png", Vector4(98, 86, 98, 76), Vector4(103, 78, 103, 68)))
 	_panel.add_child(frame)
-	_place(frame, Rect2(5, 5, 310, 170))
+	_place(frame, Rect2(5, 5, 310, 170) if lab_navigation else Rect2(60, 34, 1160, 652))
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 2)
+	layout.add_theme_constant_override("separation", 2 if lab_navigation else 10)
 	frame.add_child(layout)
 	var heading := HBoxContainer.new()
+	if not lab_navigation:
+		heading.custom_minimum_size.y = 44
 	layout.add_child(heading)
 	var header := _label(heading, "RECOIL LAB / PAUSED" if lab_navigation else "CRIMSON MONASTERY / PAUSED", RED)
+	if not lab_navigation:
+		header.add_theme_font_size_override("font_size", 30)
 	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	for i in range(3 if lab_navigation else 0):
 		_button(heading, "F%d" % (i + 1), func(): preset_requested.emit(i))
 	var tabs := TabContainer.new()
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	tabs.custom_minimum_size.y = 110
+	tabs.custom_minimum_size.y = 110 if lab_navigation else 356
 	layout.add_child(tabs)
 	var movement := _tab(tabs, "Movement")
 	_label(movement, "Units: px/s, px/s2. Scroll for caps / drag.", MUTED)
@@ -376,6 +457,9 @@ func _build() -> void:
 		var input_hint := _label(settings, CombatHud.COPY.data.hint, MUTED)
 		input_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	footer.add_theme_constant_override("separation", 3)
+	if not lab_navigation:
+		footer.custom_minimum_size.y = 56
+		footer.add_theme_constant_override("separation", 10)
 	layout.add_child(footer)
 	_button(footer, "Resume", func(): resume_requested.emit(), "Resume")
 	_button(footer, "Apply", _apply, "Apply")
@@ -392,12 +476,14 @@ func _tab(tabs: TabContainer, title: String) -> VBoxContainer:
 	tabs.add_child(scroll)
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_theme_constant_override("separation", 2)
+	content.add_theme_constant_override("separation", 2 if lab_navigation else 8)
 	scroll.add_child(content)
 	return content
 
 func _number(parent: Node, caption: String, low: float, high: float, step_value: float) -> SpinBox:
 	var row := HBoxContainer.new()
+	if not lab_navigation:
+		row.custom_minimum_size.y = 44
 	parent.add_child(row)
 	var label := _label(row, caption)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -405,8 +491,8 @@ func _number(parent: Node, caption: String, low: float, high: float, step_value:
 	number.min_value = low
 	number.max_value = high
 	number.step = step_value
-	number.custom_minimum_size.x = 80
-	number.get_line_edit().add_theme_font_size_override("font_size", 8)
+	number.custom_minimum_size.x = 80 if lab_navigation else 166
+	number.get_line_edit().add_theme_font_size_override("font_size", 8 if lab_navigation else 24)
 	row.add_child(number)
 	return number
 

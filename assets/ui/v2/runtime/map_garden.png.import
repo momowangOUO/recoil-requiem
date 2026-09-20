@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnfde3dy0l2ug"
-path="res://.godot/imported/gothic_reticle_v1.png-9813c1b0d584068c0e885ead763123e9.ctex"
+uid="uid://bt4xi47r25cfu"
+path="res://.godot/imported/map_garden.png-5c259c7593020bcd1afebb8bc0974884.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/gothic_reticle_v1.png"
-dest_files=["res://.godot/imported/gothic_reticle_v1.png-9813c1b0d584068c0e885ead763123e9.ctex"]
+source_file="res://assets/ui/v2/runtime/map_garden.png"
+dest_files=["res://.godot/imported/map_garden.png-5c259c7593020bcd1afebb8bc0974884.ctex"]
 
 [params]
 

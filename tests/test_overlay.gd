@@ -87,5 +87,46 @@ func _run() -> void:
 	paused = false
 	overlay.queue_free()
 	await process_frame
+	var formal = load("res://scripts/ui/lab_overlay.gd").new()
+	formal.lab_navigation = false
+	root.add_child(formal)
+	formal.setup(config)
+	formal.show_panel(config)
+	await process_frame
+	await process_frame
+	var pause_panel: Control = formal.find_child("TuningPanel", true, false)
+	var pause_frame: PanelContainer = formal.find_child("PauseFrame", true, false)
+	_check(pause_panel != null and pause_frame != null, "Campaign pause panel must expose its authored frame")
+	if pause_panel != null and pause_frame != null:
+		_check(is_equal_approx(pause_panel.scale.x, 0.25), "Campaign pause art should use native 1280 design units")
+		var art: StyleBox = pause_frame.get_theme_stylebox("panel")
+		_check(art is StyleBoxTexture and art.texture.resource_path.ends_with("journal_frame.png"), "Campaign pause frame must render the authored journal art")
+		_check(art.content_margin_left >= 100 and art.content_margin_top >= 75, "Campaign pause content stays clear of the frame ornaments")
+		var bounds := pause_frame.get_global_rect()
+		_check(bounds.position.x >= 0 and bounds.position.y >= 0 and bounds.end.x <= 320 and bounds.end.y <= 180, "Campaign pause art must fit the game viewport")
+		for key in ["Resume", "Apply"]:
+			var button: Button = formal.find_child(key, true, false)
+			_check(button != null and button.get_theme_stylebox("normal") is StyleBoxTexture, "%s uses an authored button state" % key)
+			if button != null:
+				_check(bounds.encloses(button.get_global_rect()), "%s remains within the authored pause frame" % key)
+				for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+					var style: StyleBox = button.get_theme_stylebox(state)
+					_check(style is StyleBoxTexture and style.texture.resource_path.ends_with("button_%s.png" % state), "%s has authored %s art" % [key, state])
+	formal.hide_panel()
+	formal.show_story("档案记录", "已完成的调查会保留。\n下一段线索还有待确认。")
+	await process_frame
+	var story_frame: Panel = formal.find_child("StoryFrame", true, false)
+	_check(story_frame != null and story_frame.get_theme_stylebox("panel") is StyleBoxTexture, "Campaign story card uses authored frame art")
+	if story_frame != null:
+		var bounds := story_frame.get_global_rect()
+		_check(bounds.position.x >= 0 and bounds.position.y >= 0 and bounds.end.x <= 320 and bounds.end.y <= 180, "Campaign story art must fit the game viewport")
+		var scroll: ScrollContainer = formal.find_child("StoryScroll", true, false)
+		var hint: Label = formal.find_child("StoryHint", true, false)
+		_check(scroll != null and hint != null, "Story body and hint remain separate controls")
+		if scroll != null and hint != null:
+			_check(scroll.get_global_rect().end.y <= hint.get_global_rect().position.y, "Story footer must not overlap scrolled text")
+			_check(bounds.encloses(hint.get_global_rect()), "Story footer remains inside quiet frame area")
+	formal.queue_free()
+	await process_frame
 	print("Overlay checks: ", "PASS" if failure_count == 0 else "FAIL")
 	quit(0 if failure_count == 0 else 1)

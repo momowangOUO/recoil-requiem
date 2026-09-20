@@ -1,5 +1,7 @@
 # 重构执行记录
 
+2026-09-20 UI v2：战斗 HUD、准星／装填圆环、任务追踪、日志、对白、正式暂停／调参及 M 地图已改用新生成素材；地图的可走结构来自实际施工数据，保持等比、探索遮挡和动态状态。UI 实机与完整回归见 [UI验收](UI_ACCEPTANCE.md)；源图和拆分记录见 `assets/ui/v2/`。随后补了入口站台有真实厚度与材质的马车，并为货运下层和礼堂下层增设四组木箱与桶；`tests/test_image_monastery_visual.gd`、`artifacts/image_arch_station_carriage.png`、`image_arch_cargo.png` 和 `image_arch_hall_stores.png` 检查结构与镜头。曾试做的“玫瑰树”与用户要求不符，已经从工程和测试中彻底移除；花棚只保留落在花槽中的玫瑰。场景其余树木种类、磨损、室内陈设密度及真人连续通关仍待后续推进，不能写成已验收。
+
 2026-09-20：主地图已改为16384px宽的按图施工版本。完整回归、主支路往返、钟梯、编辑器、地图UI及天空覆盖已通过。唯一 Windows EXE 已更新，独立启动及运行包检查通过。当前建筑与发布状态以 [验证记录](levels/image-led/VALIDATION.md) 和 [图像对照](levels/image-led/implementation-review.html) 为准。
 
 以下为2026-09-14重构阶段的历史记录；其中12000px旧地图、坐标和节点数量不代表当前主地图。

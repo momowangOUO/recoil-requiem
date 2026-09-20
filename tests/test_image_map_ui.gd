@@ -35,7 +35,7 @@ func run() -> void:
 				nearest = distance
 				enemy_id = "%s/group%s/%s" % [marker.name, marker.get_meta("encounter_id", 1), marker.get_meta("enemy_archetype", "shield")]
 		print("NPC PRESSURE %s at %s nearest %s %.1fpx" % [npc.id, npc.position, enemy_id, nearest])
-	for dimensions in [Vector2i(1280,720), Vector2i(1920,1080)]:
+	for dimensions in [Vector2i(960,540), Vector2i(1280,720), Vector2i(1920,1080), Vector2i(2560,1080)]:
 		root.size = dimensions
 		for explored in [3,16]:
 			for i in range(1, explored + 1): session.event("mon_%02d" % i, "visit")
@@ -55,25 +55,46 @@ func run() -> void:
 				check(ui._map_data.player == game.player.position, "Player marker uses current position")
 				check(ui._map_data.checkpoints == game.environment.checkpoints, "Checkpoint coordinates match authored map")
 				check(session.state.snapshot() == before, "Viewing map does not mutate campaign state")
-				var bounds := Rect2()
-				for id in ui._map_data.visited:
-					bounds = ui._map_data.spaces[id].rect if bounds.size == Vector2.ZERO else bounds.merge(ui._map_data.spaces[id].rect)
-				var factor := Vector2((ui._map.size.x - 90) / bounds.size.x,(ui._map.size.y - 70) / bounds.size.y)
-				var offset: Vector2 = (ui._map.size - bounds.size * factor) * 0.5 - bounds.position * factor
+				check(ui._map_source.get("segments", []).size() == 56, "Map uses the actual 56 floor/stair segments")
+				check(ui._map_source.get("landmarks", []).size() == 7, "Map uses seven authored imagegen landmarks")
+				check(ui._map_zoom > ui._full_map_zoom(), "Default view is readable and zoomed around player")
+				check(ui._world_at_map(ui._map.size * 0.5).distance_to(game.player.position) < 2, "Default center follows player")
+				var factor: Vector2 = Vector2.ONE * ui._map_zoom
+				var offset: Vector2 = ui._map_offset()
 				var labels: Dictionary = ui._map_number_rects(factor,offset)
-				var legible: bool = labels.size() == explored
+				var legible: bool = labels.size() <= explored
 				for id in labels:
 					legible = legible and Rect2(Vector2.ZERO,ui._map.size).encloses(labels[id])
 					for other in labels:
 						if id != other and labels[id].intersects(labels[other]): legible = false
 					for cp in game.environment.checkpoints:
-						if labels[id].intersects(Rect2(cp.position * factor + offset - Vector2(8,8),Vector2(16,16))): legible = false
-				check(legible, "Region numbers stay visible and separate from other numbers/checkpoints")
+						if ui._known_point(cp.position) and labels[id].intersects(Rect2(cp.position * factor + offset - Vector2(16,16),Vector2(32,32))): legible = false
+				check(legible, "Visible region markers avoid each other and checkpoints")
+				var anchor: Vector2 = ui._map.size * 0.38
+				var anchored_world: Vector2 = ui._world_at_map(anchor)
+				ui._zoom_map(1.2, anchor)
+				check(ui._world_at_map(anchor).distance_to(anchored_world) < 0.01, "Wheel zoom keeps the anchored world location fixed")
+				ui._map_pan += Vector2(38, -12)
+				check(ui._world_at_map(ui._map.size * 0.5).distance_to(game.player.position) > 50, "Pan moves the viewed world")
+				ui._map_action("full")
+				check(is_equal_approx(ui._map_zoom, ui._full_map_zoom()), "Full-map control restores the full world extent")
+				check(ui._map_view().grow(1).encloses(Rect2(ui._map_bounds().position * ui._map_zoom + ui._map_offset(), ui._map_bounds().size * ui._map_zoom)), "Full-map artwork remains within canvas")
+				ui._map_action("player")
+				check(ui._world_at_map(ui._map.size * 0.5).distance_to(game.player.position) < 2, "Return-player control resets the view")
+				var known_piece: PackedVector2Array = ui._clip_segment(Vector2(0,1120),Vector2(16384,1120),Rect2(0,1000,1200,400))
+				check(known_piece.size() == 2 and is_equal_approx(known_piece[1].x,1200), "Route geometry clips at the visible boundary")
+				check(ui._clip_segment(Vector2(5000,0),Vector2(6000,0),Rect2(0,1000,1200,400)).is_empty(), "Geometry wholly outside a visible region cannot leak")
 				if DisplayServer.get_name() != "headless":
 					await RenderingServer.frame_post_draw
 					var picture := root.get_texture().get_image()
-					check(picture.get_size() == dimensions, "Capture is native resolution")
-					picture.save_png("res://artifacts/image_map_ui_%d_%d_%s.png" % [dimensions.x,explored,"open" if opened else "locked"])
+					var captured: Vector2i = picture.get_size()
+					check(captured == dimensions or (dimensions.x > 1920 and captured == Vector2i(1920,1080)), "Capture is native resolution unless desktop hardware clamps the wide window")
+					var suffix := "" if captured == dimensions else "_display_clamped"
+					picture.save_png("res://artifacts/image_map_ui_%d_%d_%s%s.png" % [dimensions.x,explored,"open" if opened else "locked",suffix])
+					if explored == 16 and opened and dimensions.x in [1280,1920]:
+						ui._map_action("full")
+						await RenderingServer.frame_post_draw
+						root.get_texture().get_image().save_png("res://artifacts/image_map_ui_%d_full.png" % dimensions.x)
 				session.close()
 				game.environment.gate_states.assign(original_gates)
 		# Restore only in-memory visits to cover the partial-map case at both sizes.

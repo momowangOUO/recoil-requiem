@@ -1,0 +1,444 @@
+{
+  "journal_frame": {
+    "source": "ui_panels_v1.png",
+    "crop": [
+      36,
+      75,
+      1061,
+      581
+    ],
+    "size": [
+      1025,
+      506
+    ]
+  },
+  "tracker_frame": {
+    "source": "ui_panels_v1.png",
+    "crop": [
+      1086,
+      173,
+      1639,
+      356
+    ],
+    "size": [
+      553,
+      183
+    ]
+  },
+  "dialogue_frame": {
+    "source": "ui_panels_v1.png",
+    "crop": [
+      42,
+      654,
+      842,
+      850
+    ],
+    "size": [
+      800,
+      196
+    ]
+  },
+  "button_normal": {
+    "source": "ui_panels_v1.png",
+    "crop": [
+      864,
+      694,
+      1008,
+      780
+    ],
+    "size": [
+      144,
+      86
+    ]
+  },
+  "button_hover": {
+    "source": "ui_panels_v1.png",
+    "crop": [
+      1017,
+      694,
+      1162,
+      779
+    ],
+    "size": [
+      145,
+      85
+    ]
+  },
+  "button_pressed": {
+    "source": "ui_panels_v1.png",
+    "crop": [
+      1170,
+      694,
+      1316,
+      780
+    ],
+    "size": [
+      146,
+      86
+    ]
+  },
+  "button_focus": {
+    "source": "ui_panels_v1.png",
+    "crop": [
+      1323,
+      693,
+      1485,
+      781
+    ],
+    "size": [
+      162,
+      88
+    ]
+  },
+  "button_disabled": {
+    "source": "ui_panels_v1.png",
+    "crop": [
+      1480,
+      694,
+      1624,
+      780
+    ],
+    "size": [
+      144,
+      86
+    ]
+  },
+  "weapon_frame": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      8,
+      0,
+      469,
+      470
+    ],
+    "size": [
+      461,
+      470
+    ]
+  },
+  "slot_frame": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      502,
+      78,
+      843,
+      428
+    ],
+    "size": [
+      341,
+      350
+    ]
+  },
+  "reload_track": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      885,
+      65,
+      1246,
+      423
+    ],
+    "size": [
+      361,
+      358
+    ]
+  },
+  "reticle": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      1314,
+      77,
+      1647,
+      412
+    ],
+    "size": [
+      333,
+      335
+    ]
+  },
+  "health_full": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      35,
+      470,
+      172,
+      682
+    ],
+    "size": [
+      137,
+      212
+    ]
+  },
+  "health_empty": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      883,
+      470,
+      1036,
+      682
+    ],
+    "size": [
+      153,
+      212
+    ]
+  },
+  "divider": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      1056,
+      518,
+      1654,
+      644
+    ],
+    "size": [
+      598,
+      126
+    ]
+  },
+  "gun_revolver": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      28,
+      712,
+      503,
+      921
+    ],
+    "size": [
+      475,
+      209
+    ]
+  },
+  "gun_shotgun": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      543,
+      732,
+      1085,
+      890
+    ],
+    "size": [
+      542,
+      158
+    ]
+  },
+  "gun_smg": {
+    "source": "ui_combat_v1.png",
+    "crop": [
+      1121,
+      710,
+      1650,
+      919
+    ],
+    "size": [
+      529,
+      209
+    ]
+  },
+  "map_gatehouse": {
+    "source": "ui_map_landmarks_v1.png",
+    "crop": [
+      112,
+      14,
+      471,
+      463
+    ],
+    "size": [
+      359,
+      449
+    ]
+  },
+  "map_crane": {
+    "source": "ui_map_landmarks_v1.png",
+    "crop": [
+      521,
+      83,
+      853,
+      464
+    ],
+    "size": [
+      332,
+      381
+    ]
+  },
+  "map_archive": {
+    "source": "ui_map_landmarks_v1.png",
+    "crop": [
+      916,
+      40,
+      1295,
+      464
+    ],
+    "size": [
+      379,
+      424
+    ]
+  },
+  "map_bell": {
+    "source": "ui_map_landmarks_v1.png",
+    "crop": [
+      1352,
+      13,
+      1678,
+      463
+    ],
+    "size": [
+      326,
+      450
+    ]
+  },
+  "map_pump": {
+    "source": "ui_map_landmarks_v1.png",
+    "crop": [
+      115,
+      499,
+      540,
+      855
+    ],
+    "size": [
+      425,
+      356
+    ]
+  },
+  "map_garden": {
+    "source": "ui_map_landmarks_v1.png",
+    "crop": [
+      646,
+      547,
+      1174,
+      856
+    ],
+    "size": [
+      528,
+      309
+    ]
+  },
+  "map_chapel": {
+    "source": "ui_map_landmarks_v1.png",
+    "crop": [
+      1250,
+      474,
+      1667,
+      856
+    ],
+    "size": [
+      417,
+      382
+    ]
+  },
+  "map_player": {
+    "source": "ui_map_marks_v1.png",
+    "crop": [
+      90,
+      109,
+      367,
+      475
+    ],
+    "size": [
+      277,
+      366
+    ]
+  },
+  "map_checkpoint": {
+    "source": "ui_map_marks_v1.png",
+    "crop": [
+      421,
+      114,
+      774,
+      473
+    ],
+    "size": [
+      353,
+      359
+    ]
+  },
+  "map_lock": {
+    "source": "ui_map_marks_v1.png",
+    "crop": [
+      843,
+      114,
+      1193,
+      472
+    ],
+    "size": [
+      350,
+      358
+    ]
+  },
+  "map_open": {
+    "source": "ui_map_marks_v1.png",
+    "crop": [
+      1262,
+      114,
+      1615,
+      473
+    ],
+    "size": [
+      353,
+      359
+    ]
+  },
+  "map_unknown": {
+    "source": "ui_map_marks_v1.png",
+    "crop": [
+      110,
+      538,
+      343,
+      835
+    ],
+    "size": [
+      233,
+      297
+    ]
+  },
+  "map_selection": {
+    "source": "ui_map_marks_v1.png",
+    "crop": [
+      415,
+      557,
+      768,
+      857
+    ],
+    "size": [
+      353,
+      300
+    ]
+  },
+  "map_route": {
+    "source": "ui_map_marks_v1.png",
+    "crop": [
+      817,
+      685,
+      1262,
+      761
+    ],
+    "size": [
+      445,
+      76
+    ]
+  },
+  "map_parchment": {
+    "source": "ui_map_concept_v1.png",
+    "crop": [
+      35,
+      35,
+      185,
+      185
+    ],
+    "size": [
+      150,
+      150
+    ]
+  },
+  "reload_segment": {
+    "source": "ui_reload_wedge_v1.png",
+    "crop": [
+      552,
+      203,
+      982,
+      795
+    ],
+    "size": [
+      430,
+      592
+    ]
+  }
+}
