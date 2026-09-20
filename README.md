@@ -1,6 +1,6 @@
 # 反冲挽歌 · 猩红修道院
 
-> 2026-09-20：主地图改为按生成示意图施工的 image_monastery.tscn（16384px宽）；任务、战斗、暂停与地图 UI 换成同套生成素材。唯一 Windows EXE 已更新并独立启动验证。建筑、通路与 UI 验收边界见 [原图与实景对照](dev-design/levels/image-led/implementation-review.html)、[地图验证](dev-design/levels/image-led/VALIDATION.md) 和 [UI 验收](dev-design/UI_ACCEPTANCE.md)。
+> 2026-09-20：主地图改为按生成示意图施工的 image_monastery.tscn（16384px宽）；前景改为完整横跨视口的绘制残墙，门楼、礼堂和多处背景建筑使用绘制纸板立面。任务、战斗、暂停与地图 UI 使用生成素材。唯一 Windows EXE 已更新并独立启动验证。建筑、通路与 UI 验收边界见 [原图与实景对照](dev-design/levels/image-led/implementation-review.html)、[地图验证](dev-design/levels/image-led/VALIDATION.md) 和 [UI 验收](dev-design/UI_ACCEPTANCE.md)。
 
 使用 Godot 4.7.2 打开 `project.godot`，按 **F5**。唯一 Windows 运行文件为 `builds/windows/RecoilRequiem.exe`。
 

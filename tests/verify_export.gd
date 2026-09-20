@@ -5,7 +5,7 @@ func _initialize() -> void:
 
 func run() -> void:
 	var failures := 0
-	for path in ["res://scenes/game.tscn", "res://assets/characters/npcs/mara_idle_v2.png", "res://assets/ui/v2/runtime/journal_frame.png", "res://assets/ui/v2/runtime/tracker_frame.png", "res://assets/ui/v2/runtime/weapon_frame.png", "res://assets/ui/v2/runtime/reticle.png", "res://assets/ui/v2/runtime/reload_segment.png", "res://assets/ui/v2/runtime/map_gatehouse.png", "res://assets/environments/crimson/chapel_window_v1.png", "res://assets/environments/crimson/castle_haze.gdshader"]:
+	for path in ["res://scenes/game.tscn", "res://assets/characters/npcs/mara_idle_v2.png", "res://assets/ui/v2/runtime/journal_frame.png", "res://assets/ui/v2/runtime/tracker_frame.png", "res://assets/ui/v2/runtime/weapon_frame.png", "res://assets/ui/v2/runtime/reticle.png", "res://assets/ui/v2/runtime/reload_segment.png", "res://assets/ui/v2/runtime/map_gatehouse.png", "res://assets/environments/crimson/chapel_window_v1.png", "res://assets/environments/crimson/foreground_panorama_v3.png", "res://assets/environments/crimson/industrial_facade_v1.png", "res://assets/environments/crimson/chapel_facade_v1.png", "res://assets/environments/crimson/chapel_grand_facade_v2.png", "res://assets/environments/crimson/bell_pier_facade_v1.png", "res://assets/environments/crimson/gatehouse_facade_v1.png", "res://assets/environments/crimson/castle_haze.gdshader"]:
 		if load(path) == null:
 			push_error("Missing exported resource: " + path)
 			failures += 1

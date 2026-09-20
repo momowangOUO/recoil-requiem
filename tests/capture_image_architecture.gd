@@ -34,18 +34,33 @@ func run() -> void:
 		app.free()
 		quit()
 		return
-	for wall in stage.scenery.get_node("ImageMonasteryForeground").get_children():
+	var foreground_views := {"station": Vector2(700, 1120), "gallery": Vector2(5200, 688),
+		"tower": Vector2(9592, 932), "garden": Vector2(10500, 1424),
+		"hall": Vector2(13800, 1424), "lower_hall": Vector2(13000, 2720)}
+	for label in foreground_views:
 		for distance in [3.8, 7.2]:
-			game.player.position = Vector2((wall.position.x + wall.width * 0.5) * 100, wall.get_meta("floor_y"))
+			game.player.position = foreground_views[label]
 			stage.camera_target = CrimsonStage3D.to_stage(game.player.position + Vector2(0, -minf(52, distance * 10)))
 			stage.camera.position = stage.camera_target + Vector3(0.12, 1.18, distance)
 			stage.camera.look_at(stage.camera_target)
+			stage.foreground.call("follow_camera", stage.camera)
 			stage.residency.update_at(game.player.position)
 			for i in 5:
 				await physics_frame
 				await process_frame
 			await RenderingServer.frame_post_draw
-			app.stage_viewport.get_texture().get_image().save_png("res://artifacts/image_foreground_%s_%s.png" % [wall.name, str(distance)])
+			app.stage_viewport.get_texture().get_image().save_png("res://artifacts/image_foreground_%s_%s.png" % [label, str(distance)])
+	game.player.position = Vector2(5200, 688)
+	stage.camera_target = CrimsonStage3D.to_stage(game.player.position + Vector2(0, -52))
+	stage.camera.position = stage.camera_target + Vector3(0.12, 1.18, 5.2)
+	stage.camera.look_at(stage.camera_target)
+	stage.foreground.call("follow_camera", stage.camera)
+	stage.residency.update_at(game.player.position)
+	for i in 5:
+		await physics_frame
+		await process_frame
+	await RenderingServer.frame_post_draw
+	root.get_texture().get_image().save_png("res://artifacts/image_paperboard_full_1280.png")
 	app.free()
 	quit()
 

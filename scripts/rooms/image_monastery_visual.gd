@@ -58,10 +58,10 @@ func build(host: Node3D) -> void:
 	_crane()
 	_garden()
 	_gallery()
-	_hall_details()
 	_bell_landmark()
 	_archive_and_stairwell()
-	stage.scenery.add_child(preload("res://scenes/rooms/image_monastery_foreground.tscn").instantiate())
+	stage.foreground = preload("res://scenes/rooms/image_monastery_foreground.tscn").instantiate()
+	stage.scenery.add_child(stage.foreground)
 
 func _masonry(tint: Color) -> StandardMaterial3D:
 	var mat: StandardMaterial3D = stage._material(Rect2(668, 42, 128, 62), tint)
@@ -194,7 +194,7 @@ func _stair(stair: Node2D) -> void:
 	_extrude(PackedVector2Array([a + Vector2(0, 6), b + Vector2(0, 6), b + Vector2(0, depth), a + Vector2(0, depth)]), -1.175, 0.675, stone, id + "ClosedStringer")
 	_rear_rail(a, b, id)
 	# Uprights terminate at this stair's own stringer; never float over a gap.
-	if maxf(a.y, b.y) > 1900:
+	if maxf(a.y, b.y) > 1900 and id != "S10":
 		_extrude(PackedVector2Array([a + Vector2(0, -224), b + Vector2(0, -224), b + Vector2(0, depth), a + Vector2(0, depth)]), -2.5, -1.25, stone, id + "TunnelBackwall")
 
 func _rear_rail(a: Vector2, b: Vector2, id: String, depth: float = -0.99) -> void:
@@ -211,6 +211,23 @@ func _source(rect: Rect2) -> Rect2:
 func _record_rect(record: Dictionary) -> Rect2:
 	return Rect2(Vector2(record.position[0], record.position[1]), Vector2(record.size[0], record.size[1]))
 
+func _paperboard(rect: Rect2, texture: Texture2D, source: Rect2, z: float, label: String) -> Sprite3D:
+	var card := Sprite3D.new()
+	card.name = label
+	card.texture = texture
+	card.region_enabled = true
+	card.region_rect = source
+	card.pixel_size = rect.size.x * P / source.size.x
+	card.position = Vector3(rect.get_center().x * P, -rect.get_center().y * P, z)
+	card.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	card.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+	card.alpha_scissor_threshold = 0.15
+	card.shaded = true
+	card.modulate = Color(0.84, 0.85, 0.91)
+	card.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	stage.scenery.add_child(card)
+	return card
+
 func _structure(record: Dictionary) -> void:
 	var rect := _record_rect(record)
 	var id: String = record.id
@@ -218,16 +235,15 @@ func _structure(record: Dictionary) -> void:
 		"B01": _gatehouse_landmark(rect)
 		"B12": _hall_landmark(rect)
 		"B02":
-			_box(rect, -3.6, 2.2, stone, id + "RearWall")
-			_facade(rect, id)
-			_roof(rect.position + Vector2(-40, 0), rect.size.x + 80, 220 if id != "B12" else 640, id)
+			_paperboard(rect, preload("res://assets/environments/crimson/gatehouse_facade_v1.png"), Rect2(156, 0, 713, 1536), -2.48, id + "PaintedCargoHouse")
 		"B03", "B08", "B09", "B13":
 			_box(rect, -2.25, 1.4, stone, id + "FoundationBackwall")
 		"B04", "B05":
-			_box(rect, -2.4, 2.4, stone, id + "TowerPier")
-			for y in range(int(rect.position.y), int(rect.end.y), 240):
-				_box(Rect2(rect.position.x - 12, y, rect.size.x + 24, 18), -2.4, 2.55, trim, id + "PierCourse")
-			_roof(rect.position + Vector2(-36, 0), rect.size.x + 72, 420, id)
+			# This backing still touches the real landing corbels; the visible
+			# buttresses, windows and roof are a single authored paper facade.
+			_box(rect, -2.8, 1.0, stone, id + "TowerPier")
+			var source := Rect2(430, 0, 159, 1536) if id == "B04" else Rect2(590, 0, 109, 1536)
+			_paperboard(rect, preload("res://assets/environments/crimson/bell_pier_facade_v1.png"), source, -2.28, id + "PaintedTowerPier")
 		"B06":
 			_box(Rect2(rect.position, Vector2(rect.size.x, 24)), -2.0, 1.3, trim, id + "BellSuspensionBeam")
 			_box(Rect2(rect.position + Vector2(0, -26), Vector2(rect.size.x, 26)), -2.0, 1.5, stone, id + "BeamCoping")
@@ -242,21 +258,14 @@ func _structure(record: Dictionary) -> void:
 		"B11":
 			_arch(rect, -1.9, 0.65, 32, trim, id + "GateArch")
 		"B14":
-			_chapel_window(rect, id)
+			# The large chapel pane is painted into the B12 elevation. A second
+			# glass card would double the tracery at a different depth.
+			pass
 		"B15":
 			# The construction plan adds the archive landing at y880. Its cabinet
 			# must share that real support, not float at the source sketch's y832.
 			_shelves(Rect2(6672, 296, 384, 584), id)
 		"B16", "B17": _tank(rect, id)
-
-func _facade(rect: Rect2, id: String) -> void:
-	# The building silhouette follows the drawing; interior bays follow actor scale.
-	for x in [rect.position.x + 24, rect.end.x - 52]:
-		_box(Rect2(x, rect.position.y, 28, rect.size.y), -2.31, 0.32, trim, id + "EdgePilaster")
-	for y in range(int(rect.position.y + 110), int(minf(rect.end.y, 1800) - 170), 320):
-		for x in range(int(rect.position.x + 110), int(rect.end.x - 100), 260):
-			_window(Rect2(x, y, 72, 150), id)
-		_box(Rect2(rect.position.x, y + 180, rect.size.x, 12), -2.32, 0.25, trim, id + "StoreyBand")
 
 func _window(rect: Rect2, id: String) -> void:
 	_extrude(_arch_outline(rect), -2.49, -2.47, glass, id + "RecessedWindow")
@@ -342,12 +351,13 @@ func _local_rooms() -> void:
 		var at: Vector2 = module.position
 		var width: float = module.width
 		_box(Rect2(at - Vector2(0, 256), Vector2(width, 260)), -2.10, 1.65, stone, id + "InteriorBackwall")
-		for x in range(int(at.x + 36), int(at.x + width - 60), 256):
-			_arch(Rect2(x, at.y - 218, 186, 218), -1.32, 0.15, 12, trim, id + "TunnelRib")
-			_lamp(Vector2(x + 12, at.y - 75), id)
-		_box(Rect2(at - Vector2(0, 182), Vector2(width, 8)), -1.30, 0.08, iron, id + "ServicePipe")
-		for x in range(int(at.x + 40), int(at.x + width), 320):
-			_box(Rect2(x, at.y - 190, 6, 24), -1.29, 0.14, brass, id + "PipeBracket")
+		# A painted frontage replaces the repeated box-built tunnel ribs. The
+		# supporting wall and the actual road remain 3D.
+		var painted_height := width * 724.0 / 2172.0
+		var painting: Texture2D = preload("res://assets/environments/crimson/chapel_facade_v1.png") if id == "F11" else preload("res://assets/environments/crimson/industrial_facade_v1.png")
+		_paperboard(Rect2(at - Vector2(0, painted_height), Vector2(width, painted_height)),
+			painting,
+			Rect2(0, 0, 2172, 724), -1.26, id + "PaintedServiceFrontage")
 	_cargo_setdress()
 
 func _cargo_setdress() -> void:
@@ -476,19 +486,10 @@ func _gallery() -> void:
 		if module.get_meta("structural_id", "") != "F07" or module.one_way: continue
 		var at: Vector2 = module.position
 		var width: float = module.width
-		_box(Rect2(at - Vector2(0, 228), Vector2(width, 24)), -1.65, 0.65, stone, "GalleryContinuousArchitrave")
-		for x in range(int(at.x + 20), int(at.x + width - 170), 224):
-			_arch(Rect2(x, at.y - 204, 176, 204), -1.65, 0.45, 16, trim, "GalleryOpenGothicBay")
-			for px in [x, x + 176]:
-				_box(Rect2(px - 14, at.y - 18, 28, 18), -1.65, 0.65, stone, "GallerySupportedColumnFoot")
-
-func _hall_details() -> void:
-	# Human-scale wall treatment below the high window, backed by the authored hall.
-	for x in range(13000, 15700, 320):
-		_arch(Rect2(x, 1168, 176, 256), -1.4, 0.25, 16, trim, "HallLowerBlindArcade")
-		_lamp(Vector2(x + 220, 1330), "Hall")
-		_box(Rect2(x + 198, 1396, 36, 28), -1.44, 0.56, stone, "HallPilasterFoot")
-		_box(Rect2(x + 208, 1168, 16, 228), -1.44, 0.28, trim, "HallPilaster")
+		var painted_height := width * 724.0 / 2172.0
+		_paperboard(Rect2(at - Vector2(0, painted_height), Vector2(width, painted_height)),
+			preload("res://assets/environments/crimson/industrial_facade_v1.png"),
+			Rect2(0, 0, 2172, 724), -1.65, "GalleryPaintedFrontage")
 
 func _source_point(point: Vector2) -> Vector2:
 	return Vector2(point.x * 8.0, 1120 + (point.y - 430) * 8.0)
@@ -583,74 +584,43 @@ func _bell_landmark() -> void:
 		_lamp(_source_point(point), "BellCourt")
 
 func _gatehouse_landmark(record_rect: Rect2) -> void:
-	# Shared lower body, low west wing, and high east gatehouse are distinct masses.
-	_box(Rect2(record_rect.position.x, _source_point(Vector2(0, 210)).y, record_rect.size.x, record_rect.end.y - _source_point(Vector2(0, 210)).y), -3.6, 2.2, stone, "B01LowerGatehouseMasonry")
-	_box(_source(Rect2(282, 83, 120, 347)), -3.6, 2.2, stone, "B01HighGateTower")
-	_roof(_source_point(Vector2(164, 209)), 126 * 8, 78 * 8, "B01WestSteepRoof")
-	_box(_source(Rect2(190, 195, 92, 18)), -3.5, 2.2, stone, "B01WestRoofSeat")
-	_box(_source(Rect2(282, 78, 120, 10)), -3.5, 2.5, trim, "B01CrenellatedParapet")
-	for source_x in range(286, 403, 18):
-		_box(_source(Rect2(source_x, 68, 6, 10)), -2.3, 0.3, stone, "B01ParapetMerlon")
-		_box(_source(Rect2(source_x + 2, 60, 2, 8)), -2.3, 0.15, iron, "B01RoofIronFinial")
-	for source_x in [286.0, 298.0]:
-		_box(_source(Rect2(source_x, 17, 6, 61)), -3.3, 0.6, stone, "B01TallChimney")
-	for source_x in [211.0, 250.0]:
-		for source_y in [164.0, 258.0, 359.0]:
-			_window(_source(Rect2(source_x, source_y, 11, 28)), "B01WestWingWindow")
-	for source_x in [292.0, 380.0]:
-		_box(_source(Rect2(source_x, 91, 10, 339)), -2.27, 0.45, trim, "B01GateButtress")
-	_flag(Rect2(318, 142, 27, 108), -2.11, "B01GateLongBanner")
+	# Masonry backing and real passage preserve depth, but the distinctive
+	# roof, windows, banners and stonework come from one painted elevation.
+	_box(Rect2(record_rect.position.x, 1200, record_rect.size.x, record_rect.end.y - 1200), -3.6, 2.2, stone, "B01LowerGatehouseMasonry")
+	var painted_height := record_rect.size.x * 1536.0 / 1024.0
+	_paperboard(Rect2(record_rect.position.x, record_rect.position.y,
+		record_rect.size.x, painted_height),
+		preload("res://assets/environments/crimson/gatehouse_facade_v1.png"),
+		Rect2(0, 0, 1024, 1536), -2.48, "B01PaintedGatehouse")
 	_pointed_arch(_source(Rect2(331, 327, 52, 103)), 28 * 8, -1.80, 0.65, 35, "B01StreetPassage")
-	_pointed_arch(_source(Rect2(324, 239, 39, 52)), 18 * 8, -2.12, 0.40, 22, "B01BalconyPortal")
-	for source_y in [216.0, 307.0]:
-		_box(_source(Rect2(192, source_y, 211, 7)), -2.26, 0.36, trim, "B01ProjectingFloorCornice")
 	for point in [Vector2(204, 403), Vector2(321, 273), Vector2(384, 400)]:
 		_lamp(_source_point(point), "B01Portal")
 
 func _hall_landmark(record_rect: Rect2) -> void:
-	_box(record_rect, -3.6, 2.2, stone, "B12HallRearMasonry")
-	_roof(_source_point(Vector2(1587, 139)), 398 * 8, 87 * 8, "B12GreatGabledRoof")
-	var arch := _source(Rect2(1634, 108, 321, 360))
-	_pointed_arch(arch, 117 * 8, -1.8, 1.15, 112, "B12GreatHallArch")
-	_pointed_arch(arch.grow(48), 125 * 8, -1.94, 0.90, 24, "B12OuterHallArchivolt")
-	for source_x in [1646.0, 1934.0]:
-		_box(_source(Rect2(source_x - 8, 135, 16, 333)), -1.90, 0.76, trim, "B12HallButtress")
-		_pinnacle(Vector2(source_x, 132), 33, 120, "B12HallFlankingSpire")
-	for source_x in [1680.0, 1887.0]:
-		_pointed_arch(_source(Rect2(source_x, 318, 42, 112)), 34 * 8, -2.15, 0.45, 24, "B12LowerStatueNiche")
-	_flag(Rect2(1664, 180, 34, 158), -1.30, "B12WestHangingBanner")
-	_flag(Rect2(1850, 180, 34, 158), -1.30, "B12EastHangingBanner")
-	_rose_window(Vector2(1786, 93), 12, -1.34, "B12RoofRose")
+	# The illustrated facade defines the full upper silhouette. Only the
+	# below-grade foundation needs masonry thickness under the pitched camera.
+	_box(Rect2(record_rect.position.x, record_rect.end.y,
+		record_rect.size.x, 420), -3.6, 2.2, stone, "B12ContinuedFoundation")
+	var painted_height := record_rect.size.x
+	_paperboard(Rect2(record_rect.position.x, record_rect.end.y - painted_height,
+		record_rect.size.x, painted_height),
+		preload("res://assets/environments/crimson/chapel_grand_facade_v2.png"),
+		Rect2(0, 0, 1254, 1254), -2.48, "B12PaintedGreatHall")
+	# The closer, higher-resolution lower wing keeps actor-height masonry from
+	# becoming coarse when the complete silhouette is viewed at gun distance.
+	var lower_height := record_rect.size.x * 324.0 / 2172.0
+	_paperboard(Rect2(record_rect.position.x, record_rect.end.y - lower_height,
+		record_rect.size.x, lower_height),
+		preload("res://assets/environments/crimson/industrial_facade_v1.png"),
+		Rect2(0, 400, 2172, 324), -2.44, "B12PaintedLowerWing")
 	for point in [Vector2(1646, 401), Vector2(1708, 439), Vector2(1846, 439), Vector2(1934, 401)]:
 		_lamp(_source_point(point), "B12HallWall")
 
-func _chapel_window(rect: Rect2, id: String) -> void:
-	var material: StandardMaterial3D = stained_glass.duplicate()
-	var atlas := AtlasTexture.new()
-	atlas.atlas = stained_glass.albedo_texture
-	atlas.region = Rect2(66, 9, 682, 1877)
-	material.albedo_texture = atlas
-	material.emission_texture = atlas
-	material.set_meta("authored_texture", atlas)
-	stage.materials.append(material)
-	# Preserve the source window's authored proportions. Width and upper anchor
-	# use B14; its sill extends to the lower tracery seen in the concept drawing.
-	var fitted := Rect2(rect.position, Vector2(rect.size.x, rect.size.x * 1877.0 / 682.0))
-	var pane := MeshInstance3D.new()
-	pane.name = id + "AuthoredChapelWindow"
-	var mesh := QuadMesh.new()
-	mesh.size = fitted.size * P
-	pane.mesh = mesh
-	pane.position = Vector3(fitted.get_center().x * P, -fitted.get_center().y * P, -2.37)
-	pane.material_override = material
-	stage.scenery.add_child(pane)
-	_pointed_arch(fitted.grow(22), fitted.size.y * 0.35, -2.23, 0.24, 18, id + "StoneRecess")
-	_box(Rect2(fitted.position.x - 30, fitted.end.y, fitted.size.x + 60, 26), -2.18, 0.5, trim, id + "ProjectingStoneSill")
-	for fraction in [0.25, 0.60, 0.92]:
-		_warm_window_light(fitted.position + Vector2(fitted.size.x * 0.5, fitted.size.y * fraction), 5.0, 0.6, id)
-
 func _archive_and_stairwell() -> void:
-	_box(_source(Rect2(792, 204, 99, 298)), -3.65, 2.3, stone, "ArchiveSideHouseRearMasonry")
+	var archive_rect := _source(Rect2(792, 204, 99, 298))
+	_box(archive_rect, -3.65, 2.3, stone, "ArchiveSideHouseRearMasonry")
+	_paperboard(archive_rect, preload("res://assets/environments/crimson/gatehouse_facade_v1.png"),
+		Rect2(200, 0, 510, 1536), -2.48, "ArchivePaintedSideHouse")
 	_roof(_source_point(Vector2(784, 204)), 115 * 8, 45 * 8, "ArchiveSideHouseRoof")
 	for source_x in [794.0, 881.0]:
 		_box(_source(Rect2(source_x, 209, 10, 293)), -2.15, 0.52, trim, "ArchiveHouseButtress")
@@ -662,7 +632,10 @@ func _archive_and_stairwell() -> void:
 	_pointed_arch(_source(Rect2(814, 427, 55, 75)), 25 * 8, -2.12, 0.4, 28, "ArchiveGroundPortal")
 	for at in [Vector2(808, 269), Vector2(876, 385), Vector2(877, 476)]:
 		_lamp(_source_point(at), "ArchiveHouse")
-	_box(_source(Rect2(1152, 165, 98, 347)), -3.45, 2.1, stone, "BellStairwellRearMasonry")
+	var stairwell_rect := _source(Rect2(1152, 165, 98, 347))
+	_box(stairwell_rect, -3.45, 2.1, stone, "BellStairwellRearMasonry")
+	_paperboard(stairwell_rect, preload("res://assets/environments/crimson/bell_pier_facade_v1.png"),
+		Rect2(300, 0, 434, 1536), -2.39, "BellStairwellPaintedFacade")
 	_roof(_source_point(Vector2(1149, 165)), 106 * 8, 53 * 8, "BellStairwellRoof")
 	for source_x in [1153.0, 1243.0]:
 		_box(_source(Rect2(source_x, 166, 7, 346)), -2.26, 0.42, trim, "BellStairwellRearPier")

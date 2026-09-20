@@ -13,6 +13,7 @@ func run() -> void:
 	stage.frozen_camera = true
 	stage.residency_enabled = false
 	stage.residency.clear()
+	stage.foreground.visible = false # Review the distant building silhouette without the near-camera wall.
 	stage.game.set_physics_process(false)
 	stage.game.player.set_physics_process(false)
 	for enemy in stage.game.enemies: enemy.set_physics_process(false)

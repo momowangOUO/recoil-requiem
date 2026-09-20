@@ -1,5 +1,7 @@
 # 礼堂彩窗
 
+2026-09-20 主关卡纸板立面修订：B12／B14 的大窗已由 `chapel_grand_facade_v2.png` 整幅绘制，独立的 `chapel_window_v1.png` 不再叠在礼堂前，以免双重窗框错位。此源图仍被钟楼山墙 `_rose_window` 取局部玫瑰纹样使用；下方是原制作记录。
+
 2026-09-20，使用内置 imagegen 生成 `chapel_window_v1.png`。参照图：`dev-design/levels/image-led/monastery-concept.png` 右侧礼堂高窗。原图以透明 PNG 原样保存；不烘焙建筑或角色。运行时由独立贴片嵌入三维尖拱后侧，一窗一图，不重复平铺。
 
 生成来源：exec-2ae0a8cb-b6fe-49a7-bfd4-5a4897f3e7db.png。没有额外下载第三方素材。生成未修改主角或敌人美术。

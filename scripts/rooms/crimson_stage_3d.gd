@@ -39,6 +39,7 @@ var action_visuals: Dictionary = {}
 var alarm_light: OmniLight3D
 var bell_clapper: MeshInstance3D
 var night: NightBackdrop
+var foreground: Node3D
 
 static func to_stage(point: Vector2, depth: float = 0.0) -> Vector3:
 	return Vector3(point.x * PIXEL, -point.y * PIXEL, depth)
@@ -120,12 +121,14 @@ func _room_reset() -> void:
 	action_visuals.clear()
 	alarm_light = null
 	bell_clapper = null
+	foreground = null
 	_build_room()
 	set_greybox(greybox)
 	camera_target = to_stage(game.player.position + Vector2(0, -56))
 	yaw_offset = 0
 	camera_distance = camera_profile().near
 	_update_camera(1.0)
+	if is_instance_valid(foreground): foreground.call("follow_camera", camera)
 	_update_actor_window()
 	if campaign_enabled and residency_enabled:
 		residency.setup(self)
@@ -541,6 +544,7 @@ func _physics_process(delta: float) -> void:
 		_update_camera(delta)
 	_update_actor_window()
 	night.follow_camera(camera.position, camera)
+	if is_instance_valid(foreground): foreground.call("follow_camera", camera)
 	if campaign_enabled and residency_enabled: residency.update_at(game.player.position)
 	for module in platform_visuals:
 		for piece in platform_visuals[module]: piece.visible = module.active
