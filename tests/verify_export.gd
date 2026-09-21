@@ -5,10 +5,12 @@ func _initialize() -> void:
 
 func run() -> void:
 	var failures := 0
-	for path in ["res://scenes/game.tscn", "res://assets/characters/npcs/mara_idle_v2.png", "res://assets/ui/v2/runtime/journal_frame.png", "res://assets/ui/v2/runtime/tracker_frame.png", "res://assets/ui/v2/runtime/weapon_frame.png", "res://assets/ui/v2/runtime/reticle.png", "res://assets/ui/v2/runtime/reload_segment.png", "res://assets/ui/v2/runtime/map_gatehouse.png", "res://assets/environments/crimson/chapel_window_v1.png", "res://assets/environments/crimson/foreground_panorama_v3.png", "res://assets/environments/crimson/industrial_facade_v1.png", "res://assets/environments/crimson/chapel_facade_v1.png", "res://assets/environments/crimson/chapel_grand_facade_v2.png", "res://assets/environments/crimson/bell_pier_facade_v1.png", "res://assets/environments/crimson/gatehouse_facade_v1.png", "res://assets/environments/crimson/castle_haze.gdshader"]:
+	for path in ["res://scenes/game.tscn", "res://assets/fonts/unifont-18.0.01.otf", "res://assets/environments/crimson/foreground_silhouette.gdshader", "res://assets/characters/npcs/mara_idle_v2.png", "res://assets/ui/v2/runtime/journal_frame.png", "res://assets/ui/v2/runtime/tracker_frame.png", "res://assets/ui/v2/runtime/weapon_frame.png", "res://assets/ui/v2/runtime/reticle.png", "res://assets/ui/v2/runtime/reload_segment.png", "res://assets/ui/v2/runtime/map_gatehouse.png", "res://assets/environments/crimson/chapel_window_v1.png", "res://assets/environments/crimson/foreground_panorama_v4.png", "res://assets/environments/crimson/industrial_facade_v1.png", "res://assets/environments/crimson/chapel_facade_v1.png", "res://assets/environments/crimson/chapel_grand_facade_v2.png", "res://assets/environments/crimson/bell_pier_facade_v1.png", "res://assets/environments/crimson/gatehouse_facade_v1.png", "res://assets/environments/crimson/quest_props_v1.png", "res://assets/environments/crimson/castle_haze.gdshader"]:
 		if load(path) == null:
 			push_error("Missing exported resource: " + path)
 			failures += 1
+	for license_path in ["res://assets/fonts/OFL-Unifont.txt", "res://assets/fonts/COPYRIGHT-Unifont.txt"]:
+		if not FileAccess.file_exists(license_path): failures += 1
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/monastery_text.json"))
 	if not parsed is Dictionary or parsed.is_empty(): failures += 1
 	var map_ui = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/monastery_map_ui.json"))

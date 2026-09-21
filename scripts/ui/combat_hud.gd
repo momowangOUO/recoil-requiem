@@ -19,6 +19,7 @@ var reverse_wheel := false
 var quiet := 0.0
 var messages: Array[Dictionary] = []
 var area := ""
+var notice_label: Label
 var old_health := 5
 var hurt_cell := -1
 var hurt_time := 0.0
@@ -41,6 +42,18 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	scale = Vector2.ONE * 0.25
+	notice_label = Label.new()
+	notice_label.name = "ReadableNotice"
+	notice_label.position = Vector2(32, 24)
+	notice_label.size = Vector2(720, 80)
+	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	notice_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	notice_label.add_theme_font_size_override("font_size", 20)
+	notice_label.add_theme_color_override("font_color", BONE)
+	notice_label.add_theme_color_override("font_outline_color", Color("080b12"))
+	notice_label.add_theme_constant_override("outline_size", 4)
+	add_child(notice_label)
+	notice_label.hide()
 	if not icon_cache.is_empty():
 		icons = icon_cache
 		return
@@ -67,7 +80,8 @@ func notify(message: String, kind := "task") -> void:
 	if message.is_empty(): return
 	for item in messages.duplicate():
 		if item.kind == kind: messages.erase(item)
-	messages.append({"text": message, "kind": kind, "time": TIMING.area if kind == "area" else TIMING.task})
+	var duration: float = TIMING.area if kind == "area" else clampf(message.length() * 0.09, TIMING.task, 8.0)
+	messages.append({"text": message, "kind": kind, "time": duration})
 	messages.sort_custom(func(a: Dictionary, b: Dictionary): return a.kind == "task" and b.kind != "task")
 	while messages.size() > 3: messages.pop_front()
 
@@ -123,10 +137,15 @@ func _process(delta: float) -> void:
 		if quiet <= 0 and not messages.is_empty():
 			messages[0].time -= delta
 			if messages[0].time <= 0: messages.pop_front()
+	var message := str(metrics.get("objective", ""))
+	if not messages.is_empty(): message = str(messages[0].text)
+	notice_label.text = message.replace(" · ", "\n")
+	notice_label.size.x = minf(720, get_viewport_rect().size.x / scale.x * 0.58 - 32)
+	notice_label.visible = opening <= 0 and quiet <= 0 and not message.is_empty()
 	queue_redraw()
 
 func text_at(at: Vector2, value: String, size_px: int, tint := BONE) -> void:
-	var font := ThemeDB.fallback_font
+	var font := preload("res://assets/fonts/unifont-18.0.01.otf")
 	draw_string_outline(font, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, size_px, 6 if high_contrast else 4, Color("080b12"))
 	draw_string(font, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, size_px, tint)
 
@@ -149,11 +168,6 @@ func weapon_icon(slot: int, center: Vector2, diameter: float, alpha := 1.0) -> v
 func _draw() -> void:
 	if metrics.is_empty(): return
 	# All combat information shares a bottom-left anchor, independent of window scale.
-	if opening <= 0 and quiet <= 0:
-		var message := str(metrics.get("objective", ""))
-		if not messages.is_empty(): message = str(messages[0].text)
-		var lines := message.split(" · ")
-		for i in mini(2,lines.size()): text_at(Vector2(32,40+i*20), lines[i].left(28),16)
 	draw_set_transform(weapon_origin())
 	for i in int(metrics.get("max_health", 5)):
 		var full := i < int(metrics.get("health", 5))

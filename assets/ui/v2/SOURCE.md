@@ -1,5 +1,7 @@
 # UI v2 imagegen source and integration record
 
+2026-09-21 runtime correction: the tracker uses its authored aspect ratio, expanding proportionally when a side objective is tracked. Dialogue/journal corner cuts protect the complete motifs. Buttons reserve 32 horizontal and 22 vertical design pixels for content padding, growing to fit native text; normal/hover/pressed/disabled retain generated art. Keyboard focus uses warm text with an empty overlay style, since Godot otherwise draws the complete focus frame on top of the normal frame and produces doubled borders. The generated focus PNG remains a source asset, not a second visible border. Text now uses the bundled 16-pixel glyph font documented in `assets/fonts/SOURCE.md`.
+
 All seven source sheets in `source/` were produced for this project with the built-in image generation tool on 2026-09-20. `tools/design/split_ui_v2.py` deterministically crops the runtime components; `SPLIT_MANIFEST.json` records each source rectangle and output size. Runtime text, values, quest state, fog, and reload progress are drawn by Godot, not baked into these images.
 
 | Source | Generation direction | Runtime use |

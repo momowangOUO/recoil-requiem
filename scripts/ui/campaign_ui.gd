@@ -1,6 +1,8 @@
 class_name CampaignUI
 extends Control
 
+const CampaignData = preload("res://scripts/campaign/monastery_data.gd")
+
 signal close_requested
 signal choice_selected(id: String)
 signal side_selected(id: String)
@@ -18,6 +20,12 @@ var panel: PanelContainer
 var content: VBoxContainer
 var _main: Label
 var _side: Label
+var _opening: Label
+var _completion: Label
+var _controls: Label
+var _modal_scrim: ColorRect
+var _interaction_art: PanelContainer
+var _interaction_label: Label
 var _entries: Array = []
 var _category := "tasks"
 var _map: Control
@@ -26,7 +34,7 @@ var _map_preview_title: Label
 var _map_data: Dictionary = {}
 var _map_selected := ""
 var _font_multiplier := 1.0
-var _tracker_art: Panel
+var _tracker_art: TextureRect
 var _art: Dictionary = {}
 var _map_source: Dictionary = {}
 var _map_zoom := 0.14
@@ -34,6 +42,19 @@ var _map_pan := Vector2.ZERO
 var _map_focus := Vector2.ZERO
 var _map_dragging := false
 var _map_full := false
+var _ui_copy: Dictionary = {}
+var _last_main_text := ""
+var _completion_serial := 0
+var _completion_active := false
+var _opening_started := false
+var _opening_active := false
+var _opening_serial := 0
+var _onboarding_active := true
+var _onboarding_started := false
+var _onboarding_serial := 0
+var _interaction_target := ""
+var _interaction_action := ""
+var _external_pause_hidden := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -45,51 +66,113 @@ func _ready() -> void:
 	theme.default_font_size = 24
 	theme.set_color("font_color", "Label", INK)
 	theme.set_color("font_color", "Button", INK)
-	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
-		theme.set_stylebox(state, "Button", _style("button_" + state, 22, 14, 24, 14, 27, 9, 27, 9, state != "focus"))
+	for state in ["normal", "hover", "pressed", "disabled"]:
+		theme.set_stylebox(state, "Button", _style("button_" + state, 24, 22, 24, 22, 32, 22, 32, 22))
+	# Focus is an overlay in Godot. A second ornate texture here would be drawn over
+	# the normal frame, so keyboard focus uses warm text instead of a duplicate frame.
+	theme.set_stylebox("focus", "Button", StyleBoxEmpty.new())
+	theme.set_color("font_focus_color", "Button", Color("ffd18a"))
 	theme.set_color("font_disabled_color", "Button", Color("ada3a6"))
 	theme.set_color("font_hover_color", "Button", Color("2c1c20"))
+	_ui_copy = CampaignData.onboarding_ui()
 	var map_file := FileAccess.open(MAP_SOURCE, FileAccess.READ)
 	if map_file != null:
 		var decoded: Variant = JSON.parse_string(map_file.get_as_text())
 		if decoded is Dictionary: _map_source = decoded
-	tracker = VBoxContainer.new()
-	tracker.position = Vector2(905, 76)
-	tracker.size = Vector2(272, 206)
-	tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tracker.add_theme_constant_override("separation", 8)
-	add_child(tracker)
-	_tracker_art = Panel.new()
-	_tracker_art.position = Vector2(818, 23)
-	_tracker_art.size = Vector2(412, 250)
+	_tracker_art = TextureRect.new()
+	_tracker_art.position = Vector2(677, 28)
+	_tracker_art.size = Vector2(553, 183)
+	_tracker_art.texture = _texture("tracker_frame")
+	_tracker_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_tracker_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_tracker_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_tracker_art.add_theme_stylebox_override("panel", _style("tracker_frame", 86, 37, 37, 35, 0, 0, 0, 0))
 	add_child(_tracker_art)
-	move_child(_tracker_art, 0)
+	tracker = VBoxContainer.new()
+	tracker.position = Vector2(780, 80)
+	tracker.size = Vector2(400, 112)
+	tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tracker.add_theme_constant_override("separation", 6)
+	add_child(tracker)
 	_main = _label("", 23)
 	tracker.add_child(_main)
-	_side = _label("", 21)
+	_side = _label("", 20)
 	tracker.add_child(_side)
+	_opening = _label("", 21, Color("f3e5d0"))
+	_opening.position = Vector2(210, 550)
+	_opening.size = Vector2(860, 78)
+	_opening.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_opening.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_opening.add_theme_color_override("font_outline_color", Color(0.06, 0.035, 0.05, 0.98))
+	_opening.add_theme_constant_override("outline_size", 2)
+	_opening.hide()
+	add_child(_opening)
+	_controls = _label(str(_ui_copy.get("controls", "")), 16, SILVER)
+	_controls.position = Vector2(360, 632)
+	_controls.size = Vector2(560, 50)
+	_controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_controls.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	add_child(_controls)
+	_completion = _label("", 19, Color("e0bd7a"))
+	_completion.position = Vector2(420, 300)
+	_completion.size = Vector2(440, 42)
+	_completion.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_completion.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_completion.add_theme_color_override("font_outline_color", Color(0.06, 0.035, 0.05, 0.98))
+	_completion.add_theme_constant_override("outline_size", 2)
+	_completion.hide()
+	add_child(_completion)
+	_modal_scrim = ColorRect.new()
+	_modal_scrim.position = Vector2.ZERO
+	_modal_scrim.size = Vector2(1280, 720)
+	_modal_scrim.color = Color(0.02, 0.012, 0.026, 0.58)
+	_modal_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_modal_scrim.hide()
+	add_child(_modal_scrim)
 	panel = PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_force_pass_scroll_events = false
-	panel.add_theme_stylebox_override("panel", _style("journal_frame", 100, 62, 100, 62, 104, 61, 104, 54))
+	panel.add_theme_stylebox_override("panel", _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
 	add_child(panel)
 	panel.hide()
 	content = VBoxContainer.new()
 	content.add_theme_constant_override("separation", 14)
 	panel.add_child(content)
+	_interaction_art = PanelContainer.new()
+	_interaction_art.position = Vector2(430, 618)
+	_interaction_art.size = Vector2(420, 72)
+	_interaction_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_interaction_art.add_theme_stylebox_override("panel", _style("button_normal", 24, 22, 24, 22, 32, 22, 32, 22))
+	add_child(_interaction_art)
+	_interaction_label = _label("", 22)
+	_interaction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_interaction_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_interaction_art.add_child(_interaction_label)
+	_interaction_art.hide()
 	get_window().size_changed.connect(_adapt_type)
-	tracker.minimum_size_changed.connect(func(): _fit_tracker.call_deferred())
 	_adapt_type()
 
+func _process(_delta: float) -> void:
+	# Lab pause/settings owns the whole screen. Campaign modals also pause the tree,
+	# so only hide when the pause did not originate from this UI.
+	var should_hide := get_tree().paused and panel_kind.is_empty()
+	if should_hide == _external_pause_hidden: return
+	_external_pause_hidden = should_hide
+	visible = not should_hide
+
 func _fit_tracker() -> void:
-	if _tracker_art:
-		var lowest := tracker.position.y
-		for child in tracker.get_children():
-			if child.visible: lowest = maxf(lowest, tracker.position.y + child.position.y + child.size.y)
-		# The authored tracker has transparent guards above and below its visible border.
-		_tracker_art.size.y = maxf(250, lowest - _tracker_art.position.y + 58)
+	# A selected side objective needs one more wrapped line at 960. Grow the whole
+	# authored frame proportionally instead of stretching its quiet center or text.
+	if _side.visible:
+		var expanded_width := 700.0
+		_tracker_art.position = Vector2(530, 28)
+		_tracker_art.size = Vector2(expanded_width, expanded_width * 183.0 / 553.0)
+		tracker.position = Vector2(650, 96)
+		tracker.size = Vector2(530, 96)
+	else:
+		_tracker_art.position = Vector2(677, 28)
+		_tracker_art.size = Vector2(553, 183)
+		tracker.position = Vector2(780, 80)
+		tracker.size = Vector2(400, 112)
 
 func _texture(name: String) -> Texture2D:
 	if _art.has(name): return _art[name]
@@ -138,10 +221,81 @@ func _label(value: String, font_size: int = 24, color: Color = INK) -> Label:
 	return label
 
 func set_tracker(main_text: String, side_text: String = "") -> void:
-	_main.text = COPY.main + "\n" + main_text if not main_text.is_empty() else ""
-	_side.text = COPY.side + "\n" + side_text if not side_text.is_empty() else ""
+	if not _last_main_text.is_empty() and main_text != _last_main_text:
+		_show_completion(_last_main_text)
+	var is_opening := main_text == str(_ui_copy.get("objective", ""))
+	if is_opening and not _opening_started:
+		_start_opening_caption()
+	elif not is_opening:
+		_opening_active = false
+		_opening.hide()
+	_controls.text = str(_ui_copy.get("opening_controls", "")) if is_opening else str(_ui_copy.get("controls", ""))
+	_controls.visible = _onboarding_active and panel_kind.is_empty() and _interaction_action.is_empty()
+	# Keep category labels inline. Fixed title-only rows wasted half the compact
+	# tracker and could push a selected side quest into the lower ornament at 960.
+	_main.text = COPY.main + "　" + main_text if not main_text.is_empty() else ""
+	_side.text = COPY.side + "　" + side_text if not side_text.is_empty() else ""
 	_side.visible = not side_text.is_empty()
+	_last_main_text = main_text
 	_fit_tracker.call_deferred()
+
+func _start_opening_caption() -> void:
+	_opening_started = true
+	_opening_active = true
+	_opening_serial += 1
+	var serial := _opening_serial
+	var opening_lines: Array = _ui_copy.get("lines", [])
+	_opening.text = str(_ui_copy.get("speaker", "")) + "：" + "\n".join(opening_lines)
+	_opening.visible = panel_kind.is_empty()
+	_start_onboarding_timeout()
+	get_tree().create_timer(6.0, true).timeout.connect(func():
+		if serial == _opening_serial:
+			_opening_active = false
+			_opening.hide()
+	)
+
+func _start_onboarding_timeout() -> void:
+	if _onboarding_started: return
+	_onboarding_started = true
+	_onboarding_serial += 1
+	var serial := _onboarding_serial
+	get_tree().create_timer(8.0, true).timeout.connect(func():
+		if serial == _onboarding_serial:
+			_onboarding_active = false
+			_controls.hide()
+	)
+
+func _show_completion(objective: String) -> void:
+	_completion_serial += 1
+	var serial := _completion_serial
+	_completion_active = true
+	_completion.text = str(_ui_copy.get("completed", "已完成：{objective}")).replace("{objective}", objective)
+	_completion.visible = panel_kind.is_empty()
+	get_tree().create_timer(3.0, true).timeout.connect(func():
+		if serial == _completion_serial:
+			_completion_active = false
+			_completion.hide()
+	)
+
+func set_interaction_prompt(target: String = "", action: String = "") -> void:
+	_interaction_target = target
+	_interaction_action = action
+	if action.is_empty():
+		_interaction_label.text = ""
+		_interaction_art.hide()
+		return
+	# Reaching a concrete world action ends the transient opening/tutorial stage.
+	# Keep the contextual E prompt as the only instruction near the player.
+	_opening_active = false
+	_opening.hide()
+	_onboarding_active = false
+	_controls.hide()
+	var target_copy := "" if target.is_empty() else "　" + target
+	_interaction_label.text = str(_ui_copy.get("interact", "E　{action}{target}")).replace("{action}", action).replace("{target}", target_copy)
+	_interaction_art.visible = panel_kind.is_empty()
+
+func interaction_prompt_visible() -> bool:
+	return _interaction_art.visible
 
 func is_panel_open() -> bool:
 	return not panel_kind.is_empty()
@@ -149,26 +303,41 @@ func is_panel_open() -> bool:
 func close_panel() -> void:
 	panel_kind = ""
 	panel.hide()
+	_modal_scrim.hide()
 	tracker.show()
 	if _tracker_art: _tracker_art.show()
+	_opening.visible = _opening_active
+	_controls.visible = _onboarding_active and _interaction_action.is_empty()
+	_completion.visible = _completion_active
+	_interaction_art.visible = not _interaction_action.is_empty()
 
 func _open(kind: String, title: String) -> void:
 	panel_kind = kind
-	tracker.visible = kind == "dialogue"
-	if _tracker_art: _tracker_art.visible = tracker.visible
+	_interaction_art.hide()
+	tracker.hide()
+	if _tracker_art: _tracker_art.hide()
+	_opening.hide()
+	_controls.hide()
+	_completion.hide()
+	_modal_scrim.show()
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
-	panel.position = Vector2(120, 38) if kind != "dialogue" else Vector2(170, 355)
-	panel.size = Vector2(1040, 644) if kind != "dialogue" else Vector2(940, 325)
-	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 62, 42, 62, 42, 82, 43, 82, 42) if kind == "dialogue" else _style("journal_frame", 100, 62, 100, 62, 104, 61, 104, 54))
+	panel.position = Vector2(120, 38) if kind != "dialogue" else Vector2(280, 315)
+	panel.size = Vector2(1040, 644) if kind != "dialogue" else Vector2(830, 365)
+	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 86, 54, 86, 50) if kind == "dialogue" else _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
 	var header := HBoxContainer.new()
 	content.add_child(header)
-	var heading := _label(title, 30)
-	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(heading)
+	if not title.is_empty():
+		var heading := _label(title, 30)
+		heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		header.add_child(heading)
+	else:
+		var header_space := Control.new()
+		header_space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		header.add_child(header_space)
 	var close := Button.new()
-	close.text = COPY.close
+	close.text = str(_ui_copy.get("end_talk", "结束交谈 · Esc")) if kind == "dialogue" else COPY.close
 	close.pressed.connect(func(): close_requested.emit())
 	header.add_child(close)
 	panel.show()
@@ -184,20 +353,39 @@ func _scroll() -> VBoxContainer:
 	scroll.add_child(body)
 	return body
 
-func show_dialogue(speaker: String, lines: Array, choices: Array) -> void:
-	_open("dialogue", speaker)
+func show_dialogue(_speaker: String, lines: Array, choices: Array) -> void:
+	# Runtime lines already carry the actual speaker. Keep the modal header quiet and
+	# separate the name from the sentence instead of repeating it in two places.
+	_open("dialogue", "")
 	var body := _scroll()
 	for line in lines:
-		body.add_child(_label(str(line)))
+		_add_dialogue_line(body, str(line))
 	for choice in choices:
 		var button := Button.new()
 		button.text = str(choice.get("text", ""))
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.custom_minimum_size.y = 46
+		button.custom_minimum_size.y = 72
 		var id := str(choice.get("id", ""))
 		button.pressed.connect(func(): choice_selected.emit(id))
 		body.add_child(button)
+
+func _add_dialogue_line(body: VBoxContainer, value: String) -> void:
+	var separator := value.find("：")
+	var who := value.left(separator) if separator > 0 else ""
+	if separator > 0 and separator <= 4 and who in CampaignData.NAMES.values():
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 14)
+		body.add_child(row)
+		var speaker := _label(who, 18, Color("d8b77c"))
+		speaker.custom_minimum_size.x = 62
+		speaker.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		row.add_child(speaker)
+		var spoken := _label(value.substr(separator + 1).strip_edges())
+		spoken.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(spoken)
+	else:
+		body.add_child(_label(value))
 
 func show_journal(entries: Array, selected_category: String = "tasks") -> void:
 	_entries = entries.duplicate(true)
@@ -251,7 +439,7 @@ func show_map(spaces: Dictionary, connections: Array, visited: Array, gate_state
 	for spec in [["－", "zoom_out"], ["＋", "zoom_in"], ["回到当前位置", "player"], ["全图", "full"]]:
 		var action := Button.new()
 		action.text = spec[0]
-		action.custom_minimum_size.y = 38
+		action.custom_minimum_size.y = 72
 		action.pressed.connect(_map_action.bind(spec[1]))
 		toolbar.add_child(action)
 	var row := HBoxContainer.new()
@@ -306,9 +494,10 @@ func show_map(spaces: Dictionary, connections: Array, visited: Array, gate_state
 		button.autowrap_mode = TextServer.AUTOWRAP_OFF
 		button.add_theme_font_size_override("font_size", roundi(20 * _font_multiplier))
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.custom_minimum_size.y = 45
-		for state in ["normal", "hover", "pressed", "focus", "disabled"]:
-			button.add_theme_stylebox_override(state, _style("button_" + state, 22, 14, 22, 14, 17, 9, 17, 9, state != "focus"))
+		button.custom_minimum_size.y = 72
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			button.add_theme_stylebox_override(state, _style("button_" + state, 24, 22, 24, 22, 32, 22, 32, 22))
+		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 		button.pressed.connect(_select_map_region.bind(str(id)))
 		legend.add_child(button)
 	var legend_row := HBoxContainer.new()

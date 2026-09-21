@@ -228,6 +228,106 @@ func _paperboard(rect: Rect2, texture: Texture2D, source: Rect2, z: float, label
 	stage.scenery.add_child(card)
 	return card
 
+func _paperboard_cutout(rect: Rect2, texture: Texture2D, source: Rect2,
+		holes: Array, z: float, label: String) -> MeshInstance3D:
+	var x_edges: Array[float] = [source.position.x, source.end.x]
+	var y_edges: Array[float] = [source.position.y, source.end.y]
+	for hole_value in holes:
+		var hole: Rect2 = hole_value.intersection(source)
+		if not hole.has_area():
+			continue
+		x_edges.append(hole.position.x)
+		x_edges.append(hole.end.x)
+		y_edges.append(hole.position.y)
+		y_edges.append(hole.end.y)
+	x_edges.sort()
+	y_edges.sort()
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var texture_size := Vector2(texture.get_size())
+	for x_index in range(x_edges.size() - 1):
+		for y_index in range(y_edges.size() - 1):
+			var cell := Rect2(x_edges[x_index], y_edges[y_index],
+				x_edges[x_index + 1] - x_edges[x_index], y_edges[y_index + 1] - y_edges[y_index])
+			var removed := false
+			for hole_value in holes:
+				var hole: Rect2 = hole_value
+				if hole.has_point(cell.get_center()):
+					removed = true
+					break
+			if removed:
+				continue
+			var source_points := [cell.position, Vector2(cell.position.x, cell.end.y),
+				cell.end, Vector2(cell.end.x, cell.position.y)]
+			for point_index in [0, 1, 2, 0, 2, 3]:
+				var source_point: Vector2 = source_points[point_index]
+				var local_ratio := (source_point - source.position) / source.size
+				var logical_point := rect.position + local_ratio * rect.size
+				surface.set_normal(Vector3(0, 0, 1))
+				surface.set_uv(source_point / texture_size)
+				surface.add_vertex(Vector3(logical_point.x * P, -logical_point.y * P, z))
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = texture
+	material.albedo_color = Color(0.84, 0.85, 0.91)
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	material.alpha_scissor_threshold = 0.15
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.set_meta("authored_texture", texture)
+	stage.materials.append(material)
+	var wall := MeshInstance3D.new()
+	wall.name = label
+	wall.mesh = surface.commit()
+	wall.material_override = material
+	wall.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	stage.scenery.add_child(wall)
+	return wall
+
+func _paper_detail_rect(card_rect: Rect2, card_source: Rect2, detail_source: Rect2) -> Rect2:
+	var scale := card_rect.size / card_source.size
+	return Rect2(card_rect.position + (detail_source.position - card_source.position) * scale,
+		detail_source.size * scale)
+
+func _layered_windows(card_rect: Rect2, texture: Texture2D, card_source: Rect2,
+		details: Array, wall_z: float, label: String) -> void:
+	for index in details.size():
+		var detail_source: Rect2 = details[index]
+		var rect := _paper_detail_rect(card_rect, card_source, detail_source)
+		var prefix := "%s%d" % [label, index]
+		# The wall mesh omits this rectangle. A dark inner plane and the exact
+		# authored crop sit behind it; slim reveals bridge the real depth gap.
+		_box(rect.grow(-maxf(1.0, minf(rect.size.x, rect.size.y) * 0.02)),
+			wall_z - 0.10, 0.025, roof, prefix + "Recess")
+		var pane := _paperboard(rect, texture, detail_source, wall_z - 0.055, prefix + "Glass")
+		pane.modulate = Color(0.98, 0.94, 0.92, 1.0)
+		pane.set_meta("wall_z", wall_z)
+		_layered_window_reveal(rect, wall_z - 0.025, prefix)
+		_layered_window_frame(rect, wall_z + 0.02, prefix)
+
+func _layered_window_reveal(rect: Rect2, z: float, label: String) -> void:
+	var width := clampf(minf(rect.size.x, rect.size.y) * 0.02, 1.5, 4.0)
+	for x in [rect.position.x, rect.end.x]:
+		_box(Rect2(x - width * 0.5, rect.position.y, width, rect.size.y),
+			z, 0.07, roof, label + "Reveal")
+	_box(Rect2(rect.position.x, rect.position.y - width * 0.5, rect.size.x, width),
+		z, 0.07, roof, label + "Reveal")
+	_box(Rect2(rect.position.x, rect.end.y - width * 0.5, rect.size.x, width),
+		z, 0.07, roof, label + "Reveal")
+
+func _layered_window_frame(rect: Rect2, z: float, label: String) -> void:
+	var thickness := clampf(minf(rect.size.x, rect.size.y) * 0.024, 1.5, 4.0)
+	var shoulder_y := rect.position.y + rect.size.y * 0.28
+	var apex := Vector2(rect.get_center().x, rect.position.y - thickness * 0.2)
+	var left_shoulder := Vector2(rect.position.x, shoulder_y)
+	var right_shoulder := Vector2(rect.end.x, shoulder_y)
+	for x in [rect.position.x, rect.end.x]:
+		_box(Rect2(x - thickness * 0.5, shoulder_y, thickness, rect.end.y - shoulder_y),
+			z, 0.045, trim, label + "FrameJamb")
+	_beam(left_shoulder, apex, thickness, z, 0.045, trim, label + "FrameArch")
+	_beam(apex, right_shoulder, thickness, z, 0.045, trim, label + "FrameArch")
+	_box(Rect2(rect.position.x - thickness * 0.6, rect.end.y - thickness * 0.15,
+		rect.size.x + thickness * 1.2, thickness * 0.72), z + 0.02, 0.065, trim, label + "FrameSill")
+
 func _structure(record: Dictionary) -> void:
 	var rect := _record_rect(record)
 	var id: String = record.id
@@ -235,7 +335,13 @@ func _structure(record: Dictionary) -> void:
 		"B01": _gatehouse_landmark(rect)
 		"B12": _hall_landmark(rect)
 		"B02":
-			_paperboard(rect, preload("res://assets/environments/crimson/gatehouse_facade_v1.png"), Rect2(156, 0, 713, 1536), -2.48, id + "PaintedCargoHouse")
+			var texture := preload("res://assets/environments/crimson/gatehouse_facade_v1.png")
+			var source := Rect2(156, 0, 713, 1536)
+			var window_sources := [
+				Rect2(458, 458, 58, 76), Rect2(700, 280, 90, 192), Rect2(716, 805, 64, 190)
+			]
+			_paperboard_cutout(rect, texture, source, window_sources, -2.48, id + "PaintedCargoHouse")
+			_layered_windows(rect, texture, source, window_sources, -2.48, "B02LayeredWindow")
 		"B03", "B08", "B09", "B13":
 			_box(rect, -2.25, 1.4, stone, id + "FoundationBackwall")
 		"B04", "B05":
@@ -350,14 +456,24 @@ func _local_rooms() -> void:
 		if id not in ["F08", "F09", "F10", "F11"] and not module.get_meta("interior_backwall", false): continue
 		var at: Vector2 = module.position
 		var width: float = module.width
-		_box(Rect2(at - Vector2(0, 256), Vector2(width, 260)), -2.10, 1.65, stone, id + "InteriorBackwall")
+		# Keep the structural backing behind the cut paper facade's recessed
+		# glass. Its thickness still closes the room and supports the road.
+		_box(Rect2(at - Vector2(0, 256), Vector2(width, 260)), -2.25, 1.65, stone, id + "InteriorBackwall")
 		# A painted frontage replaces the repeated box-built tunnel ribs. The
 		# supporting wall and the actual road remain 3D.
 		var painted_height := width * 724.0 / 2172.0
 		var painting: Texture2D = preload("res://assets/environments/crimson/chapel_facade_v1.png") if id == "F11" else preload("res://assets/environments/crimson/industrial_facade_v1.png")
-		_paperboard(Rect2(at - Vector2(0, painted_height), Vector2(width, painted_height)),
-			painting,
-			Rect2(0, 0, 2172, 724), -1.26, id + "PaintedServiceFrontage")
+		var card_rect := Rect2(at - Vector2(0, painted_height), Vector2(width, painted_height))
+		var card_source := Rect2(0, 0, 2172, 724)
+		var window_sources := [
+			Rect2(622, 205, 345, 510), Rect2(1400, 338, 92, 315), Rect2(2034, 318, 130, 350)
+		] if id == "F11" else [
+			Rect2(102, 95, 185, 322), Rect2(700, 108, 238, 267), Rect2(1470, 266, 105, 202)
+		]
+		_paperboard_cutout(card_rect, painting, card_source, window_sources,
+			-1.26, id + "PaintedServiceFrontage")
+		_layered_windows(card_rect, painting, card_source, window_sources,
+			-1.26, id + "LayeredWindow")
 	_cargo_setdress()
 
 func _cargo_setdress() -> void:
@@ -399,7 +515,15 @@ func _lamp(at: Vector2, id: String) -> void:
 
 func _arrival_station() -> void:
 	var rect := _source(Rect2(18, 320, 164, 110))
-	_box(Rect2(rect.position, Vector2(rect.size.x, rect.size.y)), -3.2, 0.55, wood, "StationRearWall")
+	var depot_texture := preload("res://assets/environments/crimson/industrial_facade_v1.png")
+	var depot_source := Rect2(0, 0, 1086, 724)
+	var depot_windows := [Rect2(102, 95, 185, 322), Rect2(700, 108, 238, 267)]
+	# A drawn depot replaces the former full-screen timber slab. The shallow
+	# masonry footing is behind the paper elevation; posts and roof remain real.
+	_box(Rect2(rect.position.x, rect.end.y - 112, rect.size.x, 112), -3.55, 0.36,
+		stone, "StationRearFoundation")
+	_paperboard_cutout(rect, depot_texture, depot_source, depot_windows, -3.2, "StationPaintedDepot")
+	_layered_windows(rect, depot_texture, depot_source, depot_windows, -3.2, "StationLayeredWindow")
 	_roof(rect.position - Vector2(32, 0), rect.size.x + 64, 128, "Station")
 	for x in [rect.position.x + 30, rect.end.x - 48]:
 		_box(Rect2(x, rect.position.y, 18, rect.size.y), -1.42, 0.28, wood, "StationSupportedPost")
@@ -487,9 +611,15 @@ func _gallery() -> void:
 		var at: Vector2 = module.position
 		var width: float = module.width
 		var painted_height := width * 724.0 / 2172.0
-		_paperboard(Rect2(at - Vector2(0, painted_height), Vector2(width, painted_height)),
-			preload("res://assets/environments/crimson/industrial_facade_v1.png"),
-			Rect2(0, 0, 2172, 724), -1.65, "GalleryPaintedFrontage")
+		var texture := preload("res://assets/environments/crimson/industrial_facade_v1.png")
+		var card_rect := Rect2(at - Vector2(0, painted_height), Vector2(width, painted_height))
+		var source := Rect2(0, 0, 2172, 724)
+		var window_sources := [
+			Rect2(102, 95, 185, 322), Rect2(700, 108, 238, 267), Rect2(1470, 266, 105, 202),
+			Rect2(2034, 96, 126, 304)
+		]
+		_paperboard_cutout(card_rect, texture, source, window_sources, -1.65, "GalleryPaintedFrontage")
+		_layered_windows(card_rect, texture, source, window_sources, -1.65, "GalleryLayeredWindow")
 
 func _source_point(point: Vector2) -> Vector2:
 	return Vector2(point.x * 8.0, 1120 + (point.y - 430) * 8.0)
@@ -588,10 +718,16 @@ func _gatehouse_landmark(record_rect: Rect2) -> void:
 	# roof, windows, banners and stonework come from one painted elevation.
 	_box(Rect2(record_rect.position.x, 1200, record_rect.size.x, record_rect.end.y - 1200), -3.6, 2.2, stone, "B01LowerGatehouseMasonry")
 	var painted_height := record_rect.size.x * 1536.0 / 1024.0
-	_paperboard(Rect2(record_rect.position.x, record_rect.position.y,
-		record_rect.size.x, painted_height),
-		preload("res://assets/environments/crimson/gatehouse_facade_v1.png"),
-		Rect2(0, 0, 1024, 1536), -2.48, "B01PaintedGatehouse")
+	var texture := preload("res://assets/environments/crimson/gatehouse_facade_v1.png")
+	var card_rect := Rect2(record_rect.position.x, record_rect.position.y,
+		record_rect.size.x, painted_height)
+	var source := Rect2(0, 0, 1024, 1536)
+	var window_sources := [
+		Rect2(144, 662, 88, 190), Rect2(455, 456, 64, 80), Rect2(697, 280, 94, 194),
+		Rect2(712, 804, 72, 192), Rect2(873, 518, 78, 146)
+	]
+	_paperboard_cutout(card_rect, texture, source, window_sources, -2.48, "B01PaintedGatehouse")
+	_layered_windows(card_rect, texture, source, window_sources, -2.48, "B01LayeredWindow")
 	_pointed_arch(_source(Rect2(331, 327, 52, 103)), 28 * 8, -1.80, 0.65, 35, "B01StreetPassage")
 	for point in [Vector2(204, 403), Vector2(321, 273), Vector2(384, 400)]:
 		_lamp(_source_point(point), "B01Portal")
@@ -602,10 +738,16 @@ func _hall_landmark(record_rect: Rect2) -> void:
 	_box(Rect2(record_rect.position.x, record_rect.end.y,
 		record_rect.size.x, 420), -3.6, 2.2, stone, "B12ContinuedFoundation")
 	var painted_height := record_rect.size.x
-	_paperboard(Rect2(record_rect.position.x, record_rect.end.y - painted_height,
-		record_rect.size.x, painted_height),
-		preload("res://assets/environments/crimson/chapel_grand_facade_v2.png"),
-		Rect2(0, 0, 1254, 1254), -2.48, "B12PaintedGreatHall")
+	var hall_texture := preload("res://assets/environments/crimson/chapel_grand_facade_v2.png")
+	var hall_rect := Rect2(record_rect.position.x, record_rect.end.y - painted_height,
+		record_rect.size.x, painted_height)
+	var hall_source := Rect2(0, 0, 1254, 1254)
+	var window_sources := [
+		Rect2(488, 460, 105, 284), Rect2(586, 458, 112, 288), Rect2(694, 460, 102, 284),
+		Rect2(112, 844, 126, 235), Rect2(1016, 844, 126, 235)
+	]
+	_paperboard_cutout(hall_rect, hall_texture, hall_source, window_sources, -2.48, "B12PaintedGreatHall")
+	_layered_windows(hall_rect, hall_texture, hall_source, window_sources, -2.48, "B12LayeredWindow")
 	# The closer, higher-resolution lower wing keeps actor-height masonry from
 	# becoming coarse when the complete silhouette is viewed at gun distance.
 	var lower_height := record_rect.size.x * 324.0 / 2172.0

@@ -95,13 +95,16 @@ func run() -> void:
 		if guard.target != null: active += 1
 	check(active <= 6, "Campaign activates at most six nearby enemies")
 	var decoded = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/monastery_text.json"))
-	var rows := 0
-	for line in FileAccess.get_file_as_string("res://game-text/monastery-v2-review.md").split("\n"):
-		if line.begins_with("|mon."):
-			var fields := line.split("|")
-			check(decoded.get(fields[1]) == fields[3], "Runtime text matches approved draft: " + fields[1])
-			rows += 1
-	check(rows == decoded.size(), "No undocumented runtime story text")
+	var reviewed := {}
+	for path in ["res://game-text/monastery-v2-review.md", "res://game-text/monastery-opening-onboarding-review.md"]:
+		for line in FileAccess.get_file_as_string(path).split("\n"):
+			if line.begins_with("|mon.") or line.begins_with("| `mon."):
+				var fields := line.split("|")
+				var id: String = fields[1].strip_edges().trim_prefix("`").trim_suffix("`")
+				reviewed[id] = fields[3].strip_edges().replace("<br>", "\n")
+	for id in decoded:
+		check(reviewed.get(id) == decoded[id], "Runtime text matches latest reviewed draft: " + id)
+	check(reviewed.size() == decoded.size(), "No undocumented runtime story text")
 	game.free()
 	print("CAMPAIGN SESSION STAGE RESULT: %d checks, %d failures" % [checks,failures])
 	quit(1 if failures else 0)

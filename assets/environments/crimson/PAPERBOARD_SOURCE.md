@@ -1,23 +1,35 @@
 # 主关卡近景与纸板建筑来源
 
-2026-09-20。六张 PNG 均由本轮内置 `imagegen` 生成，并以原始 RGBA 尺寸复制到本目录；没有网络下载、程序重绘、重新压缩或 AI 后处理。上方和建筑外部透明，Godot 在运行时直接用 Sprite3D 的 region 裁切，材质不投射伪结构阴影。前景单独使用线性采样；背景建筑用最近邻采样。全部实际摆放请看 `scripts/rooms/image_foreground_panorama.gd` 与 `scripts/rooms/image_monastery_visual.gd`。
+2026-09-20 至 2026-09-21。六张原始 PNG 与一次基于 v3 的前景低矮重构均由内置 `imagegen` 生成，并以原始 RGBA 尺寸复制到本目录；没有网络下载、程序重绘、重新压缩或 AI 后处理。上方和建筑外部透明。Godot 对建筑使用带真实窗洞的裁切网格，再把窗玻璃、凹槽与细框分层置于墙面前后；材质不投射伪结构阴影。前景使用线性采样，背景建筑使用最近邻采样。全部实际摆放请看 `scripts/rooms/image_foreground_panorama.gd` 与 `scripts/rooms/image_monastery_visual.gd`。
 
 |运行素材|原始生成文件名|尺寸|主要使用位置与运行裁切|
 |---|---|---|---|
-|`foreground_panorama_v3.png`|`exec-a074f2e7-63fe-4ded-bcff-b1200526e9d1.png`|2172×724|完整横幅；Camera3D 近景 z=2.35，宽度按视锥的 1.55 倍调整，下缘留 0.08 视高出画。|
+|`foreground_panorama_v4.png`|`exec-e16253fd-0ca8-4e8b-872e-57500809d7ef.png`|2172×724|当前运行素材。完整横幅经 alpha 蒙版着成近黑纯剪影；七张 3.6 世界单位等比卡片以 3.34 间距横向循环。x 只按世界格重排，不随每帧镜头漂移；y 锚定玩家落地参考面，跳跃和普通镜头升降不改锚点，落到不同高度后以有限步长渐进贴合，只有单帧大位移才瞬时重置。|
+|`foreground_panorama_v3.png`|`exec-a074f2e7-63fe-4ded-bcff-b1200526e9d1.png`|2172×724|v4 的图像参考与历史版本；保留来源，不再用于运行时近景。|
 |`industrial_facade_v1.png`|`exec-bc9c0704-7309-4d19-bc1b-f4d5a5623ff5.png`|2172×724|完整图面：F07 外廊与 F08–F10 下层；底部 `(0,400,2172,324)`：B12 近距离可见石墙。隔开的房间仍有复用，后续可逐处替换。|
 |`chapel_facade_v1.png`|`exec-7b896f4d-aa79-40a4-a27a-594292ab6722.png`|2172×724|完整图面：F11 礼堂下层的后方建筑。|
 |`chapel_grand_facade_v2.png`|`exec-41f71980-9d2b-40e7-9b6c-2276a86efa69.png`|1254×1254|完整图面：B12 礼堂从尖顶到地基的主轮廓；近距离下半层另叠较高像素密度的工业附属墙，不重复画第二个玫瑰窗。|
 |`bell_pier_facade_v1.png`|`exec-f39f942c-605a-4312-8c1f-1c31a413c8cf.png`|1024×1536|B04 区域 `(430,0,159,1536)`；B05 区域 `(590,0,109,1536)`；钟梯后墙 `(300,0,434,1536)`。描绘狭长钟楼立面；其后仍有与楼梯托座接合的实体背墙。|
 |`gatehouse_facade_v1.png`|`exec-9d5d218a-488e-4215-986d-a77569ac0c7f.png`|1024×1536|B01 完整图面以上沿为锚点；B02 裁切 `(156,0,713,1536)`；档案侧楼裁切 `(200,0,510,1536)`。|
 
-构图限制：纸板只画建筑外表，不表示新通路。B01 的街道尖拱和 B05 楼梯支承仍是实体；B12 下沿另有贴图石材地基，防止斜俯视镜头露出天空缝。前景 PNG 底行完全有不透明石墙，边缘的透明凹口不贯通到画面下缘。近景石饰仅作镜头前插画，不能攀爬。设计示意图与最终摄影机尺度不同，所有素材以实际 640×360 世界渲染检查。
+构图限制：纸板只画建筑外表，不表示新通路。B01 的街道尖拱和 B05 楼梯支承仍是实体；B12 下沿另有贴图石材地基，防止斜俯视镜头露出天空缝。前景 PNG 底行完全有不透明石墙，边缘的透明凹口不贯通到画面下缘。运行时不展示 v4 的内部石材纹理，只用其 alpha 轮廓生成低矮近黑剪影；它仍是不可攀爬的镜头前插画。设计示意图与最终摄影机尺度不同，所有素材以实际 640×360 世界渲染检查。
 
 ## 生成提示词
 
 ### 连续前景
 
 > Create a NEW production game asset, a wide seamless-feeling 2D FOREGROUND PANORAMA for a side-view gothic steampunk vampire game. Aspect ratio 3:1 or wider, transparent PNG alpha. The full width is occupied by a single continuous, irregular silhouette of close-up ruined monastery parapet, broken stone coping, short dark gothic iron rail details, thorn vines and a few chipped pier ends. It should feel like a richly hand-painted pixel-art foreground, not a 3D model or repeated modular wall. The solid wall mass occupies ONLY the bottom 28-38% of the canvas and extends beyond the bottom edge; the upper 60% is fully transparent, with occasional small silhouettes that rise no higher than 45% from the bottom. Smooth varied contour with no gap from left to right, no visible horizontal bottom edge. Place a couple of lower notches/open negative spaces near the contour, but keep dark wall mass continuous beneath them. Silhouette palette near-black charcoal, muted plum, deep blue stone, faint wine red edge lighting; lower contrast and less detail than the playable characters. Deliberate hand-authored low-resolution pixel clusters with restrained subtle softness only on distant contour edges, no Gaussian blur, no glow, no depth-of-field filter. Pixel art at game environment density, decorative only; no characters, enemies, text, UI, sky, floor tiles, floating elements, isolated pillars, or opaque rectangular background. Make left and right edges compatible for side-by-side tiling as closely as possible. Output transparent background.
+
+### 连续前景 v4（以 v3 为编辑参考）
+
+原始生成文件位于 `C:\Users\liyian.andy\.codex\generated_images\01a0c3ac-e340-7191-9389-bc995fb7e66a\exec-e16253fd-0ca8-4e8b-872e-57500809d7ef.png`；项目内版本化副本为 `foreground_panorama_v4.png`，没有覆盖 v3。
+
+> Use case: precise-object-edit
+> Asset type: production transparent foreground panorama for the Recoil Requiem side-view Gothic steampunk game
+> Primary request: Recompose the referenced ruined monastery foreground into a distinctly LOWER, calmer continuous wall silhouette. Keep the same hand-authored dark pixel-art language, stone, sparse iron railing, thorn vines, muted plum/blue/charcoal palette, and soft local edge treatment, but remove all tall piers, tall shrine-like slabs, finials, and high thorn arches that could cover a character. The entire visible contour must stay within only the bottom 22-28% of the canvas, with no isolated feature rising above 31%. Keep a continuous fully opaque masonry band across the entire bottom 12-15% so no gaps can expose the screen edge. Preserve a wide panoramic composition and transparent alpha everywhere above the wall.
+> Composition/framing: very wide 3:1 or wider horizontal asset; left-to-right continuous foreground; varied but low coping stones and short broken railing bays; edges compatible for tiling.
+> Style/medium: crisp authored pixel art matching the reference, environment density, restrained softness only on selected distant contour pixels; no smooth painting.
+> Constraints: genuine transparent PNG background; wall extends beyond the bottom edge; no visible horizontal bottom boundary; no characters, UI, text, floor, sky, separate floating objects, tall towers, tall gates, large central pillar, Gaussian blur, glow, depth-of-field, photorealism, or 3D render. Change only the foreground composition and height; preserve the established material and color identity.
 
 ### 工业外廊
 

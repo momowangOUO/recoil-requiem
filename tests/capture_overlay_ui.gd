@@ -20,7 +20,7 @@ func run() -> void:
 	var overlay: LabOverlay = presentation.stage.game.overlay
 	for dimensions in [Vector2i(960, 540), Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(2560, 1080)]:
 		root.size = dimensions
-		overlay.show_panel(presentation.stage.game.config)
+		presentation.stage.game.pause_trial()
 		await settle(5)
 		await capture("pause_%d_%d" % [dimensions.x, dimensions.y])
 		if dimensions.x == 1280:
@@ -35,6 +35,7 @@ func run() -> void:
 		await settle(4)
 		await capture("story_%d_%d" % [dimensions.x, dimensions.y])
 		overlay.hide_story()
+		presentation.stage.game.resume_trial()
 	presentation.free()
 	print("OVERLAY V2 CAPTURE COMPLETE: 11 screenshots")
 	quit()

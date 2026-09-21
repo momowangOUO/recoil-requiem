@@ -42,6 +42,12 @@ func run() -> void:
 		check(is_equal_approx((hud.weapon_origin().y + 140) * hud.scale.y,hud.get_viewport_rect().size.y))
 	hud.sync({"active_slot":0,"cycle_order":[]})
 	check(hud.others().is_empty())
+	var notice := "这是用于验证长任务通知完整显示的测试文字，最后的交互地点和操作不能被截断。"
+	hud.notify(notice)
+	hud._process(0)
+	check(hud.notice_label.text == notice)
+	check(hud.messages[0].time > CombatHud.TIMING.task)
+	check(hud.notice_label.autowrap_mode != TextServer.AUTOWRAP_OFF)
 	hud.free()
 	var game: RecoilLab = load("res://scenes/lab.tscn").instantiate()
 	root.add_child(game)

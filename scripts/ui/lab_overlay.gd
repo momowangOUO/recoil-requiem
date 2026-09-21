@@ -15,6 +15,7 @@ const RED := Color("ed675d")
 const CYAN := Color("6cddd3")
 const INK := Color("111820")
 const UI_ART := "res://assets/ui/v2/runtime/"
+const SETTINGS_TEXT = preload("res://assets/ui/settings_text.json")
 const PLAYER_FIELDS := [
 	["gravity", "Gravity", 100.0, 4000.0, 25.0, 1500.0],
 	["jump_impulse", "Jump impulse", 100.0, 900.0, 10.0, 460.0],
@@ -182,24 +183,27 @@ func _theme(formal: bool = false) -> Theme:
 		result.set_color("font_color", "Label", BONE)
 		result.set_color("font_color", "Button", BONE)
 		result.set_color("font_hover_color", "Button", CYAN)
-		result.set_color("font_focus_color", "Button", BONE)
+		result.set_color("font_focus_color", "Button", Color("ffd18a"))
 		result.set_color("font_disabled_color", "Button", MUTED)
 		for kind in ["Button", "OptionButton"]:
 			for state in ["normal", "hover", "pressed", "focus", "disabled"]:
-				result.set_stylebox(state, kind, _art_style("button_%s.png" % state, Vector4(26, 21, 26, 21), Vector4(18, 8, 18, 8)))
-		result.set_stylebox("normal", "LineEdit", _art_style("button_normal.png", Vector4(26, 21, 26, 21), Vector4(18, 8, 18, 8)))
-		result.set_stylebox("focus", "LineEdit", _art_style("button_focus.png", Vector4(26, 21, 26, 21), Vector4(18, 8, 18, 8)))
+				# Godot draws focus over the active state. A complete focus PNG
+				# would duplicate its metal border; color the text instead.
+				result.set_stylebox(state, kind, StyleBoxEmpty.new() if state == "focus" else _art_style("button_%s.png" % state, Vector4(24, 22, 24, 22), Vector4(32, 22, 32, 22)))
+			result.set_color("font_focus_color", kind, Color("ffd18a"))
+		result.set_stylebox("normal", "LineEdit", _art_style("button_normal.png", Vector4(24, 22, 24, 22), Vector4(32, 22, 32, 22)))
+		result.set_stylebox("focus", "LineEdit", StyleBoxEmpty.new())
 		result.set_color("font_color", "LineEdit", CYAN)
 		result.set_constant("minimum_character_width", "SpinBox", 4)
 		result.set_stylebox("panel", "TabContainer", _style(Color.TRANSPARENT))
-		result.set_stylebox("tab_selected", "TabContainer", _art_style("button_pressed.png", Vector4(26, 21, 26, 21), Vector4(20, 8, 20, 8)))
-		result.set_stylebox("tab_unselected", "TabContainer", _art_style("button_normal.png", Vector4(26, 21, 26, 21), Vector4(20, 8, 20, 8)))
-		result.set_stylebox("tab_hovered", "TabContainer", _art_style("button_hover.png", Vector4(26, 21, 26, 21), Vector4(20, 8, 20, 8)))
+		result.set_stylebox("tab_selected", "TabContainer", _art_style("button_pressed.png", Vector4(24, 22, 24, 22), Vector4(32, 22, 32, 22)))
+		result.set_stylebox("tab_unselected", "TabContainer", _art_style("button_normal.png", Vector4(24, 22, 24, 22), Vector4(32, 22, 32, 22)))
+		result.set_stylebox("tab_hovered", "TabContainer", _art_style("button_hover.png", Vector4(24, 22, 24, 22), Vector4(32, 22, 32, 22)))
 		result.set_color("font_selected_color", "TabContainer", BONE)
 		result.set_color("font_unselected_color", "TabContainer", MUTED)
 		result.set_font_size("font_size", "TabContainer", 23)
-		result.set_stylebox("background", "ProgressBar", _art_style("button_normal.png", Vector4(26, 21, 26, 21)))
-		result.set_stylebox("fill", "ProgressBar", _art_style("button_hover.png", Vector4(26, 21, 26, 21)))
+		result.set_stylebox("background", "ProgressBar", _art_style("button_normal.png", Vector4(24, 22, 24, 22)))
+		result.set_stylebox("fill", "ProgressBar", _art_style("button_hover.png", Vector4(24, 22, 24, 22)))
 		var unchecked: Image = load(UI_ART + "health_empty.png").get_image()
 		unchecked.resize(27, 27, Image.INTERPOLATE_LANCZOS)
 		var checked: Image = load(UI_ART + "health_full.png").get_image()
@@ -210,7 +214,8 @@ func _theme(formal: bool = false) -> Theme:
 			result.set_icon(state, "CheckBox", ImageTexture.create_from_image(checked))
 		for state in ["normal", "hover", "pressed", "disabled"]:
 			result.set_stylebox(state, "CheckBox", _style(Color.TRANSPARENT))
-		result.set_stylebox("focus", "CheckBox", _art_style("button_focus.png", Vector4(26, 21, 26, 21)))
+		result.set_stylebox("focus", "CheckBox", StyleBoxEmpty.new())
+		result.set_color("font_focus_color", "CheckBox", Color("ffd18a"))
 		return result
 	result.default_font_size = 8
 	result.set_color("font_color", "Label", BONE)
@@ -236,7 +241,7 @@ func _theme(formal: bool = false) -> Theme:
 
 func _label(parent: Node, value: String, color: Color = BONE) -> Label:
 	var label := Label.new()
-	label.text = value
+	label.text = SETTINGS_TEXT.data.get(value, value)
 	label.add_theme_color_override("font_color", color)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(label)
@@ -248,7 +253,7 @@ func _place(control: Control, rect: Rect2) -> void:
 
 func _button(parent: Node, title: String, action: Callable, node_name: String = "") -> Button:
 	var button := Button.new()
-	button.text = title
+	button.text = SETTINGS_TEXT.data.get(title, title)
 	if not node_name.is_empty():
 		button.name = node_name
 	button.pressed.connect(action)
@@ -436,7 +441,7 @@ func _build() -> void:
 	_label(trial, "1-6 select a slot. Q / wheel cycles occupied slots.", MUTED)
 	for item in [["measurement", "Show velocity / rise"], ["shake", "Camera shake"], ["target_mode", "Fixed target (off = live)"]]:
 		var checkbox := CheckBox.new()
-		checkbox.text = item[1]
+		checkbox.text = SETTINGS_TEXT.data.get(item[1], item[1])
 		trial.add_child(checkbox)
 		_toggles[item[0]] = checkbox
 	_toggles["measurement"].toggled.connect(func(_enabled: bool): _sync_measurement_shake())
@@ -474,6 +479,7 @@ func _tab(tabs: TabContainer, title: String) -> VBoxContainer:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
 	tabs.add_child(scroll)
+	tabs.set_tab_title(tabs.get_tab_count() - 1, SETTINGS_TEXT.data.get(title, title))
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_theme_constant_override("separation", 2 if lab_navigation else 8)

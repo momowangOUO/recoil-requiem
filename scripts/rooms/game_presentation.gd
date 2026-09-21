@@ -6,6 +6,10 @@ var stage: CrimsonStage3D
 var stage_viewport: SubViewport
 var mouse_screen := Vector2(160, 90)
 
+func _enter_tree() -> void:
+	# Custom draw_string calls and 3D labels share the native UI's authored glyphs.
+	ThemeDB.fallback_font = preload("res://assets/fonts/unifont-18.0.01.otf")
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

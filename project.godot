@@ -33,6 +33,10 @@ enabled=PackedStringArray("res://addons/recoil_map_editor/plugin.cfg")
 
 common/physics_ticks_per_second=60
 
+[gui]
+
+theme/custom_font="res://assets/fonts/unifont-18.0.01.otf"
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0

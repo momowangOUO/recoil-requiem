@@ -20,8 +20,8 @@ func _run() -> void:
 	root.add_child(ui)
 	ui.choice_selected.connect(func(id): selected = id)
 	ui.close_requested.connect(func(): closed += 1)
-	ui.set_tracker("进入修道院外庭", "找回伊娜的工具箱")
-	ui.show_dialogue("玛拉", ["前门不让带枪。你从哪儿进来的？"], [{"id":"entry", "text":"下面。货道还开着。"}])
+	ui.set_tracker("沿门楼石阶进入外庭", "找回伊娜的工具箱")
+	ui.show_dialogue("玛拉", ["前门不让带枪。你从哪儿进来的？"], [{"id":"entry", "text":"运输站旁边的石阶。那条路还通着。"}])
 	await process_frame
 	await process_frame
 	assert(ui.panel.get_rect().end.x <= 1280 and ui.panel.get_rect().end.y <= 720)
@@ -44,7 +44,7 @@ func _run() -> void:
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png("res://artifacts/ui_campaign_dialogue_1280.png")
-	ui.show_journal([{"title":"装卸入口", "body":"从装卸入口进入外庭。", "category":"tasks"}])
+	ui.show_journal([{"title":"外庭", "body":"从运输站沿道路下石阶，穿过门楼进入外庭。", "category":"tasks"}])
 	await process_frame
 	await process_frame
 	assert(ui.panel.get_rect().end.y <= 720)

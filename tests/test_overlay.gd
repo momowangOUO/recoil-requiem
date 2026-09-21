@@ -109,9 +109,15 @@ func _run() -> void:
 			_check(button != null and button.get_theme_stylebox("normal") is StyleBoxTexture, "%s uses an authored button state" % key)
 			if button != null:
 				_check(bounds.encloses(button.get_global_rect()), "%s remains within the authored pause frame" % key)
-				for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+				for state in ["normal", "hover", "pressed", "disabled"]:
 					var style: StyleBox = button.get_theme_stylebox(state)
 					_check(style is StyleBoxTexture and style.texture.resource_path.ends_with("button_%s.png" % state), "%s has authored %s art" % [key, state])
+				_check(button.get_theme_stylebox("focus") is StyleBoxEmpty, "Focus must not draw a second complete metal frame")
+				_check(button.get_theme_color("font_focus_color") != button.get_theme_color("font_color"), "Keyboard focus remains visibly indicated")
+				var normal: StyleBox = button.get_theme_stylebox("normal")
+				_check(normal.content_margin_top >= 22 and normal.content_margin_bottom >= 22, "Button text remains clear of its authored upper/lower edge")
+				var line_height: float = button.get_theme_font("font").get_height(button.get_theme_font_size("font_size"))
+				_check(button.size.y >= line_height + normal.content_margin_top + normal.content_margin_bottom, "Button grows to contain its text and safe margins")
 	formal.hide_panel()
 	formal.show_story("档案记录", "已完成的调查会保留。\n下一段线索还有待确认。")
 	await process_frame

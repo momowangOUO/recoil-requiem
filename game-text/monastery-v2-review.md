@@ -2,20 +2,22 @@
 
 依据 dev-design/narrative/STORY_REVIEW.md。状态：2026-09-14 用户批准事件线与对白，作为正式接入依据。所有角色均在本章初识。
 
+2026-09-21 开场自言自语、行动式目标标题与操作反馈修订见 [修道院开场与任务追踪修订稿](monastery-opening-onboarding-review.md)。本稿中同名 ID 已同步为修订后的运行文字；新增 UI ID 以该补充稿为审阅依据。
+
 表中条件是作者说明，不直接显示；事实条件需在接入时映射到同名状态。只出现当前场景可见或此前获知的信息。选项不代表善恶分数。
 
 ## 入口与目标
 
 |ID|条件／说话人|文字|
-|mon.main01.title|追踪目标|进入修道院外庭|
-|mon.main01.hint|主线未完成|从装卸入口进入外庭。|
+|mon.main01.title|追踪目标|沿门楼石阶进入外庭|
+|mon.main01.hint|主线未完成|维拉今晚准备离开。莉芙要赶在发车前追上她；先从运输站沿道路下石阶，穿过门楼进入外庭。|
 |mon.mara.hello|初见／玛拉|前门不让带枪。你从哪儿进来的？|
-|mon.player.entry|回应／莉芙|下面。货道还开着。|
+|mon.player.entry|回应／莉芙|运输站旁边的石阶。那条路还通着。|
 |mon.mara.ask|玛拉|找谁？|
 |mon.player.target|莉芙|维拉。|
 |mon.mara.target|玛拉|她在货梯那边。要走的人了，东西倒是一件都不肯少带。|
 |mon.mara.repeat|再次交谈／玛拉|货梯往里走。别碰贴了封条的箱子。|
-|mon.main02.title|入口信息已取得|找到货梯另一端的维拉|
+|mon.main02.title|入口信息已取得|到货梯间找维拉|
 |mon.vira.hello|货梯初见／维拉|等这一趟过去。你站那儿挡着门。|
 |mon.player.hunt|莉芙|我不是来取货的。我来找你。|
 |mon.vira.recognize|维拉|猎人？|
@@ -27,8 +29,8 @@
 ## 两翼合作
 
 |ID|条件／说话人|文字|
-|mon.main03.title|维拉已离开货梯|寻找通往内院的路|
-|mon.main03.hint|追踪提示|钟台和维护道都能绕进内院。|
+|mon.main03.title|维拉已离开货梯|穿过中央庭院进入内庭|
+|mon.main03.hint|追踪提示|沿中央庭院的主路继续向右，进入内庭。|
 |mon.ina.hello|初见／伊娜|借工具？先说拿去做什么。|
 |mon.player.tools|莉芙|货梯卡住了。|
 |mon.ina.tools|伊娜|箱子在里面。拿到以后先给我看一眼，别随便用。|
@@ -52,8 +54,8 @@
 |mon.ina.returned|工具交还／伊娜|是我的。还少一把扳手……算了，先修货梯。|
 |mon.ina.withheld|得知工具留给玛拉／伊娜|你看见箱子上的名字了吧？那就没什么好说的了。|
 |mon.mara.tools|工具留在交接处／玛拉|放这儿。仓库侧门可以走了，我让人把锁打开。|
-|mon.tools.returned.notice|交还结果|伊娜正在修理维护入口。|
-|mon.tools.kept.notice|留下结果|仓库侧门已打开。|
+|mon.tools.returned.notice|交还结果|工具箱已交还伊娜；她正在修理维护入口。|
+|mon.tools.kept.notice|留下结果|工具箱已留在交接处；仓库侧门已经打开。|
 
 ## 维修记录支线
 
@@ -65,7 +67,7 @@
 |mon.records.keep.choice|拿到记录|暂时保留记录。|
 |mon.ruka.records|交给鲁卡／鲁卡|连这些都搬走了？我就说找不到。给我吧。|
 |mon.mara.records|交给玛拉／玛拉|原来改了这么多。让鲁卡来一趟，新人看图学不会。|
-|mon.records.read.notice|只阅读|已记下闸门的维护方式。|
+|mon.records.read.notice|只阅读|维修方式已记入日志，按 J 可以随时查看。|
 
 ## 行李支线
 
@@ -82,18 +84,18 @@
 ## 最后发车
 
 |ID|条件／说话人|文字|
-|mon.main04.title|已达内庭|找到维拉的发车位置|
+|mon.main04.title|已达内庭|到内庭的装车礼堂确认发车|
 |mon.depart.prompt|首次准备进入礼堂|货车即将离开。继续追猎后，未交接的工具和行李将按现有安排处理。|
 |mon.depart.confirm|玩家选择|继续追猎。|
 |mon.depart.wait|玩家选择|返回内庭。|
-|mon.main05.title|继续追猎后的目标|突破赛琳的封锁|
+|mon.main05.title|继续追猎后的目标|在装车礼堂突破赛琳的封锁|
 |mon.celine.stop|赛琳守住交接线|让车过去。这里是我接的工作。|
 |mon.player.stop|莉芙|我要上去。|
 |mon.celine.worked|此前有共同掩护／赛琳|刚才我替你守过楼梯。现在你也退一步。|
 |mon.celine.strangers|此前未共同掩护／赛琳|我先说清楚，再往前我就开枪。|
 |mon.player.continue|开始突破／莉芙|那你得拦住我。|
 |mon.celine.defeated|精英战败但存活／赛琳|走吧。别又让我替你看着后面。|
-|mon.main06.title|突破交接线|追上维拉|
+|mon.main06.title|突破交接线|追上正在离开的维拉|
 |mon.vira.fight|礼堂相遇／维拉|你一直跟到这儿，是想听我求你？|
 |mon.player.fight|莉芙|我想看看你会怎么办。|
 |mon.vira.answer|维拉|那就站远点。|
@@ -103,7 +105,7 @@
 维拉死亡后不播放解释临终行为的独白。先留出动作和环境声，让玩家看见货车已经停下。以下文字只描述可观察事实。
 
 |ID|条件／说话人|文字|
-|mon.main07.title|追猎结束|回到外庭|
+|mon.main07.title|追猎结束|回外庭找玛拉|
 |mon.evidence.luggage.home|无标签箱已退回|旧房里留下了那只没有标签的箱子。|
 |mon.evidence.luggage.cart|箱子未搬走|货车旁还放着那只没有标签的箱子。|
 |mon.mara.after|回访玛拉|礼堂得修。你走之前，把通往外面的门留下，别再弄坏了。|
@@ -113,7 +115,8 @@
 |mon.ruka.after.none|未交付记录／鲁卡|没人来接班。我再等一趟。|
 |mon.celine.after.helped|有合作经历／赛琳|下次见面，先说你要做什么。我不想再猜。|
 |mon.celine.after.other|无合作经历／赛琳|我在等人。没什么要跟你说的。|
-|mon.exit.notice|打开城市连接|后门通往旧运输线。|
+|mon.exit.notice|说明后门方向与本段结束|后门通往旧运输线。这段旅程到这里告一段落。|
+|mon.exit.title|回访完成后的状态|修道院追猎已经结束|
 |mon.closed.side.notice|发车时尚未交付的支线|货车已经发走，这次交接无法继续。已找到的记录仍可查看。|
 
 ## 接入约束

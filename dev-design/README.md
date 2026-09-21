@@ -22,6 +22,8 @@
 
 ## 当前可读资料
 
+- 开场指引、NPC 交互、纸板建筑与前景修订：[当前实施与验证记录](ENTRY_AND_DEPTH_REVIEW.md)。
+
 - 2026-09-20已接入按图施工的新动线；先读 [实际验证与边界](levels/image-led/VALIDATION.md) 和 [原图与实景对照](levels/image-led/implementation-review.html)：[imagegen生成图与转换施工图](levels/image-led/construction.html)，[独立步行楼梯与布景规则](levels/image-led/README.md)。此前三层长路及跳格栅楼梯设计已被用户否定，不再使用。
 
 - 开发约束：根 AGENTS.md。

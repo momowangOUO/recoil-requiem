@@ -443,6 +443,27 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 
 func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 	var at := to_stage(action.position, -0.18)
+	var quest_regions := {
+		"tools": Rect2(49, 118, 627, 526),
+		"records": Rect2(760, 183, 652, 461),
+		"luggage": Rect2(1493, 252, 634, 399)
+	}
+	if campaign_enabled and quest_regions.has(action.action_id):
+		var prop := Sprite3D.new()
+		prop.name = "QuestProp_" + action.action_id
+		prop.texture = preload("res://assets/environments/crimson/quest_props_v1.png")
+		prop.region_enabled = true
+		prop.region_rect = quest_regions[action.action_id]
+		prop.pixel_size = 0.28 / prop.region_rect.size.x
+		prop.position = at + Vector3(0, prop.region_rect.size.y * prop.pixel_size * 0.5, 0)
+		prop.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		prop.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+		prop.alpha_scissor_threshold = 0.12
+		prop.shaded = true
+		prop.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		scenery.add_child(prop)
+		action_visuals[action] = {"piece": prop, "quest": action.action_id}
+		return
 	if action.has_meta("shortcut_gate"):
 		# Freight mouths are actual framed openings behind the play plane.
 		for side in [-1.0, 1.0]:
@@ -550,8 +571,16 @@ func _physics_process(delta: float) -> void:
 		for piece in platform_visuals[module]: piece.visible = module.active
 	for action in action_visuals:
 		var visual: Dictionary = action_visuals[action]
+		if visual.has("quest"):
+			var session = game.campaign_session
+			var taken: bool = session.has("tools") if visual.quest == "tools" else (session.has("luggage_home") if visual.quest == "luggage" else false)
+			visual.piece.visible = not taken
+			visual.piece.modulate = Color("aba8a1") if visual.quest == "records" and session.has("records") else Color.WHITE
+			continue
 		visual.material.albedo_color = Color("5b938a") if action.activated else Color("d8b96f")
-		visual.label.visible = game.player.position.distance_to(action.position) < 65 and (not action.activated or action.kind == RoomAction.Kind.NOTE)
+		# Campaign prompts are native-resolution and filtered by the session's
+		# actual availability. Do not leave a second E over locked freight doors.
+		visual.label.visible = not campaign_enabled and game.player.position.distance_to(action.position) < 65 and (not action.activated or action.kind == RoomAction.Kind.NOTE)
 		if action.kind == RoomAction.Kind.SWITCH:
 			visual.piece.rotation.z = lerpf(visual.piece.rotation.z, 0.6 if action.activated else -0.5, minf(1, delta * 8))
 		elif action.kind == RoomAction.Kind.SUPPLY:

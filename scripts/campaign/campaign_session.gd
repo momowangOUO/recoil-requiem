@@ -22,6 +22,7 @@ var selected_side := ""
 var observed_people: Dictionary = {}
 var npc_actors: Dictionary = {}
 var ally_cooldown := 0.0
+var _interaction_hint_key := ""
 
 func setup(owner_lab: Node) -> void:
 	lab = owner_lab
@@ -66,6 +67,7 @@ func bind_world() -> void:
 	points.clear()
 	npc_actors.clear()
 	modal_actions.clear()
+	_interaction_hint_key = ""
 	ally_cooldown = 0
 	last_region = ""
 	ui.close_panel()
@@ -197,16 +199,10 @@ func refresh() -> void:
 			actor.position = story_position("celine_return" if has("vira_dead") else "celine_after")
 			for point in points:
 				if point.id == "celine": point.position = actor.position
-	var title := "mon.main01.title"
-	if has("met_mara"): title = "mon.main02.title"
-	if has("met_vira"): title = "mon.main03.title"
-	if has("inner_reached"): title = "mon.main04.title"
-	if has("departed"): title = "mon.main05.title"
-	if has("celine_defeated"): title = "mon.main06.title"
-	if has("vira_dead"): title = "mon.main07.title"
-	if has("returned"): title = "mon.exit.notice"
+	var title := Data.main_title_id(state.snapshot().facts)
 	var side: String = tracked_side_text()
 	ui.set_tracker(text(title), side)
+	_update_interaction_prompt({} if lab.combat_timer > 0 else nearest())
 
 func text(id: String) -> String:
 	return copy.get(id, id)
@@ -215,6 +211,10 @@ func nearest() -> Dictionary:
 	var best: Dictionary = {}
 	var distance := 48.0
 	for p in points:
+		if p.id == "tools" and has("tools"): continue
+		if p.id == "luggage" and has("luggage_home"): continue
+		if p.id.ends_with("_travel") and not lab.environment.gate_states.get(str(p.id).trim_suffix("_travel"), false): continue
+		if p.id == "departure" and has("departed"): continue
 		if p.get("npc",false) and p.id == "vira" and has("departed"): continue
 		if p.get("npc",false) and p.id == "celine" and has("departed") and not has("celine_defeated"): continue
 		var d: float = lab.player.position.distance_to(p.position)
@@ -224,6 +224,23 @@ func nearest() -> Dictionary:
 		best = p
 		distance = d
 	return best
+
+func _update_interaction_prompt(interaction: Dictionary) -> void:
+	if not is_instance_valid(ui) or not ui.has_method("set_interaction_prompt"):
+		return
+	var key := ""
+	var target := ""
+	var action := ""
+	if not interaction.is_empty():
+		var id := str(interaction.get("id", ""))
+		var hint: Dictionary = Data.interaction_prompt(id, interaction.get("npc", false), has("met_" + id))
+		target = str(hint.get("target", ""))
+		action = str(hint.get("action", ""))
+		key = id + "|" + target + "|" + action
+	if key == _interaction_hint_key:
+		return
+	_interaction_hint_key = key
+	ui.set_interaction_prompt(target, action)
 
 func handle_input(input: InputEvent) -> bool:
 	if not input is InputEventKey or not input.pressed or input.echo: return false
@@ -238,8 +255,10 @@ func handle_input(input: InputEvent) -> bool:
 		KEY_E:
 			var p := nearest()
 			if p.get("npc",false) and lab.combat_timer > 0:
+				_update_interaction_prompt({})
 				lab.overlay.show_notice(text("mon.combat.busy"))
 				return true
+			_update_interaction_prompt(p)
 			if not p.is_empty(): interact(p.id, p.get("npc",false))
 			return true
 		KEY_J:
@@ -261,6 +280,8 @@ func pause() -> void:
 	lab.player.clear_jump_buffer()
 	lab.input_adapter.suppress()
 	lab.reticle.hide()
+	if lab.overlay.combat != null:
+		lab.overlay.combat.suspend(true)
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
@@ -307,6 +328,8 @@ func interact(id: String, npc: bool = false) -> void:
 		return
 	match id:
 		"tools", "records", "luggage":
+			if id == "tools" and has("tools"): return
+			if id == "luggage" and has("luggage_home"): return
 			event(id,"evidence")
 			if id == "tools": dialogue("",["mon.tools.inspect"])
 			elif id == "records": dialogue("",["mon.records.note"])
@@ -315,10 +338,13 @@ func interact(id: String, npc: bool = false) -> void:
 				dialogue("vira",["mon.luggage.tag"],options)
 		"departure":
 			if has("departed"): return
-			if not has("met_vira"): return
+			if not has("met_vira"):
+				lab.overlay.show_notice(text("mon.main02.title"))
+				return
 			dialogue("vira",["mon.depart.prompt"],[["depart","mon.depart.confirm"],["later","mon.depart.wait"]])
 		"exit":
 			if has("vira_dead"): dialogue("mara",["mon.exit.notice"])
+			else: lab.overlay.show_notice(text(Data.main_title_id(state.snapshot().facts)))
 
 func tool_choices() -> Array:
 	if not has("tools") or has("departed") or has("tools_ina") or has("tools_mara"): return []
