@@ -1,0 +1,269 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>反冲挽歌 猩红修道院完整流程设计</title><style>
+@font-face{font-family:GamePixel;src:url('../../assets/fonts/unifont-18.0.01.otf')}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#ece8df;color:#24232a;font-family:'Microsoft YaHei','Noto Sans CJK SC',sans-serif;line-height:1.75}a{color:#792f42;text-decoration:none}button{font:inherit;cursor:pointer;border:1px solid #afa391;border-radius:4px;background:#faf7f0;padding:7px 14px;color:#36292b}button:focus-visible,a:focus-visible{outline:3px solid #ba833a;outline-offset:4px}.toolbar{position:sticky;top:0;background:#eee9dfed;backdrop-filter:blur(8px);z-index:5;border-bottom:1px solid #c9c0b3;padding:10px 4vw;display:flex;gap:12px;align-items:center}.toolbar span{margin-right:auto;font-weight:600}.cover,main,.appendix{max-width:1160px;margin:auto;padding:36px 36px}.cover{padding-top:62px}.eyebrow{color:#873b4e;letter-spacing:.18em;font-size:13px}.cover h1{font-size:42px;line-height:1.35;letter-spacing:.03em;margin:15px 0}.cover .lead{max-width:860px;font-size:19px;color:#4c4547}.scope{font-size:14px;color:#6c6462}.overview{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:28px 0}.overview span{padding:8px 12px;border-bottom:3px solid #97455a;font-weight:600}.overview i{font-style:normal;color:#a39486}.index{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 24px;margin:28px 0}.index a{border-bottom:1px solid #cfc5b8;padding:7px 0;font-size:14px}.beat{margin:0 0 70px;scroll-margin-top:85px}.beat-head{display:flex;gap:18px;align-items:center;margin:0 0 20px}.beat-head .number{font-family:Georgia,serif;font-size:52px;line-height:1;color:#944258}.beat-head small{font-size:12px;color:#6a6163}.beat-head h2{font-size:28px;margin:2px 0;line-height:1.4}.status{margin-left:auto;font-size:12px;border:1px solid #ad9298;padding:3px 9px;color:#7b4250}.screen{position:relative;container-type:inline-size;background:#17141c;line-height:1}.scene{width:100%;height:auto;display:block}.screen-ui,.annotations{position:absolute;inset:0;pointer-events:none}.tracker{position:absolute;right:2%;top:3%;width:34%;aspect-ratio:3;background:url('../../assets/ui/v2/runtime/tracker_frame.png') center/contain no-repeat;padding:3% 3% 2% 4%;font-family:GamePixel,monospace;color:#f2e5cc;display:flex;flex-direction:column;justify-content:center;gap:.6cqw}.tracker small{font-size:1.15cqw;color:#c5a47b}.tracker span{font-size:1.7cqw;line-height:1.2;overflow-wrap:anywhere}.hud{position:absolute;left:3%;bottom:4%;color:#fff0cd;font-family:GamePixel,monospace;text-shadow:2px 2px #171018}.life{display:flex;gap:.45cqw;margin-bottom:.5cqw}.life img{width:1.25cqw;height:1.9cqw;object-fit:contain}.ammo{display:flex;gap:1cqw;align-items:center}.ammo img{width:4cqw;height:3cqw;object-fit:contain}.ammo span{font-size:3.5cqw}.ammo small{font-size:1.6cqw}.slots{font-size:1cqw;margin-top:.4cqw}.dialogue{position:absolute;left:28%;bottom:9%;width:47%;font-family:GamePixel,monospace;font-size:1.65cqw;color:#fff0d4;text-shadow:2px 2px #161019,-1px -1px #161019;line-height:1.35;text-align:center}.hint{position:absolute;left:29%;bottom:3%;width:46%;font-family:GamePixel,monospace;color:#ded6cb;text-align:center;font-size:1.2cqw;text-shadow:1px 1px #111}.mark{position:absolute;border-radius:50%;width:2.35cqw;height:2.35cqw;display:grid;place-items:center;background:#eadac0;color:#752f45;border:.16cqw solid #80364b;box-shadow:0 1px 5px #0008;font:bold 1.35cqw Arial;transform:translate(-50%,-50%)}figure{margin:0}figcaption{font-size:12px;color:#6f6560;padding:9px 0}.legend{display:flex;list-style:none;padding:0;margin:8px 0 18px;gap:12px;flex-wrap:wrap;font-size:13px;color:#65534f}.legend li{flex:1;min-width:200px}.legend b{color:#8b3d51;margin-right:5px}.details{columns:2;column-gap:34px;border-top:1px solid #c8bbac;padding-top:14px;font-size:14px}.details p{margin:0 0 9px;break-inside:avoid}.details strong{display:block;color:#79394b;font-size:13px}.appendix{border-top:2px solid #8e4455}.appendix h1{font-size:30px}.appendix h2{font-size:23px;margin-top:32px}.appendix h3{font-size:18px;margin-top:24px}.appendix p{font-size:15px}.appendix table{width:100%;border-collapse:collapse;font-size:13px;margin:18px 0}.appendix th,.appendix td{border:1px solid #c9c0b3;padding:8px;vertical-align:top}.appendix th{background:#ded6c9;text-align:left}.appendix tr:nth-child(even){background:#f4f0e7}.appendix code{font-size:.9em}.notes-off .annotations,.notes-off .legend{display:none}.ui-off .screen-ui{display:none}.review-ref{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:24px 0}.review-ref img{width:100%;image-rendering:pixelated}.review-ref p{font-size:13px;margin:4px 0}.footer{margin:40px auto;text-align:center;font-size:12px;color:#776963}.print-only{display:none}
+@media(max-width:700px){.cover,main,.appendix{padding:24px 16px}.cover h1{font-size:30px}.index{grid-template-columns:1fr 1fr}.details{columns:1}.toolbar{flex-wrap:wrap}.toolbar span{width:100%;font-size:14px}.beat-head h2{font-size:23px}.status{display:none}.review-ref{grid-template-columns:1fr}}
+@media print{@page{size:A4 landscape;margin:12mm}html{scroll-behavior:auto}body{background:#fff;color:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact}.toolbar,.index,.no-print{display:none}.cover{padding:5mm 0;break-after:page}.cover h1{font-size:32pt}.cover .lead{font-size:13pt}.overview{margin:8mm 0}.review-ref{max-width:190mm}.cover,main,.appendix{max-width:none;margin:0;padding:0}.beat{break-before:page;break-inside:avoid;margin:0;page-break-after:always}.beat-head{margin:0 0 3mm;gap:4mm}.beat-head .number{font-size:24pt}.beat-head h2{font-size:17pt}.beat-head small{font-size:8pt}.status{font-size:8pt}figure{width:205mm;margin:0 auto}.screen{width:205mm}.legend{font-size:8pt;margin:1mm 0 2mm;gap:4mm}.legend li{min-width:0}.details{font-size:8pt;columns:3;column-gap:5mm;padding-top:2mm;line-height:1.5}.details p{margin:0 0 1.5mm}.details strong{font-size:8pt}figcaption{font-size:7pt;padding:1mm 0}.appendix{break-before:page;border:0}.appendix h1{font-size:21pt}.appendix h2{font-size:16pt;break-after:avoid}.appendix h3{font-size:12pt;break-after:avoid}.appendix p{font-size:10pt;line-height:1.65;orphans:3;widows:3}.appendix table{font-size:8pt}.appendix tr{break-inside:avoid}.appendix th,.appendix td{padding:2mm}.footer{font-size:8pt}.print-only{display:block}}
+.tracker{padding-left:5.3%}.confirmation{position:absolute;left:34%;top:25%;width:45%;padding:2% 3%;border:15px solid transparent;border-image:url('../../assets/ui/v2/runtime/dialogue_frame.png') 35 fill stretch;color:#f4e6ce;font-family:GamePixel,monospace;font-size:1.35cqw;line-height:1.45}.confirmation h3{font-size:2cqw;font-weight:normal;margin:0 0 .8cqw}.confirmation p{margin:.6cqw 0}.confirmation div{display:flex;gap:1.5cqw;margin-top:1cqw}.confirmation span{flex:1;padding:.8cqw;text-align:center;background:url('../../assets/ui/v2/runtime/button_normal.png') center/100% 100% no-repeat}.confirmation+.hint{bottom:2%}@media print{.cover{padding:0;line-height:1.5}.cover h1{font-size:28pt;line-height:1.15;margin:4mm 0}.cover .lead{font-size:11pt}.cover p{font-size:10pt}.cover .scope{font-size:9pt}.cover .overview{margin:4mm 0}.cover .review-ref{max-width:155mm;margin:4mm 0}.cover .review-ref p{font-size:8pt}}</style></head><body>
+<nav class="toolbar"><span>反冲挽歌 · 完整流程审阅</span><button onclick="document.body.classList.toggle('notes-off')">显示／隐藏标注</button><button onclick="document.body.classList.toggle('ui-off')">显示／隐藏界面</button><button onclick="window.print()">打印／保存 PDF</button><a href="#spec">完整规则</a></nav>
+<header class="cover"><div class="eyebrow">反冲挽歌 · 流程设计审阅 · 2026 年 9 月 22 日</div><h1>猩红修道院<br>完整游玩流程</h1><p class="lead">从运输站抵达，到猩红修道院事件结束。前十五分钟把操作、目的和人物逐一接起来；后半章给路线选择、关系变化和战后回访留出空间。</p><p class="scope">12 幅生成伪游戏截图 · 首次体验目标 40–50 分钟 · 新增安排待审，未接入运行</p>
+<div class="overview"><span>抵达</span><i>→</i><span>学会换位</span><i>→</i><span>见到目标</span><i>→</i><span>合作与选路</span><i>→</i><span>确认追猎</span><i>→</i><span>战后回访</span></div>
+<p>白发莉芙、三枪与六槽、已确认的事件线继续保留。维拉死亡固定，支线改变通路、现场和人物回应；没有隐藏发车倒计时，也不提供虚假的饶命选项。</p>
+<div class="review-ref"><div><img src="references/actual-camera-5.2.png" alt="实机中距离人物与透视参考"><p>实机比例参考：距离 5.2，人物约占画高 17–18%。</p></div><div><img src="references/actual-camera-7.2.png" alt="实机远镜头人物比例参考"><p>实机远镜头参考：距离 7.2；人物不会为了交谈单独放大。</p></div></div>
+<p class="scope">示意要遵守实机镜头，实机施工要对照示意的分层、顶面、厚度和光影。生成图是场景目标，不是人物素材或已经通过验收的施工图。</p><div class="index"><a href="#beat-01">01 抵达运输站</a><a href="#beat-02">02 楼梯是一条路</a><a href="#beat-03">03 第一次交锋</a><a href="#beat-04">04 先问清楚去哪里</a><a href="#beat-05">05 看见她正在离开</a><a href="#beat-06">06 先合作一次</a><a href="#beat-07">07 两条路 走通一条即可</a><a href="#beat-08">08 支线当场改变场景</a><a href="#beat-09">09 确认前给一次停留</a><a href="#beat-10">10 熟悉的人挡住去路</a><a href="#beat-11">11 追上维拉</a><a href="#beat-12">12 回访才算结束</a></div></header>
+<main><section class="beat" id="beat-01">
+      <header class="beat-head"><span class="number">01</span><div><small>0–2 分钟 · mon_01</small><h2>抵达运输站</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/01.png" alt="图01 抵达运输站 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>沿门楼石阶进入外庭</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>06<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="dialogue">莉芙：维拉今晚要离开修道院。</div><div class="hint">A / D　移动</div></div><div class="annotations"><span class="mark" style="left:72%;top:37%" title="门楼灯光：下一步方向">1</span><span class="mark" style="left:58%;top:72%" title="连续道路：无需跳跃">2</span><span class="mark" style="left:21%;top:48%" title="来时的车：建立抵达感">3</span></div>
+      </div><figcaption>图 01　生成场景＋中文界面排布示意　非实机截图　·　mon_main_01</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 门楼灯光：下一步方向</li><li><b>2</b> 连续道路：无需跳跃</li><li><b>3</b> 来时的车：建立抵达感</li></ol><div class="details"><p><strong>玩家行动　</strong>向亮着灯的门楼走。先知道找谁，再学一个动作。</p><p><strong>开始条件　</strong>新游戏进入；继续游戏不重播。</p><p><strong>结束条件　</strong>走到石阶入口，保留当前主目标。</p><p><strong>场景回应　</strong>移动提示完成后收起；入口始终能从路面方向辨认。</p><p><strong>施工重点　</strong>车棚作后层，轮轴与车门独立；路面顶面保留透视，桥基接到画面下方。下一入口在右侧同屏可见。</p><p><strong>验证问题　</strong>不读日志也能说出目标人物与下一处地点。</p></div>
+    </section><section class="beat" id="beat-02">
+      <header class="beat-head"><span class="number">02</span><div><small>2–4 分钟 · mon_04 → mon_02</small><h2>楼梯是一条路</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/02.png" alt="图02 楼梯是一条路 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>沿门楼石阶进入外庭</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>06<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="hint">空格　跳跃（可选练习）</div></div><div class="annotations"><span class="mark" style="left:48%;top:48%" title="脚点沿台阶连续变化">1</span><span class="mark" style="left:78%;top:65%" title="低箱不封主路">2</span><span class="mark" style="left:34%;top:73%" title="梯身有支撑">3</span></div>
+      </div><figcaption>图 02　生成场景＋中文界面排布示意　非实机截图　·　mon_main_01</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 脚点沿台阶连续变化</li><li><b>2</b> 低箱不封主路</li><li><b>3</b> 梯身有支撑</li></ol><div class="details"><p><strong>玩家行动　</strong>沿石阶走下去。低箱与反冲试射侧台可选，主路不拦人。</p><p><strong>开始条件　</strong>第一次到门楼，敌人尚未进入警戒。</p><p><strong>结束条件　</strong>踏上装卸入口宽平台。</p><p><strong>场景回应　</strong>楼梯连接、脚点和落脚台都可见；已经跳过就不再重复提示。</p><p><strong>施工重点　</strong>独立石梯、坡面碰撞、完整梯身和后侧栏杆；新增试射侧台写入施工图，不从背景窗台临时拼路。</p><p><strong>验证问题　</strong>不跳、不射击也能从车站走到外庭。</p></div>
+    </section><section class="beat" id="beat-03">
+      <header class="beat-head"><span class="number">03</span><div><small>4–6 分钟 · mon_02</small><h2>第一次交锋</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/03.png" alt="图03 第一次交锋 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>穿过装卸入口，进入外庭</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>04<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="hint">左键　开火　　R　换弹</div></div><div class="annotations"><span class="mark" style="left:66%;top:50%" title="读预警，留撤步空间">1</span><span class="mark" style="left:40%;top:27%" title="上层旁路可绕背">2</span><span class="mark" style="left:53%;top:71%" title="宽落脚区允许失误">3</span></div>
+      </div><figcaption>图 03　生成场景＋中文界面排布示意　非实机截图　·　mon_main_01</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 读预警，留撤步空间</li><li><b>2</b> 上层旁路可绕背</li><li><b>3</b> 宽落脚区允许失误</li></ol><div class="details"><p><strong>玩家行动　</strong>观察盾击预警，开枪换位后绕背，或经楼梯避开。</p><p><strong>开始条件　</strong>接近一名盾卫的可观察警戒范围。</p><p><strong>结束条件　</strong>抵达外庭出口；击杀不是开门条件。</p><p><strong>场景回应　</strong>盾前命中与绕背命中有不同反馈；空弹附近才提示换弹。</p><p><strong>施工重点　</strong>上路必须与下路真正相通。预警不被前景和 HUD 覆盖；守卫无法追进会面区域。</p><p><strong>验证问题　</strong>正面打、绕背和避战三种路径都能继续，不以教学完成锁门。</p></div>
+    </section><section class="beat" id="beat-04">
+      <header class="beat-head"><span class="number">04</span><div><small>6–8 分钟 · mon_03</small><h2>先问清楚去哪里</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/04.png" alt="图04 先问清楚去哪里 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>到货梯间找维拉</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>06<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="dialogue">玛拉：她在货梯那边。要走的人了，东西倒是一件都不肯少带。</div><div class="hint">E　交谈</div></div><div class="annotations"><span class="mark" style="left:68%;top:59%" title="账本桌：NPC 正在做事">1</span><span class="mark" style="left:82%;top:34%" title="货梯：下一处可辨目标">2</span><span class="mark" style="left:44%;top:72%" title="安全交谈位置">3</span></div>
+      </div><figcaption>图 04　生成场景＋中文界面排布示意　非实机截图　·　mon_main_01 → 02</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 账本桌：NPC 正在做事</li><li><b>2</b> 货梯：下一处可辨目标</li><li><b>3</b> 安全交谈位置</li></ol><div class="details"><p><strong>玩家行动　</strong>与外庭的女人第一次交谈，得到具体目的地。</p><p><strong>开始条件　</strong>安全会面位置；不存在跨区射来的子弹。</p><p><strong>结束条件　</strong>met_mara 提交后更新目标。</p><p><strong>场景回应　</strong>货梯方向同时出现灯光和短暂地点标记；名字在介绍后使用。</p><p><strong>施工重点　</strong>账本桌与货物说明玛拉在做什么。对话采用普通游戏镜头，不能换成双人大立绘。</p><p><strong>验证问题　</strong>跳过所有对白后，仍知道去货梯找维拉。</p></div>
+    </section><section class="beat" id="beat-05">
+      <header class="beat-head"><span class="number">05</span><div><small>8–11 分钟 · mon_07</small><h2>看见她正在离开</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/05.png" alt="图05 看见她正在离开 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>寻找通往内庭的路</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>06<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="dialogue">莉芙：我不是来取货的。我来找你。</div><div class="hint">E　交谈</div></div><div class="annotations"><span class="mark" style="left:47%;top:40%" title="货梯井：实体阻挡">1</span><span class="mark" style="left:83%;top:58%" title="维拉继续搬货">2</span><span class="mark" style="left:71%;top:72%" title="两侧路面属于不同通路">3</span></div>
+      </div><figcaption>图 05　生成场景＋中文界面排布示意　非实机截图　·　mon_main_02 → 03</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 货梯井：实体阻挡</li><li><b>2</b> 维拉继续搬货</li><li><b>3</b> 两侧路面属于不同通路</li></ol><div class="details"><p><strong>玩家行动　</strong>隔着停用货梯与维拉交谈，看她装箱、离开。</p><p><strong>开始条件　</strong>met_mara 已成立；提前到场保留探索但不补造会面事实。</p><p><strong>结束条件　</strong>met_vira；维拉沿看得见的内侧门廊移动。</p><p><strong>场景回应　</strong>目标从找人变为找路，门廊是明确去向。</p><p><strong>施工重点　</strong>货梯井有封顶与完整门扇，防止用矮栏杆假装封路。图中门梁必须对应实物与碰撞。</p><p><strong>验证问题　</strong>玩家能看懂当前隔断，NPC 不因对话结束突然消失。</p></div>
+    </section><section class="beat" id="beat-06">
+      <header class="beat-head"><span class="number">06</span><div><small>11–15 分钟 · mon_06 / mon_08</small><h2>先合作一次</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/06.png" alt="图06 先合作一次 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>与赛琳穿过中庭</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_shotgun.png" alt="当前武器"><span>01<small> / 2</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="dialogue">赛琳：你管楼梯。我看着上面。</div><div class="hint">Q　切枪　　按住 Q　查看枪槽</div></div><div class="annotations"><span class="mark" style="left:61%;top:31%" title="赛琳实际守住楼梯">1</span><span class="mark" style="left:87%;top:28%" title="上层威胁看得见">2</span><span class="mark" style="left:45%;top:75%" title="低路仍可通过">3</span></div>
+      </div><figcaption>图 06　生成场景＋中文界面排布示意　非实机截图　·　mon_main_03</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 赛琳实际守住楼梯</li><li><b>2</b> 上层威胁看得见</li><li><b>3</b> 低路仍可通过</li></ol><div class="details"><p><strong>玩家行动　</strong>走低处掩体或上楼绕后，与赛琳形成一次实际配合。</p><p><strong>开始条件　</strong>赛琳已说明受雇维持交接；第一次认识。</p><p><strong>结束条件　</strong>合作或目击守梯行动后，玩家抵达分路处。</p><p><strong>场景回应　</strong>她确实拦住一侧威胁；不新增护送血条和等 NPC 到位的门锁。</p><p><strong>施工重点　</strong>两层行动空间同屏，最多两个敌人分批警戒。角色同平面保持共同像素尺度。</p><p><strong>验证问题　</strong>避战玩家也能看到赛琳的职责与行为，后段阻拦有来由。</p></div>
+    </section><section class="beat" id="beat-07">
+      <header class="beat-head"><span class="number">07</span><div><small>15–23 分钟 · mon_07 / 08 / 11 / 12 / 13</small><h2>两条路 走通一条即可</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/07.png" alt="图07 两条路 走通一条即可 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>开通一条通往内庭的路</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_shotgun.png" alt="当前武器"><span>02<small> / 2</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="hint">M　查看附近路线</div></div><div class="annotations"><span class="mark" style="left:24%;top:35%" title="上路：维修后的近路">1</span><span class="mark" style="left:72%;top:66%" title="下路：独立维护通路">2</span><span class="mark" style="left:48%;top:45%" title="门与控制器各有状态">3</span></div>
+      </div><figcaption>图 07　生成场景＋中文界面排布示意　非实机截图　·　mon_main_03</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 上路：维修后的近路</li><li><b>2</b> 下路：独立维护通路</li><li><b>3</b> 门与控制器各有状态</li></ol><div class="details"><p><strong>玩家行动　</strong>选货梯维修近路，或经停机维护道步行绕行；不要求清完两翼。</p><p><strong>开始条件　</strong>知道维拉去向，地图只显示已探索范围与已见入口。</p><p><strong>结束条件　</strong>任一路抵达 mon_14，置 inner_reached。</p><p><strong>场景回应　</strong>只追踪玩家选定的一条路线，另一条留作探索。</p><p><strong>施工重点　</strong>当前主路直走需重构。维修使用不等于工具归属；维护主路不用工具箱。图只示意分叉，不是建筑拓扑的权威。</p><p><strong>验证问题　</strong>两路互不依赖；零弹药和提前探索都不软锁。</p></div>
+    </section><section class="beat" id="beat-08">
+      <header class="beat-head"><span class="number">08</span><div><small>23–28 分钟，可提前或略过 · mon_07 / mon_14；支线侧门位置待施工配准</small><h2>支线当场改变场景</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/08.png" alt="图08 支线当场改变场景 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>工具交还伊娜；维护侧门已开放</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>06<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="dialogue">伊娜：箱子给我。旁边这扇门，我来修。</div><div class="hint">E　交还工具箱</div></div><div class="annotations"><span class="mark" style="left:43%;top:55%" title="物件交接要有动作">1</span><span class="mark" style="left:65%;top:49%" title="打开的门能回到已知地点">2</span><span class="mark" style="left:77%;top:24%" title="窗 玻璃 框分层">3</span></div>
+      </div><figcaption>图 08　生成场景＋中文界面排布示意　非实机截图　·　mon_side_tools</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 物件交接要有动作</li><li><b>2</b> 打开的门能回到已知地点</li><li><b>3</b> 窗 玻璃 框分层</li></ol><div class="details"><p><strong>玩家行动　</strong>完成一次交付，看见人物接物与旁门打开，然后继续自己的路。</p><p><strong>开始条件　</strong>已取得工具箱且未交付；这里演示伊娜结果，玛拉结果另走仓库门。</p><p><strong>结束条件　</strong>tools_ina，工具归属固定，不重复交付。</p><p><strong>场景回应　</strong>门开启、地图新增捷径、人物回应；其他支线不一起弹窗。</p><p><strong>施工重点　</strong>图片花棚场景用于侧门氛围，伊娜站位必须在施工时匹配真实往返路径。不可把花棚新增为传送关卡。</p><p><strong>验证问题　</strong>先取工具后接触人物可补交；侧门不是 mon_12 主线必经锁。</p></div>
+    </section><section class="beat" id="beat-09">
+      <header class="beat-head"><span class="number">09</span><div><small>28–32 分钟 · mon_14 → mon_15</small><h2>确认前给一次停留</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/09.png" alt="图09 确认前给一次停留 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>准备好后，操作发车机关</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>06<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="confirmation"><h3>继续追猎？</h3><p>继续后，尚未完成的物品交接将结束。<br>已读记录和已开通路会保留。</p><p>工具箱尚未交还。<br>维修记录尚未交给任何人。</p><div><span>再等等</span><span>继续追猎</span></div></div><div class="hint">E　操作发车机关</div></div><div class="annotations"><span class="mark" style="left:27%;top:53%" title="机关前是安全区">1</span><span class="mark" style="left:91%;top:37%" title="车与目标仍能看见">2</span><span class="mark" style="left:8%;top:58%" title="再等等：原路可返回">3</span></div>
+      </div><figcaption>图 09　生成场景＋中文界面排布示意　非实机截图　·　mon_main_04</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 机关前是安全区</li><li><b>2</b> 车与目标仍能看见</li><li><b>3</b> 再等等：原路可返回</li></ol><div class="details"><p><strong>玩家行动　</strong>看未交付事项，决定继续追猎或返回，不受隐藏倒计时催促。</p><p><strong>开始条件　</strong>已到内庭，当前没有敌人攻击确认位置。</p><p><strong>结束条件　</strong>只有确认“继续追猎”才提交 departed。</p><p><strong>场景回应　</strong>明确列出将冻结的事项；成功保存后才推进机关。</p><p><strong>施工重点　</strong>机关有安全站位，返回口始终可见。正文与装饰分开，两个按钮不能重叠。</p><p><strong>验证问题　</strong>进入范围、跳过对白或误按一次 E 都不能直接确认发车。</p></div>
+    </section><section class="beat" id="beat-10">
+      <header class="beat-head"><span class="number">10</span><div><small>32–36 分钟 · mon_15</small><h2>熟悉的人挡住去路</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/10.png" alt="图10 熟悉的人挡住去路 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>突破赛琳的封锁</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>04<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="dialogue">赛琳：到这里了。再往前，我得拦你。</div><div class="hint">V　爪击　　利用楼梯换侧</div></div><div class="annotations"><span class="mark" style="left:69%;top:45%" title="先警告，再进入攻击">1</span><span class="mark" style="left:28%;top:39%" title="旧路线变成绕后空间">2</span><span class="mark" style="left:79%;top:63%" title="战后通往维拉">3</span></div>
+      </div><figcaption>图 10　生成场景＋中文界面排布示意　非实机截图　·　mon_main_05</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 先警告，再进入攻击</li><li><b>2</b> 旧路线变成绕后空间</li><li><b>3</b> 战后通往维拉</li></ol><div class="details"><p><strong>玩家行动　</strong>绕开赛琳的预警攻击，利用早先合作时认得的高差突破。</p><p><strong>开始条件　</strong>departed；她先警告再攻击，职责此前已经交代。</p><p><strong>结束条件　</strong>celine_defeated；非致命，记录新检查点。</p><p><strong>场景回应　</strong>她失去战斗能力但存活；任务立即指向维拉。</p><p><strong>施工重点　</strong>战场保留上下绕行路线、落脚台与掩体，不能只用一扇门强迫正面输出。</p><p><strong>验证问题　</strong>重试不重复发车确认；击败赛琳后打首领失败不重打她。</p></div>
+    </section><section class="beat" id="beat-11">
+      <header class="beat-head"><span class="number">11</span><div><small>36–42 分钟 · mon_16</small><h2>追上维拉</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/11.png" alt="图11 追上维拉 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>追上正在离开的维拉</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>04<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="hint">利用货物换位，留出换弹落点</div></div><div class="annotations"><span class="mark" style="left:79%;top:49%" title="车门是她明确的去向">1</span><span class="mark" style="left:49%;top:69%" title="货箱改变可用射线">2</span><span class="mark" style="left:29%;top:75%" title="下层是恢复位置">3</span></div>
+      </div><figcaption>图 11　生成场景＋中文界面排布示意　非实机截图　·　mon_main_06</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 车门是她明确的去向</li><li><b>2</b> 货箱改变可用射线</li><li><b>3</b> 下层是恢复位置</li></ol><div class="details"><p><strong>玩家行动　</strong>在货台和车门之间追击；已预览的行李摆放改变掩体，不改变固定结局。</p><p><strong>开始条件　</strong>celine_defeated；可跳过已看过的首领开场。</p><p><strong>结束条件　</strong>vira_dead，随后允许调查现场。</p><p><strong>场景回应　</strong>先留短暂安静操作，再提示回外庭，不立刻用结算遮住现场。</p><p><strong>施工重点　</strong>车门、上下货台、掩体与落脚区都可读；NPC 尺度不因首领身份放大。</p><p><strong>验证问题　</strong>死亡只重试这场；最后动作不被旁白解释为客观本性。</p></div>
+    </section><section class="beat" id="beat-12">
+      <header class="beat-head"><span class="number">12</span><div><small>42–48 分钟 · mon_16 → mon_03</small><h2>回访才算结束</h2></div><span class="status">设计提案</span></header>
+      <figure><div class="screen">
+        <img class="scene" src="images/12.png" alt="图12 回访才算结束 生成流程示意">
+        <div class="screen-ui"><div class="tracker"><small>当前目标</small><span>回外庭找玛拉</span></div>
+        <div class="hud"><div class="life"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"><img src="../../assets/ui/v2/runtime/health_full.png" alt="生命"></div><div class="ammo"><img src="../../assets/ui/v2/runtime/gun_revolver.png" alt="当前武器"><span>06<small> / 6</small></span></div><div class="slots">1 左轮　2 霰弹枪　3 冲锋枪　4— 5— 6—</div></div>
+        <div class="hint">E　交谈　　J　查看人物记录</div></div><div class="annotations"><span class="mark" style="left:69%;top:58%" title="同一张桌，不同处境">1</span><span class="mark" style="left:85%;top:38%" title="此前的门现在可通行">2</span><span class="mark" style="left:15%;top:67%" title="回程不重新清场">3</span></div>
+      </div><figcaption>图 12　生成场景＋中文界面排布示意　非实机截图　·　mon_main_07</figcaption></figure>
+      <ol class="legend"><li><b>1</b> 同一张桌，不同处境</li><li><b>2</b> 此前的门现在可通行</li><li><b>3</b> 回程不重新清场</li></ol><div class="details"><p><strong>玩家行动　</strong>走已开货道回外庭，看到箱子、门与人物处境改变。</p><p><strong>开始条件　</strong>vira_dead；回程不要求重新清场。</p><p><strong>结束条件　</strong>returned；本章完成，可继续探索修道院。</p><p><strong>场景回应　</strong>展示已开路线与人物去向，不评价善恶，不宣称下一城区已开放。</p><p><strong>施工重点　</strong>复用外庭的可辨构图，改变有限且有因果的物件。伤后的赛琳存活，不换成墓碑。</p><p><strong>验证问题　</strong>1–2 分钟左右能回到外庭；退出重进不丢失固定结果。</p></div>
+    </section></main><article class="appendix" id="spec"><h1>反冲挽歌 猩红修道院完整游玩流程</h1>
+<p>2026-09-22 · 待审设计 · 首章从启动到回访收尾</p>
+<p>这版流程让玩家先完成一件看得见的小事，再接触下一件事：从车站走进门楼，学会在交锋中换位置，向外庭的人打听维拉，亲眼看到她准备离开，随后寻找进内庭的路。任务提示只保留当前动作，人物关系通过合作、交易和阻拦逐步出现。</p>
+<p>故事继续采用已确认版本：莉芙主动猎杀同族，对漫长生命如何结束抱有危险的好奇。维拉不是等待玩家揭穿的幕后恶人。赛琳先合作，后因履行受雇职责挡路；她战败存活。维拉死亡固定，支线改变人物关系、通路、证据和现场配置。回访让玩家看到后果，不作善恶评分。</p>
+<h2>一 本轮交付和实际边界</h2>
+<p>本轮交付流程设计与 12 张生成示意，不修改游戏逻辑、存档或 EXE。实际起点是 main 分支 2f6330d；现有主关卡是 image_monastery.tscn，16384 逻辑像素、16 个稳定空间，具备主线状态、交互、地图、存档、三枪、六槽和 V 爪击。功能存在不等于教学与章节节奏已经成立。</p>
+<p>现行 mon.main03.hint 仍是“沿中央庭院的主路继续向右，进入内庭”。本稿的货梯维修与维护道二选一、逐步教学、会合演出和分阶段遭遇是新增提案，不能描述成现有行为。旧版空间结构只供核对 ID；施工须以 levels/image-led/ 的当前图纸、真实道路和最新本稿共同核对。</p>
+<p>暂不扩写其他城区，也不靠新增武器、技能树或长篇序章解决当前开场。主菜单保留白发莉芙和已制作的选项动作，玩法人物不换形象。全部敌人与 NPC 延续成年、露脸女性角色标准；生成图中的临时服装不是新的角色定稿。</p>
+<h2>二 完整体验和时间预算</h2>
+<p>推荐“短抵达—第一场交锋—外庭会面—看见目标—合作开路—自行探索—明确承诺—两场不同性质的决战—回访”。直接把玩家投入混战会继续丢失目的；长动画加操作教学房又会拖延真正游戏。因此采用可操作的短抵达，把说明放进真实道路与人物行动中。</p>
+<p>首次正常游玩目标约 40–50 分钟；熟悉操作、略过支线约 25–35 分钟；细查三条支线约 50–65 分钟。以下时间是设计预算，不是实测值，不设置最低停留时间。玩家已完成动作就提前收起教学，高手可快速通过。</p>
+<table><thead><tr><th>阶段</th><th>首次体验预算</th><th>玩家眼下要做什么</th><th>进入下一段的依据</th></tr></thead><tbody>
+<tr><td>启动与抵达</td><td>0–2 分钟</td><td>从运输站找到入院石阶</td><td>走到门楼入口</td></tr>
+<tr><td>走路与第一场交锋</td><td>2–6 分钟</td><td>下石阶，穿过守卫警戒处</td><td>抵达外庭，不要求击杀</td></tr>
+<tr><td>第一次会面</td><td>6–8 分钟</td><td>问维拉在哪里</td><td>met_mara</td></tr>
+<tr><td>亲眼见到目标</td><td>8–11 分钟</td><td>去货梯，和维拉说话</td><td>met_vira</td></tr>
+<tr><td>一次具体合作</td><td>11–15 分钟</td><td>与赛琳分守楼梯并穿过中庭</td><td>合作事件已发生或已观察，路径可达</td></tr>
+<tr><td>自行选路与支线</td><td>15–28 分钟</td><td>开通一条内庭路线；按兴趣处理工具、记录、行李</td><td>inner_reached；支线不全做也能推进</td></tr>
+<tr><td>最后整备</td><td>28–32 分钟</td><td>看懂未办事项，自行确认追猎</td><td>departed，仅明确确认后提交</td></tr>
+<tr><td>赛琳阻拦</td><td>32–36 分钟</td><td>突破熟悉人物的封锁</td><td>celine_defeated，非致命</td></tr>
+<tr><td>维拉战</td><td>36–42 分钟</td><td>追上并击败维拉</td><td>vira_dead</td></tr>
+<tr><td>回访与章节结束</td><td>42–48 分钟</td><td>回外庭看人、看路、交代结果</td><td>returned；显示本章完成</td></tr>
+</tbody></table>
+<p>主线节奏不按表强制计时。连续高压战斗目标不超过约 3 分钟，之后要有安全落脚点和能看清下一步的短空档。若实测明显过短，补充有用途的路线或人物行动；不加跑腿距离、敌人血量或重复门锁凑时间。</p>
+<h2>三 启动到十五分钟</h2>
+<h3>启动与继续游戏</h3>
+<p>无存档时主操作是“开始游戏”；有存档时是“继续游戏”，旁边说明上次地点和当前目标。“从头开始”只出现在有存档时，明确提示覆盖；设置和操作说明不塞进首屏正文。进入后短暂淡入，尽快交还移动。角色对白可跳过，接下来要做的事保留在追踪器与日志中。</p>
+<p>继续游戏回到有效检查点，先显示地点与当前目标，不重播已看开场、不重新交付物品。第一次开地图或日志不是新游戏的强制步骤。退出游戏保留已提交状态；暂停和设定沿用现有输入规则。</p>
+<h3>0–2 分钟 先告诉玩家为什么来</h3>
+<p>莉芙站在运输站的安全路面。视野里同时有来时的车、向右延续的路和亮着灯的门楼。第一句只说“维拉今晚要离开修道院。”隔几秒接一句短的主角判断；不要把动机、操作表和任务详情挤在同一框里。追踪器只显示“沿门楼石阶进入外庭”。</p>
+<p>先出现 A／D 移动提示；玩家移动后收起。若在起点停留约 12 秒，灯光和入口小标记再提示一次，不重复朗读，也不弹出整页帮助。三枪从开场即可用，只是先不讲全部快捷键。</p>
+<h3>2–4 分钟 让道路教会走路</h3>
+<p>门楼石阶可用 A／D 连续走完，梯身有可见支撑，路口能看见落脚地面。低箱放在主路旁供自愿试跳，不以弹药、反冲或精确跳跃作为入院条件。玩家接近低箱才提示空格；已跳过则不再显示。</p>
+<p>安全侧台上提供一次可选反冲试射：向左开枪会把人推向右边的宽台面。未开枪也能继续，避免绕过战斗的玩家被系统判作教学未完成。这里不放致死坑，不让世界背景误看成路。</p>
+<h3>4–6 分钟 一名敌人说明战斗规则</h3>
+<p>一名盾卫守住装卸入口，先举盾示警，再在警戒范围内行动。玩家可以正面试射、走上层楼梯绕背，也可以从旁路离开；外庭门不绑定“清空敌人”。背面命中的闪光、击退与伤害反馈明确区别于正面，避免长篇解释倍率。</p>
+<p>开火提示出现后才介绍 R；弹匣接近空时提示换弹，圆环读真实进度。首次敌人近身且玩家仍未使用 V 时提示爪击，可不使用。爪击是脱开近身压力的短扑，不变成长距离通行钥匙。脱离这一场后，敌人不追进会面位置；以门楼转折、实体隔墙和警戒范围隔开，不能有看不见的挡子弹墙。</p>
+<h3>6–11 分钟 接连两个会面各回答一个问题</h3>
+<p>外庭玛拉只回答“维拉在哪里”，第一次交谈保持短，账本、货物与后面的货梯让她的工作可见。未介绍前不在头顶直接显示全名。交谈结束后，货梯灯光、现场出口和追踪目标一起改变；玩家不用打开日志猜路。</p>
+<p>在货梯两侧见到维拉，莉芙说明自己是猎人。维拉先把箱子放上车，接着走进可见的内侧门廊。她的离开必须有连续动作与实体路径，不能对话一结束就消失。货梯当前不能直接通过的原因在画面中能看见；高机动路线必须用有顶的货梯井、完整门框或实际封闭建筑约束，不能仅靠矮栏杆挡反冲飞越。</p>
+<p>这里不追加长篇身世。货箱、搬运和临时停用的设备，让玩家自己发现这个地方还在运转，而不是一串等着清空的战斗房。</p>
+<h3>11–15 分钟 让赛琳先成为一次有用的合作</h3>
+<p>赛琳说明自己受雇维持交接，并提出分守上下入口。玩家能亲眼看到她拦住侧面的威胁，同时选择走低处掩体或绕到高处。她不替玩家清完整场，也不设置护送血条；玩家不必等她走到指定点才继续。</p>
+<p>合作段采用两个敌人，先后进入警戒，避免把镜头、切枪与协作同时变成考试。首次主动切枪后，只提示当前枪适合的情境：霰弹枪近身换位、SMG 空中缓降；不要求把三把枪轮流用一遍。Q 长按查看、短按切换，按 1–3 直切保持现状。</p>
+<p>玩家若完全绕开交锋，赛琳仍会留下可见的守梯动作和一句受雇说明，后面挡路才不是突然变脸。她只谈自己看到的事，不能提前知道玩家如何处理工具、记录或行李。</p>
+<h2>四 十六空间怎样承担流程</h2>
+<p>空间 ID 沿用运行资源，不用新名字覆盖现有键。下表是功能分工提案；每条新增连接须在施工图核对，不能因示意图画了门就直接认定可通行。</p>
+<table><thead><tr><th>空间</th><th>主要用途</th><th>必须可见的内容</th></tr></thead><tbody>
+<tr><td>mon_01 运输站</td><td>安全抵达、回访落点</td><td>车、连续路面、门楼方向</td></tr>
+<tr><td>mon_02 装卸入口</td><td>首次交锋与旁路</td><td>盾卫警戒、上路入口、外庭出口</td></tr>
+<tr><td>mon_03 外庭</td><td>玛拉会面、章节回访</td><td>账本桌、安全站位、已改变的货物</td></tr>
+<tr><td>mon_04 西侧廊</td><td>步行教学与观察</td><td>有支撑的石阶、宽落脚台</td></tr>
+<tr><td>mon_05 装卸间</td><td>货物掩体、货梯前准备</td><td>可绕行货箱、上下射线</td></tr>
+<tr><td>mon_06 上层走廊</td><td>合作段侧路</td><td>赛琳守梯位置、低路可见</td></tr>
+<tr><td>mon_07 货梯间</td><td>见维拉、工具现场</td><td>停机原因、对面装货、维修控制台</td></tr>
+<tr><td>mon_08 中央庭院</td><td>合作与路线分叉</td><td>钟楼地标、两条出口、已走回路</td></tr>
+<tr><td>mon_09 钟台</td><td>上路观察与反冲捷径</td><td>可步行主梯、上层有稳定落点</td></tr>
+<tr><td>mon_10 地下货道</td><td>失足回收与返程</td><td>通向已知区域的台阶，不做死亡坑</td></tr>
+<tr><td>mon_11 泵房</td><td>维护路线的设备现场</td><td>停稳设备、鲁卡说明的安全过路点</td></tr>
+<tr><td>mon_12 维护道</td><td>无工具也可走的较长主路</td><td>阀门隔离、完整楼梯、出口汇合标志</td></tr>
+<tr><td>mon_13 档案走廊</td><td>可选维修记录</td><td>阅读安全点、明确回主路出口</td></tr>
+<tr><td>mon_14 内庭</td><td>行李支线、决战前整备</td><td>可预览掩体位置、返回入口</td></tr>
+<tr><td>mon_15 装车礼堂</td><td>明确确认、赛琳战</td><td>发车机关、交接清单、可绕背场地</td></tr>
+<tr><td>mon_16 后门</td><td>维拉战、战后回环</td><td>车门、分层货台、回外庭捷径</td></tr>
+</tbody></table>
+<h3>两条内庭路线与工具箱的关系</h3>
+<p>这里需要修正旧稿中“工具箱既开主路又开支线”的歧义。提案将<strong>现场维修使用</strong>和<strong>最终归属交付</strong>分开。接到维修说明后，在 mon_07 用工具处理货梯卡榫，不消耗工具箱，也不默认替玩家选归属；维修成功打开 mon_07→mon_08 的货运近路。维拉所在的上层货梯井仍有建筑隔断，维修不会直接跳过后续事件。</p>
+<p>另一条主路是 mon_08→mon_11→mon_12→mon_14：鲁卡告知停机检修时能走的维护道。玩家操作安全隔离杆，经过两段有落脚台的楼梯即可通过；不要求工具箱、不要求记录、不要求反冲。维修路线经 mon_08→mon_09→mon_13→mon_14 上行，和维护道在内庭汇合。两路都要有不耗弹药的走法。</p>
+<p>工具最终交给伊娜，打开她负责的支线维护侧门，接回已探索庭院；留在玛拉交接处，打开仓库侧门，给货物掩体后的捷径。<strong>这两个支线门均不是上述 mon_12 主线入口。</strong> 文本、门 ID 与地图图例必须如此区分。现有事实 tools_ina／tools_mara 保持互斥；现场维修新增的状态使用新键，不能复用交付结果。</p>
+<p>新玩家只追踪一条已选路线，另一条显示为可探索入口。改走另一条时，追踪器跟随玩家明确选择，不每走过边界就闪烁更换目标。提前抵达内庭保留探索，人物会面未完成时指向最近缺失的会面，并提供回路，不能把角色锁死在已打开门的另一侧。</p>
+<h2>五 三条支线都要能看见用途</h2>
+<table><thead><tr><th>支线</th><th>接触时知道什么</th><th>当场变化</th><th>回访变化</th></tr></thead><tbody>
+<tr><td>mon_side_tools 工具</td><td>物主想取回，交接方要求留下</td><td>伊娜接箱后修侧门；或交接桌收箱、仓库门打开</td><td>伊娜的工作去向与玛拉的合作态度分别回应实际交付</td></tr>
+<tr><td>mon_side_records 记录</td><td>谁写的维修办法，谁希望拿去谈条件</td><td>接收者当面说明用途，日志记录给了谁；不立刻宣布谈判成功</td><td>鲁卡或玛拉说明谈判中实际发生的事</td></tr>
+<tr><td>mon_side_luggage 行李</td><td>维拉提出搬箱请求后才出现处置选项</td><td>移动前预览两处放置点；移动后掩体与射线确实改变</td><td>留下的箱子与可读物品依结果位于不同位置</td></tr>
+</tbody></table>
+<p>阅读不等于交付。提前找到工具和记录都保留事实，见到相关人物后允许补交；不强迫重新取一次。不把选项标成善良／冷酷，也不因选了某条路线就偷偷决定道具归属。三条支线可交换顺序；只要求玩家理解影响，不要求全部完成。</p>
+<h2>六 从整备到章节收尾</h2>
+<h3>发车确认</h3>
+<p>到达装车礼堂先进入安全站位。追踪器提示“准备好后，操作发车机关”，旁边允许回去；不自动播放阻断操作的剧情。确认面板写明这会推进追猎，并列出具体未交付事项，如“工具箱尚未交还”“维修记录尚未交给任何人”。已看过的线索不会丢失。按钮为“继续追猎”和“再等等”，继续按钮不能和跳过对白共用同一次输入。</p>
+<p>只有确认才提交 departed，并冻结尚未提交的交接；进入礼堂、击杀敌人、打开菜单或跳过对白均不触发。保存成功再推进机关与战斗，失败时留在原状态提示重试，不能表现成已经提交。这里不做隐藏倒计时，也不提供并未实现的“放过维拉”结局选项。</p>
+<h3>赛琳阻拦</h3>
+<p>赛琳提前说明受雇职责，先警告再阻拦；玩家认得她守过的那段楼梯。把早期合作场地的上下路线改成双方争位置的空间，而不是另造圆形竞技场。她有清楚的预警、攻击、收招，玩家可以用反冲越过射线或用侧路绕背。战败后存活并退出攻击，立即记检查点；维拉战失败不重打她。</p>
+<h3>维拉战</h3>
+<p>目标仍是追上试图离开的维拉。战斗区域以货台、箱子、车门和通行桥组成，两条进场路线回到同一片可读场地。先看见车门和稳定落点再开战，远处射手不跨场偷袭。战斗最多三段行为变化，不临时增加无敌护盾或剧情专用重力。行李处置只改变已预览的掩体位置，不改变固定死亡结局。</p>
+<p>维拉的最后动作可指向车门或箱子，角色与旁白都不宣布这证明了她的“真正本性”。胜利后先给几秒安静的可操作时间，随后任务变成“回外庭找玛拉”。不立即用结算面板盖住现场。</p>
+<h3>回访与结束</h3>
+<p>打开已能辨认的回程货道，让回外庭控制在约 1–2 分钟内，不强迫从头重清敌人。至少有两处变化能在路过时直接看到：一扇此前不能走的门、货物的新位置；可选再与受影响人物交谈。玛拉交代交接后的处境，伊娜、鲁卡和赛琳只回应各自经历。</p>
+<p>回访玛拉后展示本章完成：列出已调查记录、已开通路线和人物去向，不评分善恶、不播尚未制作的下一城。按钮提供“继续探索修道院”和“返回标题”。后门文字可以提到旧运输线，必须注明后续区域当前未开放。</p>
+<h2>七 信息顺序和界面约束</h2>
+<p>右上只保留一个主目标与玩家自选的一条支线；字幕、操作提示、任务完成通知不同时叠在这块区域。字幕在下中部，左下 HUD 保持生命、当前枪和大号弹量，近身交互提示放在人物或物件附近，不能与字幕抢位置。重要对白开始时先收起非必要教学；结束后只恢复尚未完成的一条。</p>
+<p>操作提示按实际行动消失，不只按时间消失。玩家反复失败后提示一个相关动作，例如“躲进货箱后换弹”；不滚动展示所有按键。已熟练做过的动作不重复弹。按键文字来自当前绑定，玩家看到的设定与提示原则上全部中文。</p>
+<p>第一次遇到真正分路时提示 M 查看地图，默认展示附近已探索建筑、入口和当前目标方向。未探索内部遮住，不提前画出捷径。地图连接必须由真实道路生成，建筑图只负责外观；同层门、楼梯和跨层电梯用不同图标，图例一直可见。不加常驻角落小地图。</p>
+<p>框的正文区独立于花纹，文字安全区至少留出约一行字的内边距；长字自动换行并增高，不拉长整块花纹，也不缩字到不可读。按钮使用单一状态底图，悬停不再叠一个完整按钮。中文保持轻微像素效果，显示分辨率与世界分开。文档中的中文覆盖层只示意信息分配，不作为最终 UI 资源。</p>
+<h2>八 人物比例和伪三维施工契约</h2>
+<p>用户最新要求优先：最终游戏要达到示意图的场景效果，示意图本身也必须遵守实机比例。参考不是平面背景海报；道路和角色的距离、近远遮挡及透视要在生成图上读得出来。</p>
+<p>现有 CrimsonStage3D：CAMERA_FOV=23°，CAMERA_RISE=1.18；左轮距离 4.8–7.2，霰弹枪 3.8–5.2，SMG 4.4–6.3。校准参考为 capture_image_architecture 使用的距离 5.2，画面 640×360，人物可见身高约 62–66 像素，即画高约 17–18%。近镜头角色会更大，最远镜头约 12–13%；这不是让生成图随意改变人物比例的借口。同一距离与同一站位必须一致。</p>
+<p>生成示意默认使用中距离视角；交谈不放大人物，NPC 与主角在同一深度时保持一致身高量级。人物以已有像素纸片呈现，生成图里不合格的人体或衣服不提取回运行。图中位置、动作和局部构图用于说明流程，实际尺寸仍用房间数据及运动测量校核。</p>
+<p>每个采用画面施工时保存相同位置、武器、瞄准方向、镜头距离和窗口比例。先叠放对照主角脚点、道路边缘、门洞和墙线，再比纹理与灯光。出现比例偏差优先修构图与机位，不缩放玩法角色去迎合图。过远的全景只能作为总图，不能冒充普通游玩视野。</p>
+<table><thead><tr><th>层次</th><th>必须呈现的空间关系</th><th>施工方式</th></tr></thead><tbody>
+<tr><td>天空 月亮 远城</td><td>彼此分离，横移时速率不同</td><td>独立二维远景层，覆盖极限镜头</td></tr>
+<tr><td>建筑墙面</td><td>贴图承担主要造型，但露侧面仍可信</td><td>有端面的薄体积墙或纸板结构，持续地基</td></tr>
+<tr><td>窗玻璃 窗框</td><td>玻璃后退，窗框投影与墙面区分</td><td>至少三个 Z 层，避免同面闪烁</td></tr>
+<tr><td>道路 楼梯 货台</td><td>看见顶面、厚度和支撑；灯光照亮顶面</td><td>真实三维结构，碰撞与二维道路一致</td></tr>
+<tr><td>人物和交互物</td><td>脚点接地，角色为平面，受击与动作可读</td><td>现有像素角色、分层手臂与小范围接触阴影</td></tr>
+<tr><td>近景剪影</td><td>比场景移动更明显，始终接出画底</td><td>世界定位二维近景，校验最远镜头与跳跃</td></tr>
+</tbody></table>
+<p>先完成图 01–03 的一个连续切片，再推广：步行上下楼、跳跃、三枪最近最远镜头都要连续录制。不能用截图时藏掉遮挡物、临时移动前景或锁定缩放通过验收。普通道路底下不能镂空；真实桥洞、货梯井则需有结构理由和可见边界。示意图里若误生出门或台阶，先改图或注明删除，不能偷偷新增路线。</p>
+<h2>九 失败和重新进入</h2>
+<table><thead><tr><th>情况</th><th>保留</th><th>恢复或重建</th><th>提示</th></tr></thead><tbody>
+<tr><td>第一场交锋死亡</td><td>已完成操作教学、已读目标</td><td>回到警戒前落脚点，恢复该场敌人</td><td>一条与死因相关的操作提示</td></tr>
+<tr><td>探索死亡</td><td>已读记录、已交付结果、永久捷径</td><td>最近检查点与未完成遭遇</td><td>当前选定路线仍显示</td></tr>
+<tr><td>赛琳战死亡</td><td>departed 与之前所有永久事实</td><td>确认后的整备点，不重新提交交接</td><td>可直接重试，不重复长对白</td></tr>
+<tr><td>维拉战死亡</td><td>celine_defeated、支线与发车状态</td><td>首领前检查点，只重建首领战</td><td>已听开场可跳过</td></tr>
+<tr><td>维拉死后死亡或退出</td><td>vira_dead 与现场调查</td><td>安全回程点，不复活维拉</td><td>回外庭找玛拉</td></tr>
+<tr><td>继续旧存档</td><td>原有正式事实与版本迁移结果</td><td>缺失教学默认允许跳过，不倒退主线</td><td>地点、当前目标、操作说明入口</td></tr>
+</tbody></table>
+<p>恢复点需给出足够落脚面积，敌人不能在载入帧直接命中玩家。生命和弹量按当前检查点规则恢复；本稿不发明退出重进刷弹的奖励。一次性对白、交付与捷径不能重复提交。凡有进度写入，状态与存档成功后才切换画面反馈。</p>
+<h2>十 实施次序与验收</h2>
+<p>1. 先施工图 01–03：安全抵达、步行石阶、可避开的单敌人遭遇，附逐步提示与实际比例镜头。 2. 接图 04–06：会面后的方向反馈、维拉连续离场、赛琳一次真正参与的合作。 3. 接图 07–09：两条独立可达路线、三条支线的物理反馈、明确发车确认与检查点。 4. 接图 10–12：赛琳战、维拉战、快捷回程和回访状态；最后统一检查 UI、存档与美术。</p>
+<p>首次试玩让未参与开发的人从空存档开始。30 秒后询问“你来找谁”；第一次任务变化后询问“现在去哪里”；货梯会面后询问“为什么不能直接过去”。记录停住的位置、误认的道路、重复打开地图次数与实际耗时，不把答题正确等同于好玩。叙事说明被全部跳过时，当前目标仍必须可理解。</p>
+<p>验收同时覆盖：零射击走到玛拉、绕开盾卫、三枪随时可选、先拿证据后接任务、先走任一主路、支线交换顺序、确认前返回、发车后重载、两场决战分别重试、回访后继续探索，以及 960×540／1280×720／1920×1080／宽屏文字和按钮不重叠。</p>
+<p>视觉验收采用同机位原图对实机、近远镜头和连续移动，保留差异清单。文档通过不代表施工通过，自动脚本回放不称作真人试玩。本轮没有运行新的游戏验收，也没有生成新的运行文件。</p></article><article class="appendix"><h1>修道院完整流程 新增与调整文案草稿</h1>
+<p>状态：待审，未接入。2026-09-22。已有对白沿用 monastery-v2-review.md；这里只列完整流程稿新增或拟替换内容，ID 暂用 mon.flow.*，不得覆盖正式 ID 后宣称已确认。</p>
+<table><thead><tr><th>拟用 ID</th><th>条件／说话人</th><th>草稿</th></tr></thead><tbody>
+<tr><td>mon.flow.opening.intent</td><td>莉芙；已知维拉准备离开</td><td>都要走了，还在搬东西……我倒想看看她带了什么。</td></tr>
+<tr><td>mon.flow.entry.cross</td><td>第一场交锋目标；不要求击杀</td><td>穿过装卸入口，进入外庭</td></tr>
+<tr><td>mon.flow.route.find</td><td>见到维拉后</td><td>寻找通往内庭的路</td></tr>
+<tr><td>mon.flow.route.choose</td><td>接触两路信息后</td><td>开通一条通往内庭的路</td></tr>
+<tr><td>mon.flow.route.lift</td><td>选择维修路线</td><td>检查货梯卡住的位置</td></tr>
+<tr><td>mon.flow.route.service</td><td>选择维护路线</td><td>沿维护道进入内庭</td></tr>
+<tr><td>mon.flow.celine.job</td><td>赛琳；首次合作前</td><td>玛拉雇我看着交接。货没交完，谁也别把路堵了。</td></tr>
+<tr><td>mon.flow.celine.cross</td><td>合作段目标</td><td>与赛琳穿过中庭</td></tr>
+<tr><td>mon.flow.ina.side_door</td><td>伊娜；交还工具后</td><td>箱子给我。旁边这扇门，我来修。</td></tr>
+<tr><td>mon.flow.tools.done</td><td>侧门开启后；不得在尚未开门时显示</td><td>工具已交还伊娜；维护侧门已开放。</td></tr>
+<tr><td>mon.flow.departure.ready</td><td>已到安全整备区</td><td>准备好后，操作发车机关</td></tr>
+<tr><td>mon.flow.departure.title</td><td>确认界面</td><td>继续追猎？</td></tr>
+<tr><td>mon.flow.departure.body</td><td>确认界面</td><td>继续后，尚未完成的物品交接将结束。已经读过的记录和打开的通路会保留。</td></tr>
+<tr><td>mon.flow.departure.tools</td><td>工具已取得但未交付</td><td>工具箱尚未交还。</td></tr>
+<tr><td>mon.flow.departure.records</td><td>记录已取得但未交付</td><td>维修记录尚未交给任何人。</td></tr>
+<tr><td>mon.flow.departure.luggage</td><td>已受托但未处理</td><td>还没有按维拉的要求搬动箱子。</td></tr>
+<tr><td>mon.flow.departure.go</td><td>独立确认按钮</td><td>继续追猎</td></tr>
+<tr><td>mon.flow.departure.wait</td><td>返回按钮</td><td>再等等</td></tr>
+<tr><td>mon.flow.celine.warning</td><td>赛琳；发车确认后，交战前</td><td>到这里了。再往前，我得拦你。</td></tr>
+<tr><td>mon.flow.chapter.explore</td><td>章节完成按钮</td><td>继续探索修道院</td></tr>
+<tr><td>mon.flow.chapter.title</td><td>章节完成按钮</td><td>返回标题</td></tr>
+<tr><td>mon.flow.next_region.closed</td><td>检查后门；无下一区域实现</td><td>门外通向旧运输线。后续区域尚未开放。</td></tr>
+</tbody></table>
+<p>附加规则：未取得物品时不谎称玩家持有；未受托搬箱时不列为未完成承诺。发车面板可写“还有未调查的线索”，但不能泄露陌生人物或未知道具位置。已提交的归属只显示结果，不再提供交付按钮。跳过对白不自动替玩家选择。</p>
+<p>阅读与复核：采用项目 game-story-workflow；已按 game-narrative 和本地适配规则检查角色知识与因果，使用 Narrative Designer 独立审查。中文复核依 game-design-natural-writing-zh 与 humanizer-zh，未改变正式事实或状态 ID。</p></article><footer class="footer">场景使用内置图像生成工具；中文覆盖层为文档排布示意。原图、提示词、节点与检查记录均保存在 dev-design/flow-review。</footer></body></html>

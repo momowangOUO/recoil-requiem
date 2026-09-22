@@ -1,0 +1,207 @@
+{
+  "tool": "built-in imagegen",
+  "model_note": "用户称 image2；工具未暴露具体版本选择，未宣称指定模型。",
+  "adopted": [
+    {
+      "id": "01",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-364ef488-c46c-40d0-a003-0807b80436a2.png",
+      "file": "images/01.png",
+      "size": [
+        1670,
+        942
+      ],
+      "sha256": "64dcb7823a89ae229526e75c2cdbb083986611464054510bdaea4c8355931241"
+    },
+    {
+      "id": "02",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-d3902651-67f5-4cd6-bda0-418fe65c092f.png",
+      "file": "images/02.png",
+      "size": [
+        1671,
+        941
+      ],
+      "sha256": "af9bb00552bdc3452a94447b0e655e7d9467ad4e9fd9d9dba1de21646832d4f3"
+    },
+    {
+      "id": "03",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-2ce0818f-e0a1-4fd9-91a6-ab4de0e37a77.png",
+      "file": "images/03.png",
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "9db356b6cdcc2b7da7159819ae07aaef16776e9fe1e4ed5410fbf4db38d29035"
+    },
+    {
+      "id": "04",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-909fc485-3962-4ae0-875c-4315da45c2d3.png",
+      "file": "images/04.png",
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "7158a6b3aa7fe84b0a8da4e8ad06d7a72c5a332e4eba9fbe94701149f46f88ca"
+    },
+    {
+      "id": "05",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-ea9edee8-c41c-449c-bfd1-01ab2fa67b68.png",
+      "file": "images/05.png",
+      "size": [
+        1671,
+        941
+      ],
+      "sha256": "02c3f4f1af980f970354978ce640fa78f743f323f75476ffafc759ed3d1d4eb0"
+    },
+    {
+      "id": "06",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-bd7e324f-4570-4fde-befe-d6c658f59ba3.png",
+      "file": "images/06.png",
+      "size": [
+        1670,
+        941
+      ],
+      "sha256": "ad750863e3e3e9e9639a70067952544e50fa6b0f27a0c52e7f53ee7e23492287"
+    },
+    {
+      "id": "07",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-b19f0f28-f519-4ccb-a810-88d5e2697b44.png",
+      "file": "images/07.png",
+      "size": [
+        1670,
+        942
+      ],
+      "sha256": "350c4ef629bd4d6bc3d6cef9d08d340d06b895a12b6c3a8957e63ff163b4c024"
+    },
+    {
+      "id": "08",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-da9150a4-a9bc-443a-9a71-4a8629c2c5d1.png",
+      "file": "images/08.png",
+      "size": [
+        1671,
+        941
+      ],
+      "sha256": "fe4b60d85836ff803e50aeaf86bb3317bc4dec75a9f1ec880e5e20c2b96dff0f"
+    },
+    {
+      "id": "09",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-f08299d4-67b8-48db-9196-88d00aa3875a.png",
+      "file": "images/09.png",
+      "size": [
+        1670,
+        942
+      ],
+      "sha256": "39046b833476cf976379966d7553fe052206546c905fa4040be80c03cd6e677a"
+    },
+    {
+      "id": "10",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-d1c96e4e-cf2c-4e38-85ab-bb56025284d3.png",
+      "file": "images/10.png",
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "ca4d0b8cc0a72c2382760eea2e39ef25e1c329e4a1ad05f01970224c184c3adb"
+    },
+    {
+      "id": "11",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-871efaba-bc85-4099-937b-921f26519228.png",
+      "file": "images/11.png",
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "0ef973b9fe36c3a02b989d18f76829f6f926d6c83927f1f3b3f50b754b2fca02"
+    },
+    {
+      "id": "12",
+      "source": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-19940612-ef96-4db9-b04c-9626de5ea814.png",
+      "file": "images/12.png",
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "0633f7e7e8a6378bf29d90dc861e0d4d6c3706ada1e0aeb8f858657b3a736c6e"
+    }
+  ],
+  "corrections": [
+    {
+      "id": "01",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Enlarge ONLY the white-haired heroine by 22 percent around her fixed boot contact point. Keep her exact face, costume and pose. She should be about 160 pixels tall on a 944-pixel-high image. Preserve everything else, the entire architecture and pseudo-3D camera exactly.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/01.png"
+      ]
+    },
+    {
+      "id": "02",
+      "prompt": "Edit this exact scene with just two corrections: REMOVE the extra female NPC at the right door entirely; this is a solitary walking tutorial. Preserve the white-haired player at current size and position, all staircase and road geometry, same 16:9 crop and pseudo3D floor perspective. Keep low crate beside entry, make an unobstructed walk line in front of it. Do not add any people, UI, text or redesign anything else.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/02.png"
+      ]
+    },
+    {
+      "id": "03",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Shrink ONLY the shieldwoman on RIGHT by 23 percent around her fixed foot contact point so she matches the height and pixel-sprite scale of the white-haired heroine. The heroine herself stays unchanged. The guard is an adult anime woman, with same compact gameplay body proportions as heroine; preserve shield attack pose. Preserve the architecture, floor perspective, amber warning arc, same frame exactly.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/03.png"
+      ]
+    },
+    {
+      "id": "04",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Shrink ONLY the dark-haired woman on RIGHT by 15 percent around her fixed foot contact point. Her head and boots should align horizontally with the white-haired heroine. Keep heroine exactly unchanged. Same gameplay sprite proportions and pixel density for both adult women. Preserve desk, architecture, pseudo3D camera, lighting, all environment exactly.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/04.png"
+      ]
+    },
+    {
+      "id": "05",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Shrink ONLY the cream-coated target woman at RIGHT by 25 percent around her boot contact point, bringing her to SAME full height as white-haired heroine at left. Make her pixel-art sprite with same 4-head-tall game proportions; keep adult identity, cream coat and purple dress. Preserve target handling travel box. Preserve exact architecture, freight lift and pseudo3D floor geometry.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/05.png"
+      ]
+    },
+    {
+      "id": "06",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Enlarge ONLY white-haired heroine lower-left by 25 percent around boot contact point; reduce auburn-haired swordswoman on stair by 10 percent around foot contact. All three adult women must have same compact pixel-game body proportions and similar full sprite height. Keep riflewoman unchanged. Preserve exact action, staircase and scene. No new person or new UI.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/06.png"
+      ]
+    },
+    {
+      "id": "07",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Enlarge ONLY white-haired heroine by 25 percent around fixed boot position, to about 165px total height on 944px image. Keep kneeling female mechanic and all geometry unchanged. Her compact body proportions and pixel style already correct. Preserve pseudo3D floor and framing.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/07.png"
+      ]
+    },
+    {
+      "id": "09",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Enlarge ONLY white-haired heroine beside lever by 25 percent around her fixed boot position, to the SAME full body height as the cream-coated woman at right. Make both adult female compact pixel game sprites. Preserve all architecture, lever, freight gate, quiet scene exactly.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/09.png"
+      ]
+    },
+    {
+      "id": "10",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Shrink ONLY auburn-haired swordswoman RIGHT by 12 percent around her fixed boot contact point, to same head/boot height as the heroine LEFT. Same compact adult female game sprite proportions as reference heroine. Preserve faces, weapons, pose, architecture and pseudo3D floor exactly.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/10.png"
+      ]
+    },
+    {
+      "id": "11",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. Shrink ONLY cream-coated target at RIGHT by 23 percent around her fixed boot contact point, to the SAME full body height as the heroine on LEFT. Preserve her adult woman identity, running pose, cream coat and knife. Use same compact 4-head-tall pixel-game sprite proportions as heroine. Keep all environment and perspective unchanged.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/11.png"
+      ]
+    },
+    {
+      "id": "12",
+      "prompt": "Precise local edit of this existing gameplay mockup. Do NOT recompose or zoom the whole image. REMOVE entirely the seated person on the FAR LEFT bench; keep that bench EMPTY. Reduce ONLY white-haired heroine near center by 10 percent around her boot contact to match the other woman's height. The two remaining characters are adult women in pixel game style; keep both faces/costumes and every architecture element, open freight door, desk, floor and shadows unchanged. No male characters, no new people.",
+      "refs": [
+        "D:/recoil-requiem/dev-design/flow-review/images/12.png"
+      ]
+    }
+  ],
+  "reference_capture_script": "tests/capture_image_architecture.gd",
+  "baseline_commit": "2f6330daec83e992fcd84dd0c4ce05eb83f2a11c"
+}
