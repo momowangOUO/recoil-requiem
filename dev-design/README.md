@@ -1,6 +1,6 @@
 # 开发设定入口
 
-更新：2026-09-14。
+更新：2026-09-22。
 
 本目录用于整合《反冲挽歌》的开发规则、人物、故事、任务和关卡。请先读 [开发规则](DEVELOPMENT_RULES.md) 和 [执行记录](IMPLEMENTATION.md)，再读取与当前任务有关的资料，不要扫描全部文档。叙事技能、新地图、任务和战斗已接入，验收和交付状态见执行记录。
 
@@ -21,6 +21,8 @@
 故事工作先读项目 tools/skills/game-story-workflow/SKILL.md，再读取其要求的 game-narrative 和对应角色模板、game-design-natural-writing-zh 与 humanizer-zh。技能调用测试和安装状态见 [验证记录](SKILL_VALIDATION.md)。
 
 ## 当前可读资料
+
+- 2026-09-22地图建筑、花棚、莉芙人物标题、玩家菜单及存档恢复：[先图后施工记录](IMAGE_LED_WORKFLOW.md)。新增素材来源与实际配准见 [UI来源补记](../assets/ui/v2/SOURCE_2026-09-22.md)；已实现切片不等于全章体验验收，建筑露底与密度仍在推进。
 
 - 开场指引、NPC 交互、纸板建筑与前景修订：[当前实施与验证记录](ENTRY_AND_DEPTH_REVIEW.md)。
 

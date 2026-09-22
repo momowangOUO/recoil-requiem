@@ -48,29 +48,43 @@ func _valid_ids(values: Array) -> bool:
 	return true
 
 func apply_event(event: Dictionary) -> Error:
+	return apply_events([event])
+
+## Validate and commit a related group once; observers never see partial facts.
+func apply_events(events: Array) -> Error:
 	if _catalog.is_empty(): return ERR_UNCONFIGURED
+	var staged := _data.duplicate(true)
+	for event in events:
+		if not event is Dictionary: return ERR_INVALID_DATA
+		var error := _stage_event(staged, event)
+		if error != OK: return error
+	if staged == _data: return OK
+	var completed := _recalculate(staged)
+	_data = staged
+	changed.emit()
+	for id in completed: quest_completed.emit(id)
+	return OK
+
+func _stage_event(data: Dictionary, event: Dictionary) -> Error:
 	for key in ["event_id", "source_id", "id", "result_id"]:
 		if not _valid_id(event.get(key)): return ERR_INVALID_DATA
 	var kind: Variant = event.get("kind")
 	var registry := {"fact": "facts", "evidence": "evidence", "visit": "regions", "checkpoint": "checkpoints"}
 	if not kind is String or not registry.has(kind): return ERR_INVALID_DATA
 	if not event.id in _catalog[registry[kind]]: return ERR_INVALID_DATA
-	if event.result_id in _data.results: return OK
-	_data.results.append(event.result_id)
+	if event.result_id in data.results: return OK
+	data.results.append(event.result_id)
 	match kind:
 		"fact", "evidence":
 			var key: String = registry[kind]
-			if not event.id in _data[key]: _data[key].append(event.id)
+			if not event.id in data[key]: data[key].append(event.id)
 		"visit":
-			_data.current_region = event.id
-			if not event.id in _data.visited_regions: _data.visited_regions.append(event.id)
+			data.current_region = event.id
+			if not event.id in data.visited_regions: data.visited_regions.append(event.id)
 		"checkpoint":
-			_data.checkpoint = event.id
-			_data.current_region = _catalog.checkpoints[event.id]
-			if not _data.current_region in _data.visited_regions: _data.visited_regions.append(_data.current_region)
-	var completed := _recalculate(_data)
-	changed.emit()
-	for id in completed: quest_completed.emit(id)
+			data.checkpoint = event.id
+			data.current_region = _catalog.checkpoints[event.id]
+			if not data.current_region in data.visited_regions: data.visited_regions.append(data.current_region)
 	return OK
 
 func _has_all(data: Dictionary, flags: PackedStringArray) -> bool:
@@ -204,3 +218,56 @@ func load_from(path: String) -> Error:
 	_encounter.clear()
 	changed.emit()
 	return OK
+
+## Load a primary save, or repair it from a validated backup without destroying
+## the rejected original. A failed recovery never changes in-memory progress.
+func load_or_recover(path: String) -> Dictionary:
+	var result := {"error": OK, "recovered": false, "preserved_path": ""}
+	if _catalog.is_empty():
+		result.error = ERR_UNCONFIGURED
+		return result
+	if not _valid_path(path) or path.ends_with(".tmp") or path.ends_with(".bak"):
+		result.error = ERR_INVALID_PARAMETER
+		return result
+	var primary := _read(path)
+	if primary.error == OK:
+		result.error = load_from(path)
+		return result
+	var backup := path + ".bak"
+	var previous := _read(backup)
+	if previous.error != OK:
+		result.error = primary.error if primary.error != ERR_FILE_NOT_FOUND else previous.error
+		return result
+	# Stage a complete, validated copy before moving anything. Never consume the
+	# backup: it must remain available if promotion is interrupted or fails.
+	var temporary := _unused_path(path + ".recovery.tmp")
+	result.error = DirAccess.copy_absolute(backup, temporary)
+	if result.error == OK: result.error = _read(temporary).error
+	if result.error != OK:
+		if FileAccess.file_exists(temporary): DirAccess.remove_absolute(temporary)
+		return result
+	if FileAccess.file_exists(path):
+		var preserved := _unused_path(path + ".damaged")
+		result.error = DirAccess.rename_absolute(path, preserved)
+		if result.error != OK:
+			DirAccess.remove_absolute(temporary)
+			return result
+		result.preserved_path = preserved
+	result.error = DirAccess.rename_absolute(temporary, path)
+	if result.error != OK:
+		if not result.preserved_path.is_empty() and not FileAccess.file_exists(path):
+			if DirAccess.rename_absolute(result.preserved_path, path) == OK:
+				result.preserved_path = ""
+		if FileAccess.file_exists(temporary): DirAccess.remove_absolute(temporary)
+		return result
+	result.error = load_from(path)
+	result.recovered = result.error == OK
+	return result
+
+func _unused_path(base: String) -> String:
+	var candidate := base
+	var index := 0
+	while FileAccess.file_exists(candidate) or DirAccess.dir_exists_absolute(candidate):
+		index += 1
+		candidate = "%s.%d" % [base, index]
+	return candidate

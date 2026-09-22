@@ -1,0 +1,76 @@
+{
+  "texture": "res://assets/ui/v2/runtime/title_hero_poses_v1.png",
+  "reference_height": 680,
+  "display_height": 640,
+  "foot_position": [
+    0.36,
+    0.95
+  ],
+  "regions": [
+    {
+      "id": "ready",
+      "rect": [
+        0,
+        0,
+        500,
+        724
+      ],
+      "anchor": [
+        265,
+        701
+      ]
+    },
+    {
+      "id": "cylinder",
+      "rect": [
+        500,
+        0,
+        500,
+        724
+      ],
+      "anchor": [
+        266,
+        701
+      ]
+    },
+    {
+      "id": "cuff",
+      "rect": [
+        1000,
+        0,
+        500,
+        724
+      ],
+      "anchor": [
+        256,
+        701
+      ]
+    },
+    {
+      "id": "notebook",
+      "rect": [
+        1500,
+        0,
+        500,
+        724
+      ],
+      "anchor": [
+        258,
+        701
+      ]
+    },
+    {
+      "id": "lookback",
+      "rect": [
+        2000,
+        0,
+        500,
+        724
+      ],
+      "anchor": [
+        310,
+        701
+      ]
+    }
+  ]
+}

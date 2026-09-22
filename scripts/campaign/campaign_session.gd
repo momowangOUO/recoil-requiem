@@ -6,6 +6,24 @@ const UI = preload("res://scripts/ui/campaign_ui.gd")
 const Enemy = preload("res://scripts/combat/campaign_enemy.gd")
 const NPC = preload("res://scripts/campaign/campaign_npc.gd")
 const SAVE_PATH := "user://monastery_v2.json"
+# Exact consequences of already-authorized deliveries and the boss settlement.
+# Also repairs version-1 saves written between the former two separate writes.
+const FACT_CONSEQUENCES := {"vira_dead": "gate_return", "tools_ina": "gate_west", "tools_mara": "gate_entry", "records_ruka": "gate_east", "records_mara": "gate_east"}
+signal save_status_changed(status: Dictionary)
+# Reviewed standalone system text: game-text/save-status-review.md.
+const SAVE_COPY := {
+	"ready": "自动保存已开启。",
+	"recovered": "已从备份恢复进度，可以继续保存。",
+	"load_failed": "存档无法读取，自动保存已暂停。原文件已保留。",
+	"write_failed": "进度尚未保存。请检查存储空间或写入权限后重试。",
+	"disabled": "自动保存已关闭。"
+}
+var save_path := SAVE_PATH
+var save_status := {"code": "ready", "error": OK, "message": SAVE_COPY.ready, "preserved_path": ""}
+var _save_notice_elapsed := 0.0
+var _save_notice_pending := false
+var loaded_from_disk := false
+var restart_backup_path := ""
 var lab: Node
 var state = Store.new()
 var ui: Control
@@ -29,11 +47,8 @@ func setup(owner_lab: Node) -> void:
 	if "--campaign-test" in OS.get_cmdline_user_args(): autosave = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	state.configure(Data.catalog(), Data.quests())
-	if autosave and FileAccess.file_exists(SAVE_PATH):
-		var error: Error = state.load_from(SAVE_PATH)
-		if error != OK:
-			push_warning("Campaign save rejected; original retained: %s" % error)
-			autosave = false
+	if autosave: load_save()
+	else: _set_save_status("disabled")
 	var layer := CanvasLayer.new()
 	layer.layer = 25
 	(lab.presentation_host if lab.presentation_host != null else lab).add_child(layer)
@@ -42,10 +57,6 @@ func setup(owner_lab: Node) -> void:
 	ui.close_requested.connect(close)
 	ui.choice_selected.connect(choose)
 	ui.side_selected.connect(select_side)
-	for flag in state.snapshot().facts:
-		if str(flag).begins_with("heard_"):
-			var id: String = str(flag).trim_prefix("heard_")
-			observed_people[id.split(".")[1]] = text(id)
 	initialized = true
 
 func has(id: String) -> bool:
@@ -55,12 +66,111 @@ func event(id: String, kind: String = "fact") -> void:
 	if kind in ["fact","evidence"] and has(id): return
 	var serial: int = state.snapshot().results.size()
 	var result := "%s_%d" % [id, serial] if kind in ["visit", "checkpoint"] else id
-	var error: Error = state.apply_event({"event_id":id,"source_id":"monastery","id":id,"result_id":result,"kind":kind})
+	var events := [{"event_id":id,"source_id":"monastery","id":id,"result_id":result,"kind":kind}]
+	if kind == "fact" and FACT_CONSEQUENCES.has(id):
+		events.append(_fact_event(FACT_CONSEQUENCES[id]))
+	var error: Error = state.apply_events(events)
 	assert(error == OK, "Unregistered campaign event: " + id)
-	if autosave:
-		var save_error: Error = state.save_to(SAVE_PATH)
-		if save_error != OK: push_warning("Campaign save failed: %s" % save_error)
+	if autosave: save_now()
 	refresh()
+
+func _fact_event(id: String) -> Dictionary:
+	return {"event_id":id,"source_id":"monastery","id":id,"result_id":id,"kind":"fact"}
+
+## Call before binding the world, or rebuild the world after a successful retry.
+## Unlike a write retry, this deliberately reloads progress from disk.
+func load_save() -> Error:
+	var result: Dictionary = state.load_or_recover(save_path)
+	var empty_slot := not FileAccess.file_exists(save_path) and not FileAccess.file_exists(save_path + ".bak") and not DirAccess.dir_exists_absolute(save_path) and not DirAccess.dir_exists_absolute(save_path + ".bak")
+	if result.error == ERR_FILE_NOT_FOUND and empty_slot:
+		autosave = true
+		_set_save_status("ready")
+		return OK
+	if result.error != OK:
+		autosave = false
+		_set_save_status("load_failed", result.error, result.preserved_path)
+		return result.error
+	autosave = true
+	loaded_from_disk = true
+	observed_people.clear()
+	selected_side = ""
+	for flag in state.snapshot().facts:
+		if str(flag).begins_with("heard_"):
+			var id: String = str(flag).trim_prefix("heard_")
+			observed_people[id.split(".")[1]] = text(id)
+	_set_save_status("recovered" if result.recovered else "ready", OK, result.preserved_path)
+	var repairs: Array = []
+	for trigger in FACT_CONSEQUENCES:
+		if has(trigger) and not has(FACT_CONSEQUENCES[trigger]):
+			repairs.append(_fact_event(FACT_CONSEQUENCES[trigger]))
+	if not repairs.is_empty():
+		var error: Error = state.apply_events(repairs)
+		assert(error == OK, "Invalid campaign save consequence repair")
+		# Reading succeeded: the world can use the coherent state even if the
+		# repair write fails. save_now exposes the failure and permits retry.
+		save_now()
+	return OK
+
+## Explicit confirmed restart. Keep a durable archive outside the rotating .bak
+## before replacing progress. A rejected save can only be recovered, not erased.
+func restart_chapter() -> Error:
+	if save_status.code == "load_failed": return save_status.error
+	var fresh = Store.new()
+	fresh.configure(Data.catalog(), Data.quests())
+	if autosave:
+		var error := save_now()
+		if error != OK: return error
+		var archive: String = state._unused_path(save_path + ".restart")
+		error = DirAccess.copy_absolute(save_path, archive)
+		if error == OK:
+			var verify = Store.new()
+			verify.configure(Data.catalog(), Data.quests())
+			error = verify.load_from(archive)
+		if error == OK: error = fresh.save_to(save_path)
+		if error != OK:
+			_set_save_status("write_failed", error)
+			return error
+		restart_backup_path = archive
+	state = fresh
+	loaded_from_disk = false
+	observed_people.clear()
+	selected_side = ""
+	_set_save_status("ready" if autosave else "disabled")
+	return OK
+
+## Retry a failed write without discarding progress. Rejected disk saves require
+## load_save() recovery first, so this cannot overwrite an unreadable original.
+func save_now() -> Error:
+	if not autosave:
+		return save_status.error if save_status.error != OK else ERR_UNAVAILABLE
+	var error: Error = state.save_to(save_path)
+	if error != OK:
+		_set_save_status("write_failed", error, save_status.preserved_path)
+	elif save_status.code != "recovered":
+		_set_save_status("ready", OK, save_status.preserved_path)
+	return error
+
+func _set_save_status(code: String, error: Error = OK, preserved_path: String = "") -> void:
+	var next := {"code": code, "error": error, "message": SAVE_COPY[code], "preserved_path": preserved_path}
+	if next == save_status: return
+	save_status = next
+	_save_notice_elapsed = 0.0
+	_save_notice_pending = code in ["recovered", "load_failed", "write_failed"]
+	if _save_notice_pending: _show_save_notice()
+	save_status_changed.emit(save_status.duplicate(true))
+
+func _show_save_notice() -> void:
+	if is_instance_valid(lab) and lab.overlay != null:
+		lab.overlay.show_notice(save_status.message)
+
+func _process(delta: float) -> void:
+	# The overlay notice expires. Re-show unresolved failures even while paused;
+	# menus can always query save_status for the full persistent state.
+	_save_notice_elapsed += delta
+	if _save_notice_pending or (save_status.code in ["load_failed", "write_failed"] and _save_notice_elapsed >= 8.0):
+		_show_save_notice()
+		_save_notice_pending = false
+		_save_notice_elapsed = 0.0
 
 func bind_world() -> void:
 	groups.clear()
@@ -143,7 +253,6 @@ func enemy_down(group_id: String) -> void:
 		dialogue("celine", ["mon.celine.defeated"])
 	elif group_id == "boss":
 		event("vira_dead")
-		event("gate_return")
 	else: event(group_id)
 
 func step(delta: float) -> void:
@@ -371,11 +480,7 @@ func choose(id: String) -> void:
 	close()
 	if id == "later": return
 	if id == "restart":
-		state = Store.new()
-		state.configure(Data.catalog(),Data.quests())
-		observed_people.clear()
-		selected_side = ""
-		lab.reset_trial.call_deferred(3)
+		if restart_chapter() == OK: lab.reset_trial.call_deferred(3)
 		return
 	if id == "depart":
 		event("departed")
@@ -387,9 +492,6 @@ func choose(id: String) -> void:
 	if not conflicts.has(id) or has(conflicts[id]) or has(id): return
 	event(id)
 	var results := {"tools_ina":["ina","mon.ina.returned"],"tools_mara":["mara","mon.mara.tools"],"records_ruka":["ruka","mon.ruka.records"],"records_mara":["mara","mon.mara.records"],"luggage_home":["vira","mon.vira.returned"],"luggage_cart":["vira","mon.vira.left"]}
-	if id == "tools_ina": event("gate_west")
-	if id == "tools_mara": event("gate_entry")
-	if id.begins_with("records_"): event("gate_east")
 	# Moving a box is a local action; Vira comments when approached again.
 	if not id.begins_with("luggage_"):
 		dialogue(results[id][0],[results[id][1]])

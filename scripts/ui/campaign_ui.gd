@@ -14,6 +14,7 @@ const INK := Color("eee4d2")
 const SILVER := Color("b4b1b8")
 const ART_DIR := "res://assets/ui/v2/runtime/"
 const MAP_SOURCE := "res://data/campaign/monastery_map_ui.json"
+const MAP_ART_SOURCE := "res://data/campaign/monastery_map_art.json"
 var panel_kind := ""
 var tracker: VBoxContainer
 var panel: PanelContainer
@@ -37,6 +38,9 @@ var _font_multiplier := 1.0
 var _tracker_art: TextureRect
 var _art: Dictionary = {}
 var _map_source: Dictionary = {}
+var _map_art_source: Dictionary = {}
+var _map_art_texture: Texture2D
+var _map_art_textures: Dictionary = {}
 var _map_zoom := 0.14
 var _map_pan := Vector2.ZERO
 var _map_focus := Vector2.ZERO
@@ -79,6 +83,17 @@ func _ready() -> void:
 	if map_file != null:
 		var decoded: Variant = JSON.parse_string(map_file.get_as_text())
 		if decoded is Dictionary: _map_source = decoded
+	var art_file := FileAccess.open(MAP_ART_SOURCE, FileAccess.READ)
+	if art_file != null:
+		var decoded: Variant = JSON.parse_string(art_file.get_as_text())
+		if decoded is Dictionary:
+			_map_art_source = decoded
+			_map_art_texture = load(str(decoded.get("texture", ""))) as Texture2D
+			_map_art_textures[str(decoded.get("texture", ""))] = _map_art_texture
+			for layer in decoded.get("layers", []):
+				var texture_path := str(layer.get("texture", decoded.get("texture", "")))
+				if not _map_art_textures.has(texture_path):
+					_map_art_textures[texture_path] = load(texture_path) as Texture2D
 	_tracker_art = TextureRect.new()
 	_tracker_art.position = Vector2(677, 28)
 	_tracker_art.size = Vector2(553, 183)
@@ -326,6 +341,10 @@ func _open(kind: String, title: String) -> void:
 	panel.position = Vector2(120, 38) if kind != "dialogue" else Vector2(280, 315)
 	panel.size = Vector2(1040, 644) if kind != "dialogue" else Vector2(830, 365)
 	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 86, 54, 86, 50) if kind == "dialogue" else _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
+	if kind == "map":
+		panel.position = Vector2(32, 24)
+		panel.size = Vector2(1216, 672)
+		panel.add_theme_stylebox_override("panel", _style("journal_frame", 120, 120, 120, 120, 88, 68, 88, 62))
 	var header := HBoxContainer.new()
 	content.add_child(header)
 	if not title.is_empty():
@@ -435,7 +454,10 @@ func show_map(spaces: Dictionary, connections: Array, visited: Array, gate_state
 	_map_dragging = false
 	var toolbar := HBoxContainer.new()
 	toolbar.add_theme_constant_override("separation", 8)
-	content.add_child(toolbar)
+	# Map controls share its header, reserving the central page for architecture.
+	var map_header := content.get_child(0)
+	map_header.add_child(toolbar)
+	map_header.move_child(toolbar, 1)
 	for spec in [["－", "zoom_out"], ["＋", "zoom_in"], ["回到当前位置", "player"], ["全图", "full"]]:
 		var action := Button.new()
 		action.text = spec[0]
@@ -530,12 +552,23 @@ func _map_anchor(id: String) -> Vector2:
 func _select_map_region(id: String) -> void:
 	if not _map_data.spaces.has(id) or not id in _map_data.visited: return
 	_map_selected = id
-	_map_focus = _map_anchor(id)
+	var bounds := _map_selection_bounds(id)
+	_map_focus = bounds.get_center()
 	_map_pan = Vector2.ZERO
-	_map_zoom = _local_map_zoom()
+	_map_zoom = minf(0.35, minf((_map.size.x - 48) / bounds.size.x, (_map.size.y - 48) / bounds.size.y))
 	_map_full = false
 	_update_map_preview()
 	_map.queue_redraw()
+
+func _map_selection_bounds(id: String) -> Rect2:
+	var bounds := Rect2(_map_anchor(id) - Vector2(24,24), Vector2(48,48))
+	for piece in _map_art_pieces():
+		if piece.space_id == id: bounds = bounds.merge(piece.world_rect)
+	for segment in _map_source.get("segments", []):
+		var clipped := _clip_segment(_source_point(segment.start), _source_point(segment.end), _map_data.spaces[id].rect)
+		if clipped.size() == 2:
+			bounds = bounds.expand(clipped[0]).expand(clipped[1])
+	return bounds.grow(32)
 
 func _update_map_preview() -> void:
 	if not is_instance_valid(_map_preview) or not is_instance_valid(_map_preview_title): return
@@ -548,8 +581,12 @@ func _draw_map() -> void:
 	var parchment := _texture("map_parchment")
 	if parchment != null:
 		_map.draw_texture_rect(parchment, Rect2(Vector2.ZERO, _map.size), false, Color(0.85, 0.79, 0.72, 0.90))
+		# A quiet wine glaze retains the generated paper grain without competing
+		# with fine silver elevations and the brighter navigable route overlay.
+		_map.draw_rect(Rect2(Vector2.ZERO, _map.size), Color("251a20", 0.62))
 	var offset := _map_offset()
 	var factor := Vector2.ONE * _map_zoom
+	_draw_map_architecture(offset)
 	var strip := AtlasTexture.new()
 	strip.atlas = _texture("map_route")
 	strip.region = Rect2(82, 29, 280, 20)
@@ -581,6 +618,72 @@ func _draw_map() -> void:
 		var number := "%02d" % int(str(id).trim_prefix("mon_"))
 		_map.draw_string(ThemeDB.fallback_font, rect.position + Vector2(2, 19), number, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, INK)
 	_draw_icon("map_player", _map_data.player * _map_zoom + offset, Vector2.ONE * maxf(20.0, marker_size * 1.3))
+
+func _map_layer_texture(layer: Dictionary) -> Texture2D:
+	return _map_art_textures.get(str(layer.get("texture", _map_art_source.get("texture", "")))) as Texture2D
+
+func _map_art_source_rect(layer: Dictionary) -> Rect2:
+	var raw: Array = layer.get("source_rect", [])
+	if raw.size() == 4: return Rect2(float(raw[0]), float(raw[1]), float(raw[2]), float(raw[3]))
+	var columns := int(_map_art_source.get("columns", 4))
+	var cell := int(layer.get("cell", 0))
+	var extent := _map_layer_texture(layer).get_size() / Vector2(columns, int(_map_art_source.get("rows", 2)))
+	return Rect2(Vector2(cell % columns, floori(float(cell) / columns)) * extent, extent)
+
+func _map_art_rect(layer: Dictionary) -> Rect2:
+	var raw: Array = layer.get("world_rect", [])
+	if raw.size() != 4 or _map_layer_texture(layer) == null: return Rect2()
+	var bounds := Rect2(float(raw[0]), float(raw[1]), float(raw[2]), float(raw[3]))
+	var cell_size := _map_art_source_rect(layer).size
+	var fitted := cell_size * minf(bounds.size.x / cell_size.x, bounds.size.y / cell_size.y)
+	return Rect2(Vector2(bounds.get_center().x - fitted.x * 0.5, bounds.end.y - fitted.y), fitted)
+
+func _subtract_map_rect(rect: Rect2, covered: Rect2) -> Array[Rect2]:
+	var overlap := rect.intersection(covered)
+	if not overlap.has_area(): return [rect]
+	var result: Array[Rect2] = []
+	for piece in [Rect2(rect.position, Vector2(rect.size.x, overlap.position.y - rect.position.y)), Rect2(Vector2(rect.position.x, overlap.end.y), Vector2(rect.size.x, rect.end.y - overlap.end.y)), Rect2(Vector2(rect.position.x, overlap.position.y), Vector2(overlap.position.x - rect.position.x, overlap.size.y)), Rect2(Vector2(overlap.end.x, overlap.position.y), Vector2(rect.end.x - overlap.end.x, overlap.size.y))]:
+		if piece.has_area(): result.append(piece)
+	return result
+
+func _map_art_pieces() -> Array:
+	# Disjoint clips cover the union of known regions. Drawing overlapping region
+	# clips twice would darken translucent engraving and reveal rectangular seams.
+	var result := []
+	if _map_art_texture == null: return result
+	for layer in _map_art_source.get("layers", []):
+		if not str(layer.get("space_id", "")) in _map_data.visited: continue
+		var fitted := _map_art_rect(layer)
+		if not fitted.has_area(): continue
+		var clips: Array[Rect2] = []
+		for id in _map_data.visited:
+			if not _map_data.spaces.has(id): continue
+			var visible := fitted.intersection(_map_data.spaces[id].rect)
+			if not visible.has_area(): continue
+			var pending: Array[Rect2] = [visible]
+			for previous in clips:
+				var remainder: Array[Rect2] = []
+				for piece in pending: remainder.append_array(_subtract_map_rect(piece, previous))
+				pending = remainder
+			clips.append_array(pending)
+		var authored_source := _map_art_source_rect(layer)
+		var source_origin := authored_source.position
+		var cell_size := authored_source.size
+		for clip in clips:
+			var source := Rect2(source_origin + (clip.position - fitted.position) / fitted.size * cell_size, clip.size / fitted.size * cell_size)
+			result.append({"id":str(layer.get("id", "")), "space_id":str(layer.get("space_id", "")), "world_rect":clip, "source_rect":source, "texture":_map_layer_texture(layer)})
+	return result
+
+func _draw_map_architecture(offset: Vector2) -> void:
+	for piece in _map_art_pieces():
+		var world: Rect2 = piece.world_rect
+		var destination := Rect2(world.position * _map_zoom + offset, world.size * _map_zoom)
+		if not destination.intersects(_map_view()): continue
+		var texture := AtlasTexture.new()
+		texture.atlas = piece.texture
+		texture.region = piece.source_rect
+		texture.filter_clip = true
+		_map.draw_texture_rect(texture, destination, false, Color(0.96, 0.93, 0.89, 0.94))
 
 func _source_point(raw: Array) -> Vector2:
 	return Vector2(float(raw[0]), float(raw[1])) if raw.size() >= 2 else Vector2.ZERO

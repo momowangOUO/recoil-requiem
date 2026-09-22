@@ -1,5 +1,7 @@
 # Recoil Requiem project guidance
 
+- New or substantially revised visible scenes, UI, map art and major props use `tools/skills/image-led-game-art/SKILL.md`: inspect the accepted full image, map its subjects/layers to runtime data, implement a bounded slice, then compare actual rendering and continuous camera/state changes. Keep the current paper-theatre / pseudo-3D style, separate wall/window/frame and sky/moon/castle/foreground layers. Existing approved references are reusable; pure logic fixes do not need image generation. Never count extracting only a background colour as implementing the reference. Current slice and remaining differences: `dev-design/IMAGE_LED_WORKFLOW.md`.
+
 - Start project work with `dev-design/README.md` and `dev-design/DEVELOPMENT_RULES.md`, then only the relevant indexed documents. `dev-design/IMPLEMENTATION.md` separates completed work, pending narrative review and unimplemented gameplay. User cancelled the 80% quota stop on 2026-09-14.
 - Story, character cards, motivation, relationship, narrative quest and dialogue work must read `tools/skills/game-story-workflow/SKILL.md` (also installed as `$game-story-workflow`) before drafting. Actually read its required existing skills and relevant templates; names alone are not invocation evidence. Do not route pure technical work through narrative skills. New story drafts are not canon until reviewed; revoked heart-replacement and corpse-auction premises must not return. Preserve the protagonist's existing name and all first-meeting relationships.
 

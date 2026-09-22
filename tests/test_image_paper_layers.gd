@@ -36,6 +36,18 @@ func _alpha_at_any(cards: Array, point: Vector3) -> float:
 		alpha = maxf(alpha, _alpha_at(card, point, card.texture.get_image()))
 	return alpha
 
+func _base_reaches(cards: Array, point: Vector3) -> bool:
+	# A very close view may look above the whole world-anchored contour. That is
+	# natural parallax, not a floating strip; its physical bottom must stay out of view.
+	for card: Sprite3D in cards:
+		var bounds := card.custom_aabb
+		var local := point - card.global_position
+		if local.x >= bounds.position.x and local.x <= bounds.end.x:
+			if bounds.position.y > local.y: continue
+			var original_bottom := -card.texture.get_height() * card.pixel_size * 0.5
+			return local.y > original_bottom or _alpha_at(card, point, card.texture.get_image()) > 0.5
+	return false
+
 func run() -> void:
 	var app = load("res://scenes/game.tscn").instantiate()
 	root.add_child(app)
@@ -106,7 +118,7 @@ func run() -> void:
 				var height := stage.camera.get_viewport().get_visible_rect().size.y
 				for fraction in [0.0, 0.25, 0.5, 0.75, 1.0]:
 					var bottom_sample := _plane_hit(stage.camera, Vector2(width * fraction, height * 0.995))
-					check(_alpha_at_any(cards, bottom_sample) > 0.5,
+					check(_base_reaches(cards, bottom_sample),
 						"Foreground covers bottom edge at %s / %s / %s" % [location, distance, fraction])
 				var action_center := _plane_hit(stage.camera, Vector2(width * 0.5, height * 0.54))
 				check(_alpha_at_any(cards, action_center) < 0.1,
@@ -126,8 +138,13 @@ func run() -> void:
 			if step == 0: anchor_y = cards[3].position.y
 			check(is_equal_approx(cards[3].position.y, anchor_y), "Continuous zoom preserves the authored contour anchor")
 			var viewport_size := stage.camera.get_viewport().get_visible_rect().size
+			# The visible contour must not cover the player's feet/landing line.
+			var feet_screen := stage.camera.unproject_position(CrimsonStage3D.to_stage(stage.game.player.position))
+			for foot_x in [-12.0, 0.0, 12.0]:
+				check(_alpha_at_any(cards, _plane_hit(stage.camera, feet_screen + Vector2(foot_x, 0))) < 0.1,
+					"Continuous zoom keeps the landing line visible: %s step %d" % [weapon, step])
 			for fraction in [0.0, 0.25, 0.5, 0.75, 1.0]:
-				check(_alpha_at_any(cards, _plane_hit(stage.camera, viewport_size * Vector2(fraction, 0.995))) > 0.5,
+				check(_base_reaches(cards, _plane_hit(stage.camera, viewport_size * Vector2(fraction, 0.995))),
 					"Continuous zoom must not expose foreground bottom: %s step %d x %s" % [weapon, step, fraction])
 			if step in [0, 30, 60] and DisplayServer.get_name() != "headless":
 				await process_frame

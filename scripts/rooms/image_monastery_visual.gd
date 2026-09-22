@@ -13,6 +13,7 @@ var glass: StandardMaterial3D
 var roof: StandardMaterial3D
 var banner: StandardMaterial3D
 var stained_glass: StandardMaterial3D
+var close_stone: StandardMaterial3D
 
 func build(host: Node3D) -> void:
 	stage = host
@@ -20,6 +21,17 @@ func build(host: Node3D) -> void:
 	trim = _masonry(Color("ada1ac"))
 	paving = _masonry(Color("b6aab6"))
 	paving.uv1_scale *= 0.625
+	close_stone = StandardMaterial3D.new()
+	var close_source := preload("res://assets/environments/crimson/close_facade_bays_v1.png")
+	# Right of the last buttress: only masonry, no arch frame or vertical trim.
+	close_stone.albedo_texture = ImageTexture.create_from_image(close_source.get_image().get_region(Rect2i(1872, 160, 112, 384)))
+	close_stone.albedo_color = Color("70717e")
+	close_stone.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	close_stone.uv1_triplanar = true
+	close_stone.uv1_world_triplanar = true
+	close_stone.uv1_scale = Vector3(200.0 / 112.0, 200.0 / 384.0, 200.0 / 112.0)
+	close_stone.set_meta("authored_texture", close_stone.albedo_texture)
+	stage.materials.append(close_stone)
 	iron = stage._material(Rect2(), Color("55576a"), "iron")
 	brass = stage._material(Rect2(), Color("b29b71"), "brass")
 	wood = stage._material(Rect2(), Color("776454"), "wood")
@@ -60,6 +72,7 @@ func build(host: Node3D) -> void:
 	_gallery()
 	_bell_landmark()
 	_archive_and_stairwell()
+	_close_facade_layers()
 	stage.foreground = preload("res://scenes/rooms/image_monastery_foreground.tscn").instantiate()
 	stage.scenery.add_child(stage.foreground)
 
@@ -69,6 +82,56 @@ func _masonry(tint: Color) -> StandardMaterial3D:
 	mat.uv1_world_triplanar = true
 	mat.uv1_scale = Vector3(3.12, 6.44, 3.12)
 	return mat
+
+func _close_facade_layers() -> void:
+	# Keep the authored landmark silhouette at distance. At actor height use
+	# separate story modules at two source texels per logical pixel, matching
+	# the actor compositor instead of magnifying an entire small tower image.
+	var texture := preload("res://assets/environments/crimson/close_facade_bays_v1.png")
+	var sources := [Rect2(0, 0, 512, 768), Rect2(512, 0, 448, 768), Rect2(960, 0, 576, 768), Rect2(1536, 0, 512, 768)]
+	for module in stage.game.environment.modules:
+		var id: String = module.get_meta("structural_id", "")
+		if module.one_way or module.collision_depth > 80 or not module.unlock_action.is_empty(): continue
+		var spans: Array[Vector2] = []
+		var wall_z := -2.12
+		if id in ["F08", "F09", "F10", "F11"] or module.get_meta("interior_backwall", false):
+			spans.append(Vector2(module.position.x, module.position.x + module.width))
+			wall_z = -1.23
+		elif id == "F07":
+			spans.append(Vector2(module.position.x, module.position.x + module.width))
+			wall_z = -1.58
+		else:
+			for record in stage.game.environment.structure_records:
+				if str(record.id) not in ["B01", "B02", "B12"]: continue
+				var rect := _record_rect(record)
+				if module.position.y < rect.position.y or module.position.y > rect.end.y + 16: continue
+				var left := maxf(module.position.x, rect.position.x)
+				var right := minf(module.position.x + module.width, rect.end.x)
+				if right > left: spans.append(Vector2(left, right))
+		for span in spans:
+			var x := span.x
+			var index := 0
+			while x < span.y - 1:
+				var source: Rect2 = sources[index % sources.size()]
+				var width := minf(source.size.x * 0.5, span.y - x)
+				source.size.x = width * 2.0
+				var rect := Rect2(x, module.position.y - 384, width, 384)
+				var windows: Array = []
+				for pane in [Rect2(230, 177, 78, 224), Rect2(1104, 190, 104, 214), Rect2(1307, 189, 104, 216)]:
+					if source.encloses(pane): windows.append(pane)
+				var prefix := "%sCloseStory%d_%d" % [id, int(span.x), index]
+				var wall := _paperboard_cutout(rect, texture, source, windows, wall_z, prefix + "Wall")
+				wall.set_meta("logical_per_texel", 0.5)
+				wall.set_meta("ground_y", module.position.y)
+				for pane_source in windows:
+					var pane_rect := _paper_detail_rect(rect, source, pane_source)
+					_box(pane_rect, wall_z - 0.10, 0.025, roof, prefix + "WindowRecess")
+					var pane := _paperboard(pane_rect, texture, pane_source, wall_z - 0.055, prefix + "WindowGlass")
+					pane.set_meta("wall_z", wall_z)
+					_layered_window_reveal(pane_rect, wall_z - 0.025, prefix + "Window")
+				_box(Rect2(x, module.position.y - 4, width, 8), (wall_z - 1.175) * 0.5, absf(wall_z + 1.175) + 0.02, stone, prefix + "FoundationContact")
+				x += width
+				index += 1
 
 func _box(rect: Rect2, z: float, depth: float, material: Material, label: String) -> MeshInstance3D:
 	return stage._box(Vector3(rect.get_center().x * P, -rect.get_center().y * P, z), Vector3(rect.size.x * P, rect.size.y * P, depth), material, label)
@@ -192,6 +255,21 @@ func _stair(stair: Node2D) -> void:
 		_box(Rect2(step.left, step.y, step.right - step.left + 0.05, depth), -0.25, 1.85, stone, id + "TreadRiser")
 		_box(Rect2(step.left, step.y - 0.1, step.right - step.left + 0.05, 2), -0.25, 1.86, paving, id + "TreadCap")
 	_extrude(PackedVector2Array([a + Vector2(0, 6), b + Vector2(0, 6), b + Vector2(0, depth), a + Vector2(0, depth)]), -1.175, 0.675, stone, id + "ClosedStringer")
+	# The stair flight also needs an actual retaining wall behind it. Flat floor
+	# foundations cannot cover the sloped interval between their endpoints.
+	# Keep its front behind recessed facade glass and every playable surface.
+	_extrude(PackedVector2Array([a + Vector2(0, -80), b + Vector2(0, -80), Vector2(b.x, 3520), Vector2(a.x, 3520)]), -3.9, -2.62, stone, id + "ContinuousRearFoundation")
+	_extrude(PackedVector2Array([a + Vector2(0, 6), b + Vector2(0, 6), b + Vector2(0, depth + 12), a + Vector2(0, depth + 12)]), -2.7, -1.17, stone, id + "RearContactApron")
+	# A low retaining parapet follows the flight, not a huge blank screen that
+	# hides the approved facade. Its coping and end piers explain the structure.
+	var close_wall := _extrude(PackedVector2Array([a + Vector2(0, -64), b + Vector2(0, -64), b + Vector2(0, depth + 16), a + Vector2(0, depth + 16)]), -1.7, -1.22, close_stone, id + "CloseStairBackwall")
+	close_wall.set_meta("logical_per_texel", 0.5)
+	close_wall.set_meta("height_above_flight", 64.0)
+	_beam(a + Vector2(0, -64), b + Vector2(0, -64), 5, -1.44, 0.54, stone, id + "RetainingCoping")
+	var supports := [0.0, 0.5, 1.0] if absf(b.x - a.x) > 800 else [0.0, 1.0]
+	for t in supports:
+		var foot: Vector2 = a.lerp(b, t)
+		_box(Rect2(foot.x - 5, foot.y - 64, 10, depth + 80), -1.35, 0.3, stone, id + "RetainingPier")
 	_rear_rail(a, b, id)
 	# Uprights terminate at this stair's own stringer; never float over a gap.
 	if maxf(a.y, b.y) > 1900 and id != "S10":
@@ -585,11 +663,31 @@ func _crane() -> void:
 	_box(Rect2(end + Vector2(-128, 768), Vector2(256, 192)), -2.0, 0.85, wood, "CraneSuspendedCargo")
 
 func _garden() -> void:
-	var rect := _source(Rect2(1250, 338, 229, 130))
+	# Five complete window bays are present in the accepted generated sheet.
+	# Preserve the sheet's actual proportions rather than stretching to old poles.
+	var painting := preload("res://assets/environments/crimson/garden_facade_v2.png")
+	var source := Rect2(20, 15, 2132, 681)
+	var height := 1832.0 * source.size.y / source.size.x
+	var facade := Rect2(10000, 1424 - height, 1832, height)
+	var windows := [Rect2(107, 302, 331, 299), Rect2(514, 302, 328, 299), Rect2(921, 302, 329, 299), Rect2(1328, 302, 329, 299), Rect2(1736, 302, 329, 299)]
+	_paperboard_cutout(facade, painting, source, windows, -2.48, "GardenPaintedFacade")
+	_layered_windows(facade, painting, source, windows, -2.48, "GardenLayeredWindow")
+	_box(Rect2(10000, 1418, 1832, 6), -2.52, 0.85, stone, "GardenFacadeFooting")
+	# Re-seat the existing real lean-to roof on the authored eave. The old
+	# scaffold was over twice the illustration height, leaving an empty canopy.
+	for piece in stage.scenery.get_children():
+		if str(piece.name).begins_with("B10TrueSlopedCanopy") or str(piece.name).begins_with("B10SlopedGlazingRafter") or str(piece.name) in ["B10UpperRoofRail", "B10EavesGutter"]:
+			stage.scenery.remove_child(piece)
+			piece.free()
+	var roof_top := facade.position.y + 92.0 * height / source.size.y
+	var roof_bottom := facade.position.y + 232.0 * height / source.size.y
+	_sloping_canopy(Rect2(10000, roof_top, 1832, roof_bottom - roof_top), roof)
+	_box(Rect2(10000, roof_bottom, 1832, 8), -1.61, 0.10, iron, "GardenAuthoredEaves")
+	var rect := Rect2(10000, roof_bottom, 1832, 1424 - roof_bottom)
 	for x in range(int(rect.position.x), int(rect.end.x), 320):
 		_box(Rect2(x, rect.position.y, 16, rect.size.y), -1.45, 0.3, iron, "GardenCanopyColumn")
 		_box(Rect2(x - 10, rect.end.y - 20, 36, 20), -1.45, 0.75, stone, "GardenColumnFoot")
-		var rear_top := _source_point(Vector2(0, 306)).y
+		var rear_top := roof_top
 		_box(Rect2(x, rear_top, 16, rect.end.y - rear_top), -3.6, 0.20, iron, "GardenRearCanopyColumn")
 		_box(Rect2(x - 12, rect.end.y - 20, 40, 20), -3.4, 0.6, stone, "GardenRearColumnSupportedFoot")
 	for x in range(10100, 11500, 288):

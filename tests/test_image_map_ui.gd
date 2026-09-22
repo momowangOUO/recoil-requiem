@@ -25,6 +25,28 @@ func run() -> void:
 	game.player.manual_control = true
 	check(not session.autosave, "Test session cannot access the user save")
 	check(game.environment.space_bounds.size() == 16, "All sixteen actual map regions loaded")
+	check(ui._map_art_texture != null, "Generated architectural atlas is loaded into the actual map")
+	check(ui._map_art_source.get("layers", []).size() >= 8, "Generated architectural layers include the arrival station")
+	var cut: Array = ui._subtract_map_rect(Rect2(0, 0, 100, 100), Rect2(25, 25, 50, 50))
+	var cut_area := 0.0
+	for piece in cut: cut_area += piece.get_area()
+	check(cut.size() == 4 and is_equal_approx(cut_area, 7500), "Exploration union subtracts shared areas without losing known margins")
+	root.size = Vector2i(1280,720)
+	session.event("mon_01", "visit")
+	var first_map_key := InputEventKey.new()
+	first_map_key.physical_keycode = KEY_M
+	first_map_key.pressed = true
+	session.handle_input(first_map_key)
+	for frame in 4: await process_frame
+	var initial_art: Array = ui._map_art_pieces()
+	check(not initial_art.is_empty(), "First map opening renders the discovered station, not a bare line diagram")
+	for piece in initial_art:
+		check(piece.space_id == "mon_01", "First map opening does not expose other buildings")
+		check(piece.texture != ui._map_art_texture, "Station uses its dedicated generated illustration")
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png("res://artifacts/image_map_ui_1280_initial.png")
+	session.close()
 	# Snapshot authored pressure before simulation moves enemies.
 	for npc in game.environment.npc_points:
 		var nearest := INF
@@ -52,6 +74,28 @@ func run() -> void:
 				check(Rect2(Vector2.ZERO, Vector2(dimensions)).encloses(ui.panel.get_global_rect()), "Panel fits native window")
 				check(ui._map_data.spaces.size() == 16, "UI receives actual region geometry")
 				check(ui._map_data.visited.size() == explored, "Map respects explored region count")
+				check(ui._map.size.x >= 790 and ui._map.size.y >= 400, "Architecture has a large canvas without a redundant toolbar row")
+				var art_pieces: Array = ui._map_art_pieces()
+				check(not art_pieces.is_empty(), "Explored map draws architectural imagery, not only navigation lines")
+				for piece in art_pieces:
+					check(piece.space_id in ui._map_data.visited, "Unexplored building is never disclosed")
+					check(Rect2(Vector2.ZERO, piece.texture.get_size()).grow(0.01).encloses(piece.source_rect), "Architectural crop stays inside its generated texture")
+					var remaining: Array = [piece.world_rect]
+					for known in ui._map_data.visited:
+						var uncovered: Array = []
+						for rect in remaining: uncovered.append_array(ui._subtract_map_rect(rect, ui._map_data.spaces[known].rect))
+						remaining = uncovered
+					check(remaining.is_empty(), "Every building fragment is inside the explored-region union")
+					for other in art_pieces:
+						if piece != other and piece.id == other.id:
+							check(not piece.world_rect.intersects(other.world_rect), "Overlapping explored regions cannot double-paint a building")
+				for layer in ui._map_art_source.get("layers", []):
+					var fitted: Rect2 = ui._map_art_rect(layer)
+					var raw: Array = layer.world_rect
+					var bounds := Rect2(float(raw[0]), float(raw[1]), float(raw[2]), float(raw[3]))
+					var cell_size: Vector2 = ui._map_art_source_rect(layer).size
+					check(bounds.grow(0.01).encloses(fitted) and absf(fitted.end.y - bounds.end.y) < 0.01, "Generated elevation fits its world footprint and rests on its authored base")
+					check(absf(fitted.size.x / fitted.size.y - cell_size.x / cell_size.y) < 0.001, "Generated architecture keeps its original aspect ratio")
 				check(ui._map_data.player == game.player.position, "Player marker uses current position")
 				check(ui._map_data.checkpoints == game.environment.checkpoints, "Checkpoint coordinates match authored map")
 				check(session.state.snapshot() == before, "Viewing map does not mutate campaign state")
@@ -119,7 +163,9 @@ func run() -> void:
 				if dimensions.x == 1280 and explored == 16 and opened:
 					if ui.has_method("_select_map_region"):
 						ui.call("_select_map_region", "mon_15")
-						check(ui._map_focus.distance_to(Vector2(14600,1424)) < 1, "Selecting the chapel centres its actual walking deck, not the tall region rectangle")
+						var chapel_bounds: Rect2 = ui._map_selection_bounds("mon_15")
+						check(ui._map_view().grow(-18).encloses(Rect2(chapel_bounds.position * ui._map_zoom + ui._map_offset(), chapel_bounds.size * ui._map_zoom)), "Selecting the chapel frames its complete discovered architecture and routes without cutting off its spire")
+						check(chapel_bounds.has_point(Vector2(14600,1424)), "Region framing keeps the real walking deck in view")
 						if DisplayServer.get_name() != "headless":
 							await RenderingServer.frame_post_draw
 							root.get_texture().get_image().save_png("res://artifacts/image_map_ui_1280_selected_chapel.png")

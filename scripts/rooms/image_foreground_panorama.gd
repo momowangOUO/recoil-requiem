@@ -11,6 +11,7 @@ const TILE_SPACING := 3.34
 const CARD_COUNT := 7
 const GROUND_TELEPORT_THRESHOLD := 1.2
 const GROUND_FOLLOW_MAX_STEP := 0.03
+const MAX_BASE_ABOVE_GROUND := 0.15
 const TEXTURE := preload("res://assets/environments/crimson/foreground_panorama_v4.png")
 const SILHOUETTE_SHADER := preload("res://assets/environments/crimson/foreground_silhouette.gdshader")
 
@@ -91,7 +92,9 @@ func _grounded_bottom(screen_bottom: float) -> float:
 	last_player_y = ground_y
 	player_position_ready = true
 	if not ground_anchor_ready:
-		anchored_bottom_y = screen_bottom
+		# Keep the authored crest below the actual landing plane, even when the
+		# anchor was first created using the closest weapon camera.
+		anchored_bottom_y = minf(screen_bottom, ground_y + MAX_BASE_ABOVE_GROUND)
 		anchored_ground_y = ground_y
 		ground_anchor_ready = true
 		return anchored_bottom_y

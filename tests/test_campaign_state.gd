@@ -29,8 +29,27 @@ func _initialize() -> void:
 	check(s.apply_event(event("fact", "accepted")) == OK, "Accept after collecting")
 	check(s.quest_status("investigate") == "completed", "Early evidence completes on acceptance")
 	run_storage_and_order(s)
+	run_atomic_events()
 	print("CAMPAIGN STATE STAGE RESULT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+func run_atomic_events() -> void:
+	var s = setup_state()
+	var changes: Array = []
+	var completions: Array = []
+	var on_changed := func(): changes.append(s.snapshot())
+	var on_completed := func(id): completions.append(id)
+	s.changed.connect(on_changed)
+	s.quest_completed.connect(on_completed)
+	var before: Dictionary = s.snapshot()
+	check(s.apply_events([event("fact", "accepted"), event("fact", "unknown")]) == ERR_INVALID_DATA and s.snapshot() == before, "Invalid second event rejects entire batch")
+	check(changes.is_empty() and completions.is_empty(), "Rejected batch sends no partial notifications")
+	var events := [event("fact", "accepted"), event("evidence", "proof"), event("fact", "other_done")]
+	check(s.apply_events(events) == OK and s.quest_status("followup") == "completed", "Batch recalculates dependent outcomes after all facts")
+	check(changes.size() == 1 and changes[0] == s.snapshot() and completions == ["investigate", "followup"], "Observers receive exactly one complete state and each completed quest once")
+	check(s.apply_events(events) == OK and changes.size() == 1 and completions.size() == 2, "Repeated batch is idempotent without duplicate signals")
+	s.changed.disconnect(on_changed)
+	s.quest_completed.disconnect(on_completed)
 
 func run_storage_and_order(s) -> void:
 	var detached: Dictionary = s.snapshot()

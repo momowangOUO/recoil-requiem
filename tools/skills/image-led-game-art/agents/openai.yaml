@@ -1,0 +1,6 @@
+interface:
+  display_name: "游戏美术：先图后施工"
+  short_description: "将生成示意图落到游戏场景与界面，检查图层、玩法配准及实景差异"
+  default_prompt: "使用 $image-led-game-art，为当前游戏切片生成示意图、按图施工并用实机对照验收。"
+policy:
+  allow_implicit_invocation: true
