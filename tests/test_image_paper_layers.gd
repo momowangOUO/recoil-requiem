@@ -22,6 +22,10 @@ func _alpha_at(card: Sprite3D, point: Vector3, pixels: Image) -> float:
 	var local := point - card.global_position
 	var x := int((local.x + half.x) / (card.pixel_size * card.scale.x))
 	var y := int((half.y - local.y) / (card.pixel_size * card.scale.y))
+	var material := card.material_override as ShaderMaterial
+	var extension: float = material.get_shader_parameter("base_extension")
+	if y >= pixels.get_height() and local.y >= -half.y - extension:
+		y = pixels.get_height() - 1
 	if x < 0 or y < 0 or x >= pixels.get_width() or y >= pixels.get_height():
 		return 0.0
 	return pixels.get_pixel(x, y).a
@@ -107,6 +111,28 @@ func run() -> void:
 				var action_center := _plane_hit(stage.camera, Vector2(width * 0.5, height * 0.54))
 				check(_alpha_at_any(cards, action_center) < 0.1,
 					"Foreground leaves the central action readable at %s / %s" % [location, distance])
+	# Preserve the near-view anchor through zoom: resetting at every pose hid the floating base.
+	stage.game.player.position = Vector2(700, 1120)
+	for weapon in CrimsonStage3D.WEAPON_CAMERA:
+		var profile: Dictionary = CrimsonStage3D.WEAPON_CAMERA[weapon]
+		front.call("reset_ground_anchor")
+		var anchor_y := 0.0
+		for step in 61:
+			var distance: float = lerpf(profile.near, profile.far, float(step if step <= 30 else 60 - step) / 30.0)
+			var target := CrimsonStage3D.to_stage(stage.game.player.position + Vector2(0, -minf(52, distance * 10)))
+			stage.camera.position = target + Vector3(0.12, CrimsonStage3D.CAMERA_RISE, distance)
+			stage.camera.look_at(target)
+			front.call("follow_camera", stage.camera)
+			if step == 0: anchor_y = cards[3].position.y
+			check(is_equal_approx(cards[3].position.y, anchor_y), "Continuous zoom preserves the authored contour anchor")
+			var viewport_size := stage.camera.get_viewport().get_visible_rect().size
+			for fraction in [0.0, 0.25, 0.5, 0.75, 1.0]:
+				check(_alpha_at_any(cards, _plane_hit(stage.camera, viewport_size * Vector2(fraction, 0.995))) > 0.5,
+					"Continuous zoom must not expose foreground bottom: %s step %d x %s" % [weapon, step, fraction])
+			if step in [0, 30, 60] and DisplayServer.get_name() != "headless":
+				await process_frame
+				await RenderingServer.frame_post_draw
+				root.get_texture().get_image().save_png("res://artifacts/foreground_zoom_%s_%d.png" % [weapon, step])
 	var landmarks := {"B01PaintedGatehouse": Vector2(2200, 1120),
 		"B02PaintedCargoHouse": Vector2(3900, 1408),
 		"B04PaintedTowerPier": Vector2(7300, 1120),

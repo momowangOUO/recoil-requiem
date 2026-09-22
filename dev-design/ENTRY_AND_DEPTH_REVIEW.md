@@ -67,3 +67,11 @@
 源码、生成素材与上述精简截图随本次主分支变更同步。构建仍保留在本地唯一输出路径，不增加命名变体；完整测试日志与录像在被 Git 忽略的 `artifacts/` 中。
 
 参考：已核对 [Godot 4.7 输入传播](https://docs.godotengine.org/en/4.7/tutorials/inputs/inputevent.html) 与 [Label 换行](https://docs.godotengine.org/en/4.7/classes/class_label.html)。本地验证版本为 4.7.2。
+
+## 2026-09-22 连续缩放露底修复
+
+固定高度前景在拉远后露出矩形底边。现在只延伸贴片底部，保持轮廓世界锚点与像素密度；超出原图的UV取实心底行，同步更新剔除范围，不加屏幕遮罩或碰撞。
+
+新增三枪近→远→近183个连续镜头姿态，保留锚点并检查横向5个底边采样。修复前635项失败，修复后纸板场景1448项全通过；420帧横移、停步和跳跃回放通过。完整tools/run_checks.ps1通过，日志artifacts/foreground-zoom-full-checks.log。GPU截图：docs/screenshots/foreground_zoom_far_20260922.png。自动回放不等于真人试玩。
+
+唯一EXE已覆盖、启动180帧并通过运行包资源检查。SHA256：74D079B75D439EB6F0AEF77F32477EE610C4C3B0D7530610C3A3F55A90569695。

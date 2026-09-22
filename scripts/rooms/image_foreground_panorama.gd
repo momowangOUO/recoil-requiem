@@ -61,12 +61,19 @@ func follow_camera(view_camera: Camera3D) -> void:
 	var card_height := cards[0].pixel_size * TEXTURE.get_height() * cards[0].scale.y
 	var bottom_overscan := minf(view_height * BOTTOM_OVERSCAN, MAX_BOTTOM_OVERSCAN)
 	var grounded_bottom := _grounded_bottom(bottom - bottom_overscan)
+	var extension := maxf(0.0, grounded_bottom - bottom + bottom_overscan)
+	var material := cards[0].material_override as ShaderMaterial
+	material.set_shader_parameter("base_extension", extension)
+	material.set_shader_parameter("authored_height", card_height)
 	var center_x := (left + right) * 0.5
 	var center_tile := floori(center_x / TILE_SPACING)
 	for index in cards.size():
 		var tile := center_tile + index - cards.size() / 2
 		cards[index].global_position = Vector3((tile + 0.5) * TILE_SPACING,
 			grounded_bottom + card_height * 0.5, PLANE_Z)
+		# Shader-deformed geometry must remain inside the CPU frustum-culling bounds.
+		cards[index].custom_aabb = AABB(Vector3(-CARD_WIDTH * 0.5, -card_height * 0.5 - extension, -0.01),
+			Vector3(CARD_WIDTH, card_height + extension, 0.02))
 
 func reset_ground_anchor() -> void:
 	ground_anchor_ready = false
