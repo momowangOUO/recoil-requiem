@@ -71,6 +71,7 @@ var _dialogue_actions: HBoxContainer
 var _dialogue_quest := "entry"
 var _opening_portrait: TextureRect
 var _dialogue_portrait: TextureRect
+var _dialogue_nameplate: PanelContainer
 var _dialogue_illustration: TextureRect
 var _dialogue_close: Button
 
@@ -506,11 +507,12 @@ func _illustration(group: String, id: String, dimensions: Vector2) -> TextureRec
 	return picture
 
 func _hide_dialogue_art() -> void:
-	for art in [_dialogue_portrait, _dialogue_illustration, _dialogue_close]:
+	for art in [_dialogue_portrait, _dialogue_nameplate, _dialogue_illustration, _dialogue_close]:
 		if is_instance_valid(art):
 			remove_child(art)
 			art.queue_free()
 	_dialogue_portrait = null
+	_dialogue_nameplate = null
 	_dialogue_illustration = null
 	_dialogue_close = null
 
@@ -520,11 +522,12 @@ func _draw_dialogue_page() -> void:
 			container.remove_child(child)
 			child.queue_free()
 	var page: Dictionary = _dialogue_pages[_dialogue_index] if not _dialogue_pages.is_empty() else {"speaker":"", "text":"", "quest":_dialogue_quest}
-	for art in [_dialogue_portrait, _dialogue_illustration]:
+	for art in [_dialogue_portrait, _dialogue_nameplate, _dialogue_illustration]:
 		if is_instance_valid(art):
 			remove_child(art)
 			art.queue_free()
 	_dialogue_portrait = null
+	_dialogue_nameplate = null
 	var is_spoken := not str(page.speaker).is_empty()
 	if is_spoken:
 		_dialogue_portrait = _illustration("portraits", str(page.speaker), Vector2.ZERO)
@@ -535,6 +538,18 @@ func _draw_dialogue_page() -> void:
 		_dialogue_portrait.size = fitted
 		_dialogue_portrait.position = Vector2(8 + (420 - fitted.x) * 0.5, 692 - fitted.y)
 		add_child(_dialogue_portrait)
+		_dialogue_nameplate = PanelContainer.new()
+		_dialogue_nameplate.name = "DialogueNameplate"
+		_dialogue_nameplate.position = Vector2(448, 352)
+		_dialogue_nameplate.custom_minimum_size = Vector2(200, 72)
+		_dialogue_nameplate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_dialogue_nameplate.add_theme_stylebox_override("panel", _style("button_normal", 24, 22, 24, 22, 32, 18, 32, 18))
+		var name_label := _label(str(CampaignData.NAMES.get(page.speaker, "")), 22, Color("d8b77c"))
+		name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_dialogue_nameplate.add_child(name_label)
+		add_child(_dialogue_nameplate)
 	_dialogue_illustration = _illustration("quests", str(page.quest), Vector2(176, 130) if is_spoken else Vector2(230, 250))
 	_dialogue_illustration.position = Vector2(1068, 242) if is_spoken else Vector2(42, 370)
 	add_child(_dialogue_illustration)
@@ -543,8 +558,6 @@ func _draw_dialogue_page() -> void:
 	text_column.add_theme_constant_override("separation", 10)
 	text_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_row.add_child(text_column)
-	if not str(page.speaker).is_empty():
-		text_column.add_child(_label(str(CampaignData.NAMES.get(page.speaker, "")), 22, Color("d8b77c")))
 	var spoken := _label(str(page.text), 25)
 	spoken.name = "CurrentUtterance"
 	text_column.add_child(spoken)

@@ -64,6 +64,7 @@ func run() -> void:
 	key(KEY_E, true)
 	await settle()
 	check(ui._dialogue_index == 2 and ui._dialogue_portrait.name == "DialoguePortrait_player", "Fresh E advances to actual player portrait")
+	check(ui._dialogue_nameplate.get_child(0).text == "莉芙", "Nameplate changes with the actual speaker on the same page")
 	check(ui.find_child("CurrentUtterance", true, false).text == session.text("mon.player.target"), "Visible utterance matches reviewed text")
 	check(paused and game.reading, "Advancing keeps gameplay paused")
 	await capture("dialogue_player_1280")
@@ -96,6 +97,7 @@ func run() -> void:
 	await settle()
 	check(not ui.is_panel_open() and ui._dialogue_pages.is_empty() and not paused, "Escape safely clears pagination and resumes")
 	check(not is_instance_valid(ui._dialogue_portrait) and not is_instance_valid(ui._dialogue_illustration), "Closing removes independent portrait and quest overlays")
+	check(not is_instance_valid(ui._dialogue_nameplate), "Closing removes speaker nameplate")
 	key(KEY_ESCAPE, false)
 	for person in ["player", "mara", "ina", "ruka", "celine", "vira"]:
 		var line_id: String = "mon.player.target" if person == "player" else "mon." + person + ".hello"
@@ -103,6 +105,7 @@ func run() -> void:
 		await settle()
 		var portrait: TextureRect = ui._dialogue_portrait
 		check(portrait.texture != null, "Actual speaker portrait resolves: " + person)
+		check(ui._dialogue_nameplate.get_child(0).text == session.Data.NAMES[person], "Independent nameplate matches portrait: " + person)
 		await capture("dialogue_portrait_" + person + "_1280")
 	for dimensions in [Vector2i(960,540), Vector2i(1280,720), Vector2i(1920,1080), Vector2i(2560,1080)]:
 		root.size = dimensions
@@ -112,11 +115,17 @@ func run() -> void:
 		check(ui._dialogue_portrait.get_parent() == ui and ui._dialogue_portrait.position.y + 100 < ui.panel.position.y, "Portrait is independent and protrudes above frame at %s" % dimensions)
 		check(ui._dialogue_portrait.get_rect().intersects(ui.panel.get_rect()), "Portrait overlaps the frame at %s" % dimensions)
 		var utterance: Label = ui.find_child("CurrentUtterance", true, false)
+		var plate: PanelContainer = ui._dialogue_nameplate
+		check(plate.get_parent() == ui and plate.position.y < ui.panel.position.y, "Speaker has a separate frame above the dialogue at %s" % dimensions)
+		check(not plate.get_global_rect().intersects(ui._dialogue_portrait.get_global_rect()) and plate.get_global_rect().end.y <= utterance.get_global_rect().position.y, "Nameplate clears portrait and body text at %s" % dimensions)
+		var name_label: Label = plate.get_child(0)
+		check(plate.get_global_rect().encloses(name_label.get_global_rect()), "Name stays inside its frame at %s" % dimensions)
 		check(utterance.get_global_rect().end.y < ui._dialogue_actions.get_global_rect().position.y, "Text does not overlap actions at %s" % dimensions)
 		await capture("dialogue_mara_%dx%d" % [dimensions.x, dimensions.y])
 		session.dialogue("", ["mon.tools.inspect"], [["tools_ina", "mon.tools.return.choice"], ["tools_mara", "mon.tools.keep.choice"], ["later", "mon.tools.later.choice"]])
 		await settle()
 		check(not is_instance_valid(ui._dialogue_portrait), "Inspection never invents a speaking character")
+		check(not is_instance_valid(ui._dialogue_nameplate), "Inspection has no stale speaker nameplate")
 		check(ui._dialogue_actions.get_child_count() == 3, "All three choices preserved at %s" % dimensions)
 		check(ui.panel.get_rect().end.y <= 720, "Three-choice panel fits at %s" % dimensions)
 		await capture("dialogue_tools_choices_%dx%d" % [dimensions.x, dimensions.y])
