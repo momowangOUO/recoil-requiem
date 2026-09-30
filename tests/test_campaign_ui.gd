@@ -21,7 +21,10 @@ func _run() -> void:
 	ui.choice_selected.connect(func(id): selected = id)
 	ui.close_requested.connect(func(): closed += 1)
 	ui.set_tracker("沿门楼石阶进入外庭", "找回伊娜的工具箱")
-	ui.show_dialogue("玛拉", ["前门不让带枪。你从哪儿进来的？"], [{"id":"entry", "text":"运输站旁边的石阶。那条路还通着。"}])
+	ui.show_dialogue("玛拉", ["玛拉：前门不让带枪。你从哪儿进来的？"], [{"id":"entry", "text":"运输站旁边的石阶。那条路还通着。"}])
+	await process_frame
+	await process_frame
+	ui.advance_dialogue()
 	await process_frame
 	await process_frame
 	assert(ui.panel.get_rect().end.x <= 1280 and ui.panel.get_rect().end.y <= 720)
@@ -31,14 +34,14 @@ func _run() -> void:
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
-	click.position = buttons[1].get_global_rect().get_center()
+	click.position = ui._dialogue_actions.get_child(0).get_global_rect().get_center()
 	root.push_input(click, true)
 	click = click.duplicate()
 	click.pressed = false
 	root.push_input(click, true)
 	await process_frame
 	assert(selected == "entry")
-	buttons[0].pressed.emit()
+	ui._dialogue_close.pressed.emit()
 	assert(closed == 1)
 	paused = false
 	if DisplayServer.get_name() != "headless":

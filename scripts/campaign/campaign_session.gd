@@ -253,7 +253,7 @@ func bind_world() -> void:
 		actor.z_index = -1
 		actor.position = p.position
 		if p.id in ["vira", "celine"]:
-			actor.art_path = "res://assets/characters/campaign/%s.png" % ("boss_actions_v1" if p.id == "vira" else "elite_actions_v1")
+			actor.art_path = "res://assets/characters/campaign/%s.png" % ("boss_actions_v2" if p.id == "vira" else "elite_actions_v2")
 		lab.world.add_child(actor)
 		npc_actors[p.id] = actor
 		if p.id == "vira": actor.path_finished.connect(func(): event("vira_relocated"))
@@ -473,7 +473,10 @@ func handle_input(input: InputEvent) -> bool:
 	if not input is InputEventKey or not input.pressed or input.echo: return false
 	if ui.is_panel_open():
 		if input.physical_keycode in [KEY_ESCAPE, KEY_J, KEY_M]: close()
-		return true
+		elif input.physical_keycode in [KEY_E, KEY_SPACE, KEY_ENTER, KEY_KP_ENTER]:
+			if ui.panel_kind == "dialogue": ui.advance_dialogue()
+			elif input.physical_keycode != KEY_E: return false
+		return input.physical_keycode not in [KEY_TAB, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]
 	if lab.paused: return false
 	match input.physical_keycode:
 		KEY_F9:
@@ -546,7 +549,7 @@ func dialogue(speaker: String, ids: Array, choices: Array = []) -> void:
 	var has_spoken_line := false
 	for id in ids:
 		if str(id).begins_with("mon." + speaker + ".") and Data.NAMES.has(speaker): has_spoken_line = true
-	ui.show_dialogue(Data.NAMES.get(speaker,"") if has_spoken_line else "",lines,options)
+	ui.show_dialogue(Data.NAMES.get(speaker,"") if has_spoken_line else "",lines,options,ids)
 
 func interact(id: String, npc: bool = false) -> void:
 	if id.ends_with("_travel"):

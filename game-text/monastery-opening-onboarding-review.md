@@ -75,3 +75,14 @@
 - 960×540 与 1280×720 检查开场追踪框、操作提示、任务切换、日志回看和长对白安全区。
 
 执行记录：已读取 `tools/skills/game-story-workflow/SKILL.md`、`game-narrative/SKILL.md`、`references/local-adaptation.md`、Narrative Designer 模板、`game-design-natural-writing-zh/SKILL.md` 与 `humanizer-zh/SKILL.md`。本稿采用已确认的莉芙动机 C 和修道院事件线；没有把新故事提案写入运行文本。
+
+## 2026-09-30 逐句对白按钮补记
+
+本次为 UI 工作的接入后复核记录，不冒充实现前草稿。按 natural-writing-zh 的游戏内文案规则检查：操作含义与真实行为一致，不修改台词、事实或任务 ID。
+
+| 用途 | 已复核文字 | 条件 |
+|---|---|---|
+| 推进一句 | 下一句 · E | 当前不是最后一句 |
+| 推进键提示 | E / Space / Enter | 悬浮按钮时显示 |
+
+最后一句沿用现有“结束交谈 · Esc”；选择仍用正式对白审阅稿，不进行新润色。实际运行截图与按钮属性已读回核对。

@@ -637,6 +637,14 @@ func _update_camera(delta: float) -> void:
 	camera_distance = lerpf(camera_distance, desired_distance, 1 - exp(-delta / 0.24))
 	camera.position = camera_target + Vector3(yaw_offset, CAMERA_RISE, camera_distance)
 	camera.look_at(camera_target, Vector3.UP)
+	# The normal follow spring trails terminal-speed falls by more than a near
+	# viewport. Translate its target with the camera before the feet leave view.
+	var feet := camera.unproject_position(to_stage(game.player.position))
+	var safe_bottom := camera.get_viewport().get_visible_rect().size.y * 0.86
+	if feet.y > safe_bottom:
+		var correction := (screen_to_world(Vector2(feet.x, safe_bottom)).y - game.player.position.y) * PIXEL
+		camera_target.y += correction
+		camera.position.y += correction
 
 func _update_actor_window() -> void:
 	# Keep the actor render target fixed-size as the continuous world grows.

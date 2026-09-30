@@ -33,7 +33,7 @@ func reload_art() -> void:
 	_frames.clear()
 	_sizes.clear()
 	_offsets.clear()
-	var path := art_path if not art_path.is_empty() else "res://assets/characters/npcs/%s_idle_v2.png" % npc_id
+	var path := art_path if not art_path.is_empty() else "res://assets/characters/npcs/%s_idle_v3.png" % npc_id
 	var image: Image
 	if ResourceLoader.exists(path):
 		var resource = load(path)

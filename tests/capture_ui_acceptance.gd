@@ -43,7 +43,7 @@ func run() -> void:
 	var hud = game.overlay.combat
 	check(ui.panel.get_theme_stylebox("panel") is StyleBoxTexture,"Panel uses authored imagegen nine-patch artwork")
 	check(ui.panel.get_theme_stylebox("panel").content_margin_left >= 82,"Panel text stays in the quiet center, clear of corner ornament")
-	check(not ui.theme.get_stylebox("focus","Button").draw_center,"Focus border cannot paint over the button surface")
+	check(ui.theme.get_stylebox("focus","Button") is StyleBoxEmpty,"Focus border cannot paint over the button surface")
 	check(ui.theme.has_stylebox("disabled","Button"),"Disabled buttons have an authored state")
 	await capture("combat_1280")
 	await RenderingServer.frame_post_draw
@@ -136,10 +136,10 @@ func run() -> void:
 			root.push_input(wheel_release,true)
 			await settle(2)
 			check(ui._map_zoom > old_zoom,"Real mouse wheel zooms the paused M map")
-			await click(buttons[4])
+			await click(buttons.filter(func(button): return button.text == "全图")[0])
 			await settle(2)
 			check(ui._map_full and is_equal_approx(ui._map_zoom,ui._full_map_zoom()),"Full-map button works while paused")
-			await click(buttons[3])
+			await click(buttons.filter(func(button): return button.text == "回到当前位置")[0])
 			await settle(2)
 			check(ui._world_at_map(ui._map.size * 0.5).distance_to(game.player.position) < 2,"Return-player button works while paused")
 			var map_center: Vector2 = ui._map.get_global_rect().get_center()
@@ -169,19 +169,20 @@ func run() -> void:
 		check(not ui._map_selected.is_empty(),"Map legend selects/highlights known space")
 		check(ui.theme.default_font_size * dimensions.x / 1280.0 >= 24,"Native text is at least 24px")
 		await capture("map16_%d" % dimensions.x)
-		# Add enough approved text to verify scrolling beyond a short exchange.
+		# Long exchanges retain one readable sentence and gate their final options.
 		var transcript: Array = []
 		for i in 8: transcript.append(session.text("mon.records.note"))
 		ui.show_dialogue("玛拉",transcript,[{"id":"ui_test","text":session.text("mon.records.keep.choice")}])
 		await settle(3)
 		check(ui.panel.get_rect().end.y <= 720,"Long dialogue stays within canvas")
-		var scroll: ScrollContainer = ui.find_children("*","ScrollContainer",true,false)[0]
-		check(scroll.get_v_scroll_bar().max_value > scroll.size.y,"Long dialogue has real scroll overflow")
-		scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
-		await settle(2)
+		check(ui.find_children("*","ScrollContainer",true,false).is_empty(),"Dialogue never becomes a scrolling transcript")
+		check(ui.find_children("CurrentUtterance","Label",true,false).size() == 1,"Only the current sentence is visible")
+		while ui._dialogue_index + 1 < ui._dialogue_pages.size():
+			ui.advance_dialogue()
+			await settle(1)
 		buttons = ui.find_children("*","Button",true,false)
-		await click(buttons[-1])
-		check(selected == "ui_test","Scrolled dialogue option accepts real mouse click while paused")
+		await click(ui._dialogue_actions.get_child(0))
+		check(selected == "ui_test","Final dialogue option accepts real mouse click while paused")
 		await capture("dialogue_bottom_%d" % dimensions.x)
 		session.close()
 	ui.show_map(spaces,game.environment.connections,[spaces.keys()[0]],game.environment.gate_states,game.player.position,game.environment.checkpoints)

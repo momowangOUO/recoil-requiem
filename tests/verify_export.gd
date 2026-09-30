@@ -5,16 +5,16 @@ func _initialize() -> void:
 
 func run() -> void:
 	var failures := 0
-	for path in ["res://assets/ui/v2/runtime/map_elevations_v2.png", "res://assets/ui/v2/runtime/map_station_v2.png", "res://assets/ui/v2/runtime/title_stage_v1.png", "res://assets/ui/v2/runtime/title_hero_poses_v1.png", "res://assets/environments/crimson/garden_facade_v2.png", "res://assets/environments/crimson/close_facade_bays_v1.png"]:
+	for path in ["res://assets/ui/v2/runtime/map_elevations_v2.png", "res://assets/ui/v2/runtime/map_station_v2.png", "res://assets/ui/v2/runtime/title_stage_v1.png", "res://assets/ui/v2/runtime/title_hero_poses_v2.png", "res://assets/ui/v2/runtime/dialogue_portraits_v1.png", "res://assets/ui/v2/runtime/quest_station_v1.png", "res://assets/ui/v2/runtime/quest_routes_v1.png", "res://assets/ui/v2/runtime/quest_departure_v1.png", "res://assets/environments/crimson/garden_facade_v2.png", "res://assets/environments/crimson/close_facade_bays_v1.png"]:
 		if load(path) == null:
 			push_error("Missing new exported artwork: " + path)
 			failures += 1
-	for path in ["res://data/campaign/monastery_map_art.json", "res://data/campaign/title_hero_poses.json"]:
+	for path in ["res://data/campaign/monastery_map_art.json", "res://data/campaign/title_hero_poses.json", "res://data/campaign/dialogue_art.json"]:
 		if not JSON.parse_string(FileAccess.get_file_as_string(path)) is Dictionary:
 			failures += 1
 	for path in ["res://assets/ui/v2/source/title_hero_concept_v1.png", "res://assets/ui/v2/source/title_hero_poses_v1.png", "res://assets/ui/v2/source/ui_map_concept_v2.png", "res://tools/skills/image-led-game-art/SKILL.md"]:
 		if FileAccess.file_exists(path): failures += 1
-	for path in ["res://scenes/game.tscn", "res://assets/fonts/unifont-18.0.01.otf", "res://assets/environments/crimson/foreground_silhouette.gdshader", "res://assets/characters/npcs/mara_idle_v2.png", "res://assets/ui/v2/runtime/journal_frame.png", "res://assets/ui/v2/runtime/tracker_frame.png", "res://assets/ui/v2/runtime/weapon_frame.png", "res://assets/ui/v2/runtime/reticle.png", "res://assets/ui/v2/runtime/reload_segment.png", "res://assets/ui/v2/runtime/map_gatehouse.png", "res://assets/environments/crimson/chapel_window_v1.png", "res://assets/environments/crimson/foreground_panorama_v4.png", "res://assets/environments/crimson/industrial_facade_v1.png", "res://assets/environments/crimson/chapel_facade_v1.png", "res://assets/environments/crimson/chapel_grand_facade_v2.png", "res://assets/environments/crimson/bell_pier_facade_v1.png", "res://assets/environments/crimson/gatehouse_facade_v1.png", "res://assets/environments/crimson/quest_props_v1.png", "res://assets/environments/crimson/castle_haze.gdshader"]:
+	for path in ["res://scenes/game.tscn", "res://assets/fonts/unifont-18.0.01.otf", "res://assets/environments/crimson/foreground_silhouette.gdshader", "res://assets/characters/npcs/mara_idle_v3.png", "res://assets/characters/npcs/ina_idle_v3.png", "res://assets/characters/npcs/ruka_idle_v3.png", "res://assets/characters/campaign/elite_actions_v2.png", "res://assets/characters/campaign/boss_actions_v2.png", "res://assets/ui/v2/runtime/journal_frame.png", "res://assets/ui/v2/runtime/tracker_frame.png", "res://assets/ui/v2/runtime/weapon_frame.png", "res://assets/ui/v2/runtime/reticle.png", "res://assets/ui/v2/runtime/reload_segment.png", "res://assets/ui/v2/runtime/map_gatehouse.png", "res://assets/environments/crimson/chapel_window_v1.png", "res://assets/environments/crimson/foreground_panorama_v4.png", "res://assets/environments/crimson/industrial_facade_v1.png", "res://assets/environments/crimson/chapel_facade_v1.png", "res://assets/environments/crimson/chapel_grand_facade_v2.png", "res://assets/environments/crimson/bell_pier_facade_v1.png", "res://assets/environments/crimson/gatehouse_facade_v1.png", "res://assets/environments/crimson/quest_props_v1.png", "res://assets/environments/crimson/castle_haze.gdshader"]:
 		if load(path) == null:
 			push_error("Missing exported resource: " + path)
 			failures += 1
@@ -23,7 +23,7 @@ func run() -> void:
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/monastery_text.json"))
 	if not parsed is Dictionary or parsed.is_empty(): failures += 1
 	var map_ui = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/monastery_map_ui.json"))
-	if not map_ui is Dictionary or map_ui.get("segments", []).size() != 56 or map_ui.get("label_anchors", {}).size() != 16 or map_ui.get("transition_visibility", {}).size() != 5: failures += 1
+	if not map_ui is Dictionary or map_ui.get("segments", []).size() != 73 or map_ui.get("label_anchors", {}).size() != 16 or map_ui.get("transition_visibility", {}).size() != 6: failures += 1
 	var packed = load("res://scenes/rooms/image_monastery.tscn")
 	if packed == null:
 		failures += 1

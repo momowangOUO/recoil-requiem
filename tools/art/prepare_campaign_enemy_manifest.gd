@@ -8,10 +8,12 @@ const ROOTS := {
 	"elite": [155,520,910,1330,160,560,920,1320],
 	"boss": [190,585,1000,1430,230,600,1005,1440]
 }
+const REVISED_FLOORS := {"elite": [478,478,478,478,914,914,914,935], "boss": [427,424,424,424,844,844,844,869]}
+const REVISED_HEIGHTS := {"elite": 364.0, "boss": 359.0}
 func _initialize() -> void:
 	var manifest := {}
 	for kind in ROOTS:
-		var path := "res://assets/characters/campaign/%s_actions_v1.png" % kind
+		var path := "res://assets/characters/campaign/%s_actions_%s.png" % [kind, "v2" if kind in REVISED_FLOORS else "v1"]
 		var source := Image.load_from_file(path)
 		var w := source.get_width()
 		var h := source.get_height()
@@ -54,10 +56,14 @@ func _initialize() -> void:
 					if c.a > 0.8 and minf(c.r,c.b)-c.g < 0.18:
 						low = low.min(Vector2i(x,y))
 						high = high.max(Vector2i(x,y))
-			frames.append({"region": [low.x,low.y,high.x-low.x+1,high.y-low.y+1], "anchor": [ROOTS[kind][frame],high.y+1]})
+			assert(high.x >= low.x and high.y >= low.y, "Missing authored pose: %s/%d" % [kind, frame])
+			# Cosmetic edits retain the original pelvis/foot registration and shared scale.
+			var floor_y: int = REVISED_FLOORS[kind][frame] if kind in REVISED_FLOORS else high.y+1
+			frames.append({"region": [low.x,low.y,high.x-low.x+1,high.y-low.y+1], "anchor": [ROOTS[kind][frame],floor_y]})
 		var standing_height: float = frames[0].region[3]
 		# Flyer wings exceed the body crown; use her actual head-to-boot baseline.
 		if kind == "flyer": standing_height = 330
+		if kind in REVISED_HEIGHTS: standing_height = REVISED_HEIGHTS[kind]
 		manifest[kind] = {"path":path,"scale":44.0/standing_height,"frames":frames}
 	var file := FileAccess.open("res://assets/characters/campaign/manifest.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(manifest,"\t"))

@@ -15,6 +15,7 @@ const SILVER := Color("b4b1b8")
 const ART_DIR := "res://assets/ui/v2/runtime/"
 const MAP_SOURCE := "res://data/campaign/monastery_map_ui.json"
 const MAP_ART_SOURCE := "res://data/campaign/monastery_map_art.json"
+const DIALOGUE_ART_SOURCE := "res://data/campaign/dialogue_art.json"
 var panel_kind := ""
 var tracker: VBoxContainer
 var panel: PanelContainer
@@ -60,6 +61,18 @@ var _departure_buttons: Array[Button] = []
 var _interaction_target := ""
 var _interaction_action := ""
 var _external_pause_hidden := false
+var _dialogue_art: Dictionary = {}
+var _dialogue_pages: Array = []
+var _dialogue_choices: Array = []
+var _dialogue_index := 0
+var _dialogue_armed := false
+var _dialogue_row: HBoxContainer
+var _dialogue_actions: HBoxContainer
+var _dialogue_quest := "entry"
+var _opening_portrait: TextureRect
+var _dialogue_portrait: TextureRect
+var _dialogue_illustration: TextureRect
+var _dialogue_close: Button
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -80,6 +93,9 @@ func _ready() -> void:
 	theme.set_color("font_disabled_color", "Button", Color("ada3a6"))
 	theme.set_color("font_hover_color", "Button", Color("2c1c20"))
 	_ui_copy = CampaignData.onboarding_ui()
+	if FileAccess.file_exists(DIALOGUE_ART_SOURCE):
+		var decoded: Variant = JSON.parse_string(FileAccess.get_file_as_string(DIALOGUE_ART_SOURCE))
+		if decoded is Dictionary: _dialogue_art = decoded
 	var map_file := FileAccess.open(MAP_SOURCE, FileAccess.READ)
 	if map_file != null:
 		var decoded: Variant = JSON.parse_string(map_file.get_as_text())
@@ -122,6 +138,11 @@ func _ready() -> void:
 	_opening.add_theme_constant_override("outline_size", 2)
 	_opening.hide()
 	add_child(_opening)
+	_opening_portrait = _illustration("portraits", "player", Vector2(82, 96))
+	_opening_portrait.position = Vector2(126, 535)
+	_opening_portrait.hide()
+	add_child(_opening_portrait)
+	_opening.visibility_changed.connect(func(): _opening_portrait.visible = _opening.visible)
 	_controls = _label("", 20, SILVER)
 	_controls.position = Vector2(360, 632)
 	_controls.size = Vector2(560, 50)
@@ -169,6 +190,8 @@ func _ready() -> void:
 	_adapt_type()
 
 func _process(delta: float) -> void:
+	if panel_kind == "dialogue" and not _dialogue_armed and not _confirmation_held():
+		_dialogue_armed = true
 	if panel_kind == "departure" and not _departure_armed and not _confirmation_held():
 		_departure_armed = true
 		for button in _departure_buttons: button.disabled = false
@@ -340,6 +363,10 @@ func is_panel_open() -> bool:
 
 func close_panel() -> void:
 	panel_kind = ""
+	_dialogue_pages.clear()
+	_dialogue_choices.clear()
+	_dialogue_armed = false
+	_hide_dialogue_art()
 	_departure_buttons.clear()
 	panel.hide()
 	_modal_scrim.hide()
@@ -352,6 +379,7 @@ func close_panel() -> void:
 
 func _open(kind: String, title: String) -> void:
 	panel_kind = kind
+	_hide_dialogue_art()
 	_interaction_art.hide()
 	tracker.hide()
 	if _tracker_art: _tracker_art.hide()
@@ -362,9 +390,22 @@ func _open(kind: String, title: String) -> void:
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
-	panel.position = Vector2(120, 38) if kind != "dialogue" else Vector2(280, 315)
-	panel.size = Vector2(1040, 644) if kind != "dialogue" else Vector2(830, 365)
-	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 86, 54, 86, 50) if kind == "dialogue" else _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
+	panel.position = Vector2(120, 38) if kind != "dialogue" else Vector2(330, 388)
+	panel.size = Vector2(1040, 644) if kind != "dialogue" else Vector2(918, 304)
+	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 118, 40, 74, 40) if kind == "dialogue" else _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
+	if kind == "dialogue":
+		_dialogue_close = Button.new()
+		_dialogue_close.text = "×"
+		_dialogue_close.tooltip_text = COPY.close
+		_dialogue_close.position = Vector2(1184, 444)
+		_dialogue_close.size = Vector2(44, 44)
+		_dialogue_close.add_theme_color_override("font_hover_color", Color("ffd18a"))
+		for state in ["normal", "hover", "pressed", "focus"]:
+			_dialogue_close.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+		_dialogue_close.pressed.connect(func(): close_requested.emit())
+		add_child(_dialogue_close)
+		panel.show()
+		return
 	if kind == "map":
 		panel.position = Vector2(32, 24)
 		panel.size = Vector2(1216, 672)
@@ -396,22 +437,142 @@ func _scroll() -> VBoxContainer:
 	scroll.add_child(body)
 	return body
 
-func show_dialogue(_speaker: String, lines: Array, choices: Array) -> void:
-	# Runtime lines already carry the actual speaker. Keep the modal header quiet and
-	# separate the name from the sentence instead of repeating it in two places.
+func show_dialogue(speaker: String, lines: Array, choices: Array, ids: Array = []) -> void:
 	_open("dialogue", "")
-	var body := _scroll()
-	for line in lines:
-		_add_dialogue_line(body, str(line))
-	for choice in choices:
-		var button := Button.new()
-		button.text = str(choice.get("text", ""))
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.custom_minimum_size.y = 72
-		var id := str(choice.get("id", ""))
-		button.pressed.connect(func(): choice_selected.emit(id))
-		body.add_child(button)
+	_dialogue_pages.clear()
+	_dialogue_choices = choices.duplicate(true)
+	_dialogue_index = 0
+	_dialogue_armed = false
+	_dialogue_quest = str(_dialogue_art.get("default_quest", "entry"))
+	var speaker_id := str(CampaignData.NAMES.find_key(speaker)) if speaker in CampaignData.NAMES.values() else ""
+	var speaker_quest := str({"ina":"tools", "ruka":"records", "mara":"entry"}.get(speaker_id, speaker_id))
+	if _dialogue_art.get("quests", {}).has(speaker_quest): _dialogue_quest = speaker_quest
+	var sentence_pattern := RegEx.new()
+	sentence_pattern.compile("[^。！？]+[。！？]*[”’」』]*")
+	for index in lines.size():
+		var value := str(lines[index])
+		var separator := value.find("：")
+		var who := ""
+		if separator > 0:
+			who = str(CampaignData.NAMES.find_key(value.left(separator))) if value.left(separator) in CampaignData.NAMES.values() else ""
+		var id := str(ids[index]) if index < ids.size() else ""
+		var quest := str(_dialogue_art.get("events", {}).get(id, ""))
+		if not quest.is_empty(): _dialogue_quest = quest
+		var spoken := value.substr(separator + 1).strip_edges() if not who.is_empty() else value
+		for sentence in sentence_pattern.search_all(spoken):
+			_dialogue_pages.append({"speaker":who, "text":sentence.get_string().strip_edges(), "quest":_dialogue_quest})
+	_dialogue_row = HBoxContainer.new()
+	_dialogue_row.add_theme_constant_override("separation", 20)
+	_dialogue_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_dialogue_row.mouse_filter = Control.MOUSE_FILTER_STOP
+	_dialogue_row.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			advance_dialogue()
+			_dialogue_row.accept_event())
+	content.add_child(_dialogue_row)
+	_dialogue_actions = HBoxContainer.new()
+	_dialogue_actions.add_theme_constant_override("separation", 10)
+	content.add_child(_dialogue_actions)
+	_draw_dialogue_page()
+
+func advance_dialogue() -> void:
+	if panel_kind != "dialogue" or not _dialogue_armed: return
+	_dialogue_armed = false
+	if _dialogue_index + 1 < _dialogue_pages.size():
+		_dialogue_index += 1
+		_draw_dialogue_page()
+	elif _dialogue_choices.is_empty():
+		close_requested.emit()
+	else:
+		var focused := get_viewport().gui_get_focus_owner()
+		if focused is Button and focused.get_parent() == _dialogue_actions:
+			choice_selected.emit(str(focused.get_meta("choice_id")))
+
+func _illustration(group: String, id: String, dimensions: Vector2) -> TextureRect:
+	var picture := TextureRect.new()
+	picture.name = "Portrait_" + id if group == "portraits" else "Quest_" + id
+	picture.custom_minimum_size = dimensions
+	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var spec: Dictionary = _dialogue_art.get(group, {}).get(id, {})
+	var path := str(spec.get("texture", ""))
+	if not path.is_empty() and ResourceLoader.exists(path):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = load(path)
+		var rect: Array = spec.get("rect", [])
+		if rect.size() == 4: atlas.region = Rect2(rect[0], rect[1], rect[2], rect[3])
+		picture.texture = atlas
+	return picture
+
+func _hide_dialogue_art() -> void:
+	for art in [_dialogue_portrait, _dialogue_illustration, _dialogue_close]:
+		if is_instance_valid(art):
+			remove_child(art)
+			art.queue_free()
+	_dialogue_portrait = null
+	_dialogue_illustration = null
+	_dialogue_close = null
+
+func _draw_dialogue_page() -> void:
+	for container in [_dialogue_row, _dialogue_actions]:
+		for child in container.get_children():
+			container.remove_child(child)
+			child.queue_free()
+	var page: Dictionary = _dialogue_pages[_dialogue_index] if not _dialogue_pages.is_empty() else {"speaker":"", "text":"", "quest":_dialogue_quest}
+	for art in [_dialogue_portrait, _dialogue_illustration]:
+		if is_instance_valid(art):
+			remove_child(art)
+			art.queue_free()
+	_dialogue_portrait = null
+	var is_spoken := not str(page.speaker).is_empty()
+	if is_spoken:
+		_dialogue_portrait = _illustration("portraits", str(page.speaker), Vector2.ZERO)
+		_dialogue_portrait.name = "DialoguePortrait_" + str(page.speaker)
+		var source_size := _dialogue_portrait.texture.get_size() if _dialogue_portrait.texture != null else Vector2.ONE
+		var fitted := source_size * minf(420.0 / source_size.x, 420.0 / source_size.y)
+		_dialogue_portrait.custom_minimum_size = fitted
+		_dialogue_portrait.size = fitted
+		_dialogue_portrait.position = Vector2(8 + (420 - fitted.x) * 0.5, 692 - fitted.y)
+		add_child(_dialogue_portrait)
+	_dialogue_illustration = _illustration("quests", str(page.quest), Vector2(176, 130) if is_spoken else Vector2(230, 250))
+	_dialogue_illustration.position = Vector2(1068, 242) if is_spoken else Vector2(42, 370)
+	add_child(_dialogue_illustration)
+	var text_column := VBoxContainer.new()
+	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_column.add_theme_constant_override("separation", 10)
+	text_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_row.add_child(text_column)
+	if not str(page.speaker).is_empty():
+		text_column.add_child(_label(str(CampaignData.NAMES.get(page.speaker, "")), 22, Color("d8b77c")))
+	var spoken := _label(str(page.text), 25)
+	spoken.name = "CurrentUtterance"
+	text_column.add_child(spoken)
+	if _dialogue_index + 1 >= _dialogue_pages.size() and not _dialogue_choices.is_empty():
+		for choice in _dialogue_choices:
+			var button := Button.new()
+			button.text = str(choice.get("text", ""))
+			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			button.custom_minimum_size.y = 72
+			var id := str(choice.get("id", ""))
+			button.set_meta("choice_id", id)
+			button.pressed.connect(func():
+				if _dialogue_armed:
+					_dialogue_armed = false
+					choice_selected.emit(id))
+			_dialogue_actions.add_child(button)
+		_dialogue_actions.get_child(0).grab_focus()
+	else:
+		var counter := _label("%d / %d" % [_dialogue_index + 1, maxi(1, _dialogue_pages.size())], 20, SILVER)
+		counter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_dialogue_actions.add_child(counter)
+		var next := Button.new()
+		next.text = "下一句 · E" if _dialogue_index + 1 < _dialogue_pages.size() else COPY.close
+		next.tooltip_text = "E / Space / Enter"
+		next.custom_minimum_size.y = 72
+		next.pressed.connect(advance_dialogue)
+		_dialogue_actions.add_child(next)
 
 func _confirmation_held() -> bool:
 	return Input.is_physical_key_pressed(KEY_E) or Input.is_physical_key_pressed(KEY_SPACE) or Input.is_physical_key_pressed(KEY_ENTER) or Input.is_action_pressed("ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
@@ -421,7 +582,15 @@ func show_departure(lines: Array, choices: Array, title: String = "") -> void:
 	_departure_armed = false
 	_departure_buttons.clear()
 	var body := _scroll()
-	for line in lines: body.add_child(_label(str(line)))
+	var overview := HBoxContainer.new()
+	overview.add_theme_constant_override("separation", 22)
+	body.add_child(overview)
+	overview.add_child(_illustration("quests", "departure", Vector2(240, 190)))
+	var summary := VBoxContainer.new()
+	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	summary.add_theme_constant_override("separation", 14)
+	overview.add_child(summary)
+	for line in lines: summary.add_child(_label(str(line)))
 	for choice in choices:
 		var button := Button.new()
 		button.text = str(choice.get("text", ""))
@@ -433,23 +602,6 @@ func show_departure(lines: Array, choices: Array, title: String = "") -> void:
 			if _departure_armed: choice_selected.emit(id))
 		body.add_child(button)
 		_departure_buttons.append(button)
-
-func _add_dialogue_line(body: VBoxContainer, value: String) -> void:
-	var separator := value.find("：")
-	var who := value.left(separator) if separator > 0 else ""
-	if separator > 0 and separator <= 4 and who in CampaignData.NAMES.values():
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 14)
-		body.add_child(row)
-		var speaker := _label(who, 18, Color("d8b77c"))
-		speaker.custom_minimum_size.x = 62
-		speaker.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-		row.add_child(speaker)
-		var spoken := _label(value.substr(separator + 1).strip_edges())
-		spoken.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(spoken)
-	else:
-		body.add_child(_label(value))
 
 func show_journal(entries: Array, selected_category: String = "tasks") -> void:
 	_entries = entries.duplicate(true)
@@ -649,7 +801,7 @@ func _draw_map() -> void:
 		_draw_icon("map_open" if mark.opened else "map_lock", at, Vector2.ONE * maxf(18.0, marker_size))
 		_map.draw_string(ThemeDB.fallback_font, at + Vector2(9, -9), str(mark.label), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, INK)
 	var gate_points := _map_gate_world_points()
-	for gate in ["gate_departure", "gate_departure_back"]:
+	for gate in gate_points:
 		if gate_points.has(gate) and _known_point(gate_points[gate]):
 			_draw_icon("map_open" if bool(_map_data.gates.get(gate, false)) else "map_lock", gate_points[gate] * _map_zoom + offset, Vector2.ONE * marker_size)
 	for checkpoint in _map_data.checkpoints:

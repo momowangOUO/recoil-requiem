@@ -668,7 +668,11 @@ func _flow_arcade(foot: Vector2, label: String) -> void:
 func _flow_setdress() -> void:
 	# These are stage furniture behind the actors, never extra invisible obstacles.
 	_flow_prop(Rect2(590, 372, 452, 269), Vector2(3970, 1408), 70, -0.55, "MaraLedgerDesk")
-	_flow_prop(Rect2(950, 740, 478, 310), Vector2(4908, 1408), 60, -0.58, "InaToolWorkbench")
+	_flow_prop(Rect2(950, 740, 478, 310), Vector2(4908, 1408), 76, -0.58, "InaToolWorkbench")
+	# The approved workshop view has a recessed architectural backdrop, not a
+	# bare retaining wall. This is scenery only; the authored route stays intact.
+	_flow_arcade(Vector2(4704, 1408), "WorkshopPaperArcade")
+	_warm_window_light(Vector2(4874, 1358), 1.8, 0.48, "WorkshopTaskLamp")
 	_flow_prop(Rect2(26, 718, 531, 317), Vector2(4100, 1408), 88, -0.67, "CourtyardFreightBefore")
 	stage.flow_visuals.append({"piece": stage.scenery.get_child(-1), "fact": "vira_dead", "show": false})
 	_flow_prop(Rect2(26, 718, 531, 317), Vector2(3810, 1408), 88, -0.67, "CourtyardFreightReturned")

@@ -12,6 +12,8 @@ const CARD_COUNT := 7
 const GROUND_TELEPORT_THRESHOLD := 1.2
 const GROUND_FOLLOW_MAX_STEP := 0.03
 const MAX_BASE_ABOVE_GROUND := 0.15
+const CLEAR_SCREEN_FRACTION := 0.72
+const CONTOUR_TOP := 484 # v4 alpha above this row is discarded by the silhouette shader.
 const TEXTURE := preload("res://assets/environments/crimson/foreground_panorama_v4.png")
 const SILHOUETTE_SHADER := preload("res://assets/environments/crimson/foreground_silhouette.gdshader")
 
@@ -22,10 +24,12 @@ var anchored_ground_y := 0.0
 var ground_anchor_ready := false
 var last_player_y := 0.0
 var player_position_ready := false
+var contour_height := 0.0
 
 func _ready() -> void:
 	stage_host = get_parent().get_parent()
 	var pixel_size := CARD_WIDTH / float(TEXTURE.get_width())
+	contour_height = (TEXTURE.get_height() - CONTOUR_TOP) * pixel_size
 	var silhouette_material := ShaderMaterial.new()
 	silhouette_material.shader = SILHOUETTE_SHADER
 	silhouette_material.set_shader_parameter("mask_texture", TEXTURE)
@@ -62,6 +66,21 @@ func follow_camera(view_camera: Camera3D) -> void:
 	var card_height := cards[0].pixel_size * TEXTURE.get_height() * cards[0].scale.y
 	var bottom_overscan := minf(view_height * BOTTOM_OVERSCAN, MAX_BOTTOM_OVERSCAN)
 	var grounded_bottom := _grounded_bottom(bottom - bottom_overscan)
+	# A remembered upper landing is not a physical wall in front of every lower
+	# floor. Release it as soon as the descending view reaches the contour; do
+	# not wait for ground contact and then animate a curtain through the player.
+	var clear_y := viewport_size.y * CLEAR_SCREEN_FRACTION
+	var player := _player()
+	if player != null:
+		var feet := view_camera.unproject_position(CrimsonStage3D.to_stage(player.position))
+		clear_y = maxf(clear_y, feet.y + 4.0)
+	var safe_bottom := minf(_on_plane(view_camera, Vector2(0, clear_y)).y,
+		_on_plane(view_camera, Vector2(viewport_size.x, clear_y)).y) - contour_height
+	if player != null and player.is_on_floor():
+		grounded_bottom = maxf(grounded_bottom, bottom - bottom_overscan)
+	grounded_bottom = minf(grounded_bottom, safe_bottom)
+	anchored_ground_y += grounded_bottom - anchored_bottom_y
+	anchored_bottom_y = grounded_bottom
 	var extension := maxf(0.0, grounded_bottom - bottom + bottom_overscan)
 	var material := cards[0].material_override as ShaderMaterial
 	material.set_shader_parameter("base_extension", extension)

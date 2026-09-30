@@ -105,7 +105,8 @@ func run() -> void:
 	check(ui.panel_kind == "dialogue" and session.has("met_mara"), "Actual E at Mara opens the approved first conversation")
 	ui._process(0.0)
 	check(ui.visible, "Campaign-owned paused dialogue remains visible")
-	check(ui.panel.position.x >= 260, "Dialogue quiet frame stays clear of the lower-left combat HUD")
+	check(game.overlay.combat.blocked and ui.panel.get_rect().end.x <= 1280, "Illustrated dialogue uses the canvas while combat HUD is suspended")
+	check(not ui._opening_portrait.visible, "Opening portrait hides with its caption during dialogue")
 	check(not ui._opening.visible and not ui._controls.visible and not ui._completion.visible and not ui.tracker.visible, "Dialogue modal hides onboarding, controls, completion feedback and objective tracker")
 	check(ui._modal_scrim.visible, "Dialogue modal dims the world HUD instead of mixing it with conversation text")
 	check(not ui._controls.visible and not "J" in ui._controls.text and not "M" in ui._controls.text, "First conversation does not introduce an unrelated list of controls")
@@ -159,14 +160,14 @@ func run() -> void:
 	var transcript_ids: Array = []
 	for i in 8:
 		transcript_ids.append("mon.records.note")
-	# Deliberate overflow fixture: session.dialogue supplies the real pause/modal path.
+	# Long exchange fixture: session.dialogue supplies the real pause/modal path.
 	session.dialogue("", transcript_ids, [["later", "mon.records.keep.choice"]])
 	await settle(3)
 	check(ui.panel.get_rect().end.y <= 720, "Long dialogue remains inside the native canvas")
 	check(not ui.tracker.visible and not ui._controls.visible and not ui._completion.visible, "Long dialogue stress state contains no competing tracker or transient hints")
-	var scroll: ScrollContainer = ui.find_children("*", "ScrollContainer", true, false)[0]
-	check(scroll.get_v_scroll_bar().max_value > scroll.size.y, "Long dialogue keeps real scroll overflow")
-	check(labels_contain(ui.panel, session.text("mon.records.note")), "Long dialogue text stays readable in the quiet content area")
+	check(ui.find_children("*", "ScrollContainer", true, false).is_empty(), "Long dialogue never becomes a transcript scroll")
+	check(ui._dialogue_pages.size() >= transcript_ids.size() and ui._dialogue_index == 0, "Long dialogue starts on the first complete sentence")
+	check(ui.find_children("CurrentUtterance", "Label", true, false).size() == 1, "Long dialogue renders exactly one current sentence")
 	await capture("long_dialogue_stress_1280")
 	session.close()
 	ui.set_interaction_prompt()

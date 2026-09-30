@@ -6,7 +6,7 @@ signal setting_changed(key: String, value: Variant)
 const FONT = preload("res://assets/fonts/unifont-18.0.01.otf")
 const ART := "res://assets/ui/v2/runtime/"
 const HERO_MANIFEST := "res://data/campaign/title_hero_poses.json"
-const HERO_ACTIONS := {"begin":"ready", "continue":"ready", "explore":"ready", "checkpoint":"ready", "title_return":"ready", "restart":"cylinder", "settings":"cuff", "help":"notebook", "journal":"notebook", "quit":"lookback"}
+const HERO_ACTIONS := {"begin":"ready", "continue":"ready", "explore":"ready", "checkpoint":"cylinder", "title_return":"lookback", "restart":"cylinder", "confirm":"cylinder", "cancel":"ready", "back":"ready", "settings":"cuff", "fullscreen":"cuff", "shake":"cuff", "help":"notebook", "journal":"notebook", "retry_save":"notebook", "retry_load":"notebook", "quit":"lookback", "quit_unsaved":"lookback"}
 const HERO_PAGES := {"title":"ready", "pause":"ready", "completed":"ready", "restart":"cylinder", "settings":"cuff", "help":"notebook", "quit_unsaved":"lookback"}
 const COPY := {
 	"title":"反冲挽歌", "chapter":"猩红修道院", "continue":"继续游戏", "begin":"开始游戏",

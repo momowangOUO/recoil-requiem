@@ -1,0 +1,265 @@
+{
+  "portraits": {
+    "player": {
+      "texture": "res://assets/ui/v2/runtime/dialogue_portraits_v1.png",
+      "rect": [
+        24,
+        15,
+        456,
+        497
+      ]
+    },
+    "mara": {
+      "texture": "res://assets/ui/v2/runtime/dialogue_portraits_v1.png",
+      "rect": [
+        587,
+        18,
+        384,
+        491
+      ]
+    },
+    "ina": {
+      "texture": "res://assets/ui/v2/runtime/dialogue_portraits_v1.png",
+      "rect": [
+        1089,
+        0,
+        418,
+        509
+      ]
+    },
+    "ruka": {
+      "texture": "res://assets/ui/v2/runtime/dialogue_portraits_v1.png",
+      "rect": [
+        10,
+        512,
+        483,
+        512
+      ]
+    },
+    "celine": {
+      "texture": "res://assets/ui/v2/runtime/dialogue_portraits_v1.png",
+      "rect": [
+        517,
+        513,
+        507,
+        511
+      ]
+    },
+    "vira": {
+      "texture": "res://assets/ui/v2/runtime/dialogue_portraits_v1.png",
+      "rect": [
+        1024,
+        512,
+        501,
+        512
+      ]
+    }
+  },
+  "quests": {
+    "entry": {
+      "texture": "res://assets/ui/v2/runtime/quest_station_v1.png",
+      "rect": [
+        0,
+        170,
+        470,
+        450
+      ]
+    },
+    "lift": {
+      "texture": "res://assets/ui/v2/runtime/quest_routes_v1.png",
+      "rect": [
+        940,
+        100,
+        355,
+        535
+      ]
+    },
+    "maintenance": {
+      "texture": "res://assets/ui/v2/runtime/quest_routes_v1.png",
+      "rect": [
+        245,
+        30,
+        530,
+        580
+      ]
+    },
+    "tools": {
+      "texture": "res://assets/environments/crimson/flow_props_v1.png",
+      "rect": [
+        950,
+        740,
+        478,
+        310
+      ]
+    },
+    "records": {
+      "texture": "res://assets/environments/crimson/flow_props_v1.png",
+      "rect": [
+        590,
+        372,
+        452,
+        269
+      ]
+    },
+    "luggage": {
+      "texture": "res://assets/ui/v2/runtime/quest_departure_v1.png",
+      "rect": [
+        1310,
+        403,
+        190,
+        153
+      ]
+    },
+    "departure": {
+      "texture": "res://assets/ui/v2/runtime/quest_departure_v1.png",
+      "rect": [
+        580,
+        35,
+        915,
+        510
+      ]
+    },
+    "celine": {
+      "texture": "res://assets/ui/v2/runtime/quest_departure_v1.png",
+      "rect": [
+        562,
+        83,
+        505,
+        448
+      ]
+    },
+    "vira": {
+      "texture": "res://assets/ui/v2/runtime/quest_departure_v1.png",
+      "rect": [
+        1160,
+        256,
+        335,
+        297
+      ]
+    },
+    "return": {
+      "texture": "res://assets/ui/v2/runtime/quest_station_v1.png",
+      "rect": [
+        0,
+        170,
+        470,
+        450
+      ]
+    },
+    "restart": {
+      "texture": "res://assets/ui/v2/runtime/quest_station_v1.png",
+      "rect": [
+        0,
+        170,
+        470,
+        450
+      ]
+    }
+  },
+  "events": {
+    "mon.opening.target": "entry",
+    "mon.opening.intent": "entry",
+    "mon.ui.opening_controls": "entry",
+    "mon.action.tools": "tools",
+    "mon.action.records": "records",
+    "mon.action.luggage": "luggage",
+    "mon.action.departure": "departure",
+    "mon.mara.hello": "entry",
+    "mon.mara.ask": "entry",
+    "mon.mara.target": "entry",
+    "mon.mara.repeat": "entry",
+    "mon.vira.hello": "vira",
+    "mon.vira.recognize": "vira",
+    "mon.vira.reply": "vira",
+    "mon.player.luggage": "luggage",
+    "mon.vira.luggage": "luggage",
+    "mon.ina.hello": "tools",
+    "mon.player.tools": "tools",
+    "mon.ina.tools": "tools",
+    "mon.ina.repeat": "tools",
+    "mon.ruka.hello": "maintenance",
+    "mon.ruka.route": "maintenance",
+    "mon.celine.hello": "celine",
+    "mon.celine.cover": "celine",
+    "mon.player.return": "return",
+    "mon.celine.return": "celine",
+    "mon.tools.title": "tools",
+    "mon.tools.inspect": "tools",
+    "mon.tools.return.choice": "tools",
+    "mon.tools.keep.choice": "tools",
+    "mon.tools.later.choice": "tools",
+    "mon.ina.returned": "tools",
+    "mon.ina.withheld": "tools",
+    "mon.mara.tools": "tools",
+    "mon.tools.returned.notice": "tools",
+    "mon.tools.kept.notice": "tools",
+    "mon.records.title": "records",
+    "mon.records.note": "records",
+    "mon.records.ruka.choice": "records",
+    "mon.records.mara.choice": "records",
+    "mon.records.keep.choice": "records",
+    "mon.ruka.records": "records",
+    "mon.mara.records": "records",
+    "mon.records.read.notice": "records",
+    "mon.luggage.title": "luggage",
+    "mon.luggage.tag": "luggage",
+    "mon.vira.request": "vira",
+    "mon.luggage.return.choice": "luggage",
+    "mon.luggage.leave.choice": "luggage",
+    "mon.luggage.defer.choice": "luggage",
+    "mon.vira.returned": "vira",
+    "mon.vira.left": "vira",
+    "mon.depart.prompt": "departure",
+    "mon.depart.confirm": "departure",
+    "mon.depart.wait": "departure",
+    "mon.celine.stop": "celine",
+    "mon.celine.worked": "celine",
+    "mon.celine.strangers": "celine",
+    "mon.celine.defeated": "celine",
+    "mon.vira.fight": "vira",
+    "mon.player.fight": "vira",
+    "mon.vira.answer": "vira",
+    "mon.evidence.luggage.home": "luggage",
+    "mon.evidence.luggage.cart": "luggage",
+    "mon.mara.after": "return",
+    "mon.ina.after.return": "tools",
+    "mon.ina.after.keep": "tools",
+    "mon.ruka.after.records": "records",
+    "mon.ruka.after.none": "maintenance",
+    "mon.celine.after.helped": "celine",
+    "mon.celine.after.other": "celine",
+    "mon.restart.prompt": "restart",
+    "mon.restart.confirm": "restart",
+    "mon.restart.cancel": "restart",
+    "mon.flow.opening.intent": "entry",
+    "mon.flow.route.lift": "lift",
+    "mon.flow.route.service": "maintenance",
+    "mon.flow.celine.job": "celine",
+    "mon.flow.celine.cross": "celine",
+    "mon.flow.ina.side_door": "tools",
+    "mon.flow.tools.done": "tools",
+    "mon.flow.departure.ready": "departure",
+    "mon.flow.departure.title": "departure",
+    "mon.flow.departure.body": "departure",
+    "mon.flow.departure.tools": "departure",
+    "mon.flow.departure.records": "records",
+    "mon.flow.departure.luggage": "luggage",
+    "mon.flow.departure.go": "departure",
+    "mon.flow.departure.wait": "departure",
+    "mon.flow.celine.warning": "celine",
+    "mon.action.lift_repair": "lift",
+    "mon.action.maintenance_isolate": "maintenance",
+    "mon.flow.repair.need": "lift",
+    "mon.flow.repair.delivered": "lift",
+    "mon.flow.repair.done": "lift",
+    "mon.flow.route.lift.choice": "lift",
+    "mon.flow.route.service.choice": "maintenance",
+    "mon.flow.service.safe": "maintenance",
+    "mon.flow.luggage.preview": "luggage",
+    "mon.flow.chapter.records": "records",
+    "mon.flow.chapter.lift": "lift",
+    "mon.flow.chapter.service": "maintenance",
+    "mon.flow.chapter.celine": "celine"
+  },
+  "default_quest": "entry"
+}

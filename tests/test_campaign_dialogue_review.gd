@@ -4,7 +4,7 @@ class CaptureUI extends Control:
 	var last_lines: Array = []
 	var last_speaker := ""
 	var last_options: Array = []
-	func show_dialogue(speaker: String, lines: Array, choices: Array) -> void:
+	func show_dialogue(speaker: String, lines: Array, choices: Array, _ids: Array = []) -> void:
 		last_speaker = speaker
 		last_lines = lines
 		last_options = choices

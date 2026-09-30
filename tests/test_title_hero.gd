@@ -109,10 +109,21 @@ func run() -> void:
 	check(is_equal_approx(flow.hero.modulate.a,1.0), "New crop fades back to full opacity")
 	flow.show_page("help", {"save_code":"ready"})
 	await finish_transition()
-	check(flow.hero_pose == "notebook", "Help subpage keeps its related pose")
+	check(flow.hero_pose == "ready" and flow.buttons.back.has_focus(), "Help page focuses Return and uses its ready pose")
 	flow.show_page("title", {"has_progress":false,"save_code":"ready"})
 	await finish_transition()
 	check(not flow.buttons.has("restart") and flow.hero_pose == "ready", "Fresh title retains the single Start action and ready pose")
+	for id in Flow.COPY:
+		if id in ["confirm", "cancel", "back", "fullscreen", "shake", "retry_save", "retry_load", "quit_unsaved", "checkpoint", "title_return"]:
+			check(Flow.HERO_ACTIONS.has(id), "Secondary option has an intentional action: " + id)
+	for pair in [["restart", "confirm", "cylinder"], ["restart", "cancel", "ready"], ["settings", "shake", "cuff"], ["help", "back", "ready"], ["quit_unsaved", "quit_unsaved", "lookback"]]:
+		flow.show_page(pair[0], {"save_code":"ready", "settings":{}})
+		await settle()
+		flow.buttons[pair[1]].grab_focus()
+		await finish_transition()
+		check(flow.hero_pose == pair[2], "Confirmation/settings/back option uses a related pose: " + pair[1])
+	flow.show_page("title", {"has_progress":false,"save_code":"ready"})
+	await finish_transition()
 	var invalid := manifest.duplicate(true)
 	invalid.regions[0].rect[2] = texture.get_width()+1
 	check(flow.configure_hero(invalid, texture) == ERR_INVALID_DATA, "Out-of-atlas regions are rejected instead of displaying neighboring art")

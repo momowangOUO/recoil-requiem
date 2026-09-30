@@ -136,7 +136,8 @@ func run() -> void:
 			stage.camera.look_at(target)
 			front.call("follow_camera", stage.camera)
 			if step == 0: anchor_y = cards[3].position.y
-			check(is_equal_approx(cards[3].position.y, anchor_y), "Continuous zoom preserves the authored contour anchor")
+			check(cards[3].position.y <= anchor_y + 0.0001,
+				"Continuous zoom only lowers the contour when needed to protect the gameplay area")
 			var viewport_size := stage.camera.get_viewport().get_visible_rect().size
 			# The visible contour must not cover the player's feet/landing line.
 			var feet_screen := stage.camera.unproject_position(CrimsonStage3D.to_stage(stage.game.player.position))

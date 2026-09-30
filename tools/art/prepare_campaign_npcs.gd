@@ -1,7 +1,7 @@
 extends SceneTree
 
 func _initialize() -> void:
-	var image := Image.load_from_file("res://assets/characters/npcs/npcs_source_v2.png")
+	var image := Image.load_from_file("res://assets/characters/npcs/npcs_source_v3.png")
 	image.convert(Image.FORMAT_RGBA8)
 	for y in image.get_height():
 		for x in image.get_width():
@@ -23,7 +23,7 @@ func _initialize() -> void:
 			var frame := frames[row]
 			frame.resize(maxi(1,roundi(frame.get_width()*factor)), maxi(1,roundi(frame.get_height()*factor)),Image.INTERPOLATE_NEAREST)
 			output.blit_rect(frame,Rect2i(Vector2i.ZERO,frame.get_size()),Vector2i(row*128+64-frame.get_width()/2,120-frame.get_height()))
-		output.save_png("res://assets/characters/npcs/%s_idle_v2.png" % names[column])
+		output.save_png("res://assets/characters/npcs/%s_idle_v3.png" % names[column])
 	print("NPC source keyed and split into 3 shared-scale two-frame 256x128 sheets")
 	quit()
 
