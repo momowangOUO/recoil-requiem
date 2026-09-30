@@ -14,6 +14,7 @@ for block in source.split('\n\n'):
     stair='script = ExtResource("5")' in block
     floor='script = ExtResource("2")' in block
     if not(stair or floor) or 'metadata/gate_id' in block:continue
+    if floor and float(re.search(r'^collision_depth = ([\d.]+)',block,re.M)[1]) > 80 and 'RecoveryRoad' not in block:continue
     at=vector(block,'position')
     delta=vector(block,'end_offset') if stair else [float(re.search(r'^width = ([\d.]+)',block,re.M)[1]),0]
     records.append(dict(id=m[1],kind='stair' if stair else 'floor',start=at,end=[at[i]+delta[i] for i in range(2)],one_way='one_way = true' in block))

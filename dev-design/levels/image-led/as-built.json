@@ -85,7 +85,7 @@
       1696.0
     ],
     "end": [
-      9280.0,
+      7472.0,
       1696.0
     ],
     "one_way": false
@@ -98,7 +98,7 @@
       1424.0
     ],
     "end": [
-      11760.0,
+      10616.0,
       1424.0
     ],
     "one_way": false
@@ -737,6 +737,305 @@
     "end": [
       16384.0,
       3840.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "ArrivalUp",
+    "kind": "stair",
+    "start": [
+      1440.0,
+      1120.0
+    ],
+    "end": [
+      1632.0,
+      1024.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "ArrivalLanding",
+    "kind": "floor",
+    "start": [
+      1632.0,
+      1024.0
+    ],
+    "end": [
+      1824.0,
+      1024.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "ArrivalDown",
+    "kind": "stair",
+    "start": [
+      1824.0,
+      1024.0
+    ],
+    "end": [
+      2016.0,
+      1120.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "GuardBypassUp",
+    "kind": "stair",
+    "start": [
+      2360.0,
+      1120.0
+    ],
+    "end": [
+      2648.0,
+      976.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "GuardBypassBridge",
+    "kind": "floor",
+    "start": [
+      2648.0,
+      976.0
+    ],
+    "end": [
+      2952.0,
+      976.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "GuardBypassDown",
+    "kind": "stair",
+    "start": [
+      2952.0,
+      976.0
+    ],
+    "end": [
+      3304.0,
+      1220.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "F03_PumpHatch",
+    "kind": "floor",
+    "start": [
+      7472.0,
+      1696.0
+    ],
+    "end": [
+      7728.0,
+      1696.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "F03_East",
+    "kind": "floor",
+    "start": [
+      7728.0,
+      1696.0
+    ],
+    "end": [
+      9280.0,
+      1696.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "PumpEntryUpper",
+    "kind": "stair",
+    "start": [
+      7600.0,
+      1696.0
+    ],
+    "end": [
+      6864.0,
+      2064.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "PumpEntryLanding",
+    "kind": "floor",
+    "start": [
+      6672.0,
+      2064.0
+    ],
+    "end": [
+      6864.0,
+      2064.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "PumpEntryLower",
+    "kind": "stair",
+    "start": [
+      6864.0,
+      2064.0
+    ],
+    "end": [
+      8000.0,
+      2632.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "MaintenanceAscent",
+    "kind": "stair",
+    "start": [
+      9024.0,
+      2312.0
+    ],
+    "end": [
+      10816.0,
+      1424.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "MaintenanceExitHatch",
+    "kind": "floor",
+    "start": [
+      10616.0,
+      1424.0
+    ],
+    "end": [
+      10816.0,
+      1424.0
+    ],
+    "one_way": true
+  },
+  {
+    "id": "F04_East",
+    "kind": "floor",
+    "start": [
+      10816.0,
+      1424.0
+    ],
+    "end": [
+      11760.0,
+      1424.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "RecoveryAscent",
+    "kind": "stair",
+    "start": [
+      240.0,
+      3840.0
+    ],
+    "end": [
+      3360.0,
+      2280.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "LiftRoof",
+    "kind": "floor",
+    "start": [
+      6140.0,
+      1200.0
+    ],
+    "end": [
+      6348.0,
+      1200.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "MaintenanceRoof",
+    "kind": "floor",
+    "start": [
+      8816.0,
+      2104.0
+    ],
+    "end": [
+      9024.0,
+      2104.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "LuggageHomeCover",
+    "kind": "floor",
+    "start": [
+      10452.0,
+      1388.0
+    ],
+    "end": [
+      10508.0,
+      1388.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "LuggageHomeUp",
+    "kind": "stair",
+    "start": [
+      10380.0,
+      1424.0
+    ],
+    "end": [
+      10452.0,
+      1388.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "LuggageHomeDown",
+    "kind": "stair",
+    "start": [
+      10508.0,
+      1388.0
+    ],
+    "end": [
+      10580.0,
+      1424.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "LuggageCartCover",
+    "kind": "floor",
+    "start": [
+      10964.0,
+      1388.0
+    ],
+    "end": [
+      11020.0,
+      1388.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "LuggageCartUp",
+    "kind": "stair",
+    "start": [
+      10892.0,
+      1424.0
+    ],
+    "end": [
+      10964.0,
+      1388.0
+    ],
+    "one_way": false
+  },
+  {
+    "id": "LuggageCartDown",
+    "kind": "stair",
+    "start": [
+      11020.0,
+      1388.0
+    ],
+    "end": [
+      11092.0,
+      1424.0
     ],
     "one_way": false
   }

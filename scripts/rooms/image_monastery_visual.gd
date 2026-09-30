@@ -59,10 +59,22 @@ func build(host: Node3D) -> void:
 	stage.scenery.add_child(stage.night)
 	for index in range(5, 10):
 		stage.night.layer("CastleSilhouette%d" % (index + 1), preload("res://assets/environments/crimson/castle_v3.png"), Vector3(index * 20.0 + 10, -5.1, -9), 20.0 / 1536.0)
+	# This chapter's arrival road is 1120 pixels below the old single-room datum.
+	# Keep the distant town and moon at its horizon instead of above every arch.
+	for card in stage.night.get_children():
+		if str(card.name).begins_with("CastleSilhouette"): card.position.y = -12.2
+	stage.night.moon.position.y = -11.8
 	for module in stage.game.environment.modules:
 		_floor(module)
 	for stair in stage.game.environment.stairs:
+		var first: int = stage.scenery.get_child_count()
 		_stair(stair)
+		var pieces: Array[Node] = []
+		for index in range(first, stage.scenery.get_child_count()):
+			var piece: Node = stage.scenery.get_child(index)
+			piece.visible = stair.active
+			pieces.append(piece)
+		stage.platform_visuals[stair] = pieces
 	for record in stage.game.environment.structure_records:
 		_structure(record)
 	_local_rooms()
@@ -73,6 +85,7 @@ func build(host: Node3D) -> void:
 	_bell_landmark()
 	_archive_and_stairwell()
 	_close_facade_layers()
+	_flow_setdress()
 	stage.foreground = preload("res://scenes/rooms/image_monastery_foreground.tscn").instantiate()
 	stage.scenery.add_child(stage.foreground)
 
@@ -172,7 +185,9 @@ func _floor(module: PaperPlatform) -> void:
 	var width: float = module.width
 	var height: float = module.collision_depth
 	var id: String = module.get_meta("structural_id", str(module.name))
-	if module.has_meta("gate_id") and height > 80:
+	if id.begins_with("Luggage"):
+		_box(Rect2(at, Vector2(width, height)), -0.25, 1.10, wood, id + "WoodenCase")
+	elif module.has_meta("gate_id") and height > 80:
 		for dx in [3.0, width - 9.0]:
 			_box(Rect2(at + Vector2(dx, 0), Vector2(6, height)), -0.25, 1.85, iron, id + "PortcullisUpright")
 		for y in range(0, ceili(height), 48):
@@ -214,7 +229,7 @@ func _floor(module: PaperPlatform) -> void:
 		_rear_rail(at, at + Vector2(width, 0), id)
 
 func _lower_floor(x: float, below: float) -> float:
-	var floor_y := 3520.0
+	var floor_y := maxf(3520.0, below + 80.0)
 	for module in stage.game.environment.modules:
 		if module.position.y <= below or module.one_way or module.has_meta("gate_id"): continue
 		if x >= module.position.x and x <= module.position.x + module.width:
@@ -236,6 +251,12 @@ func _stair(stair: Node2D) -> void:
 	var id: String = stair.get_meta("structural_id", str(stair.name))
 	var depth: float = stair.stair_depth
 	var samples := stair_samples(a, stair.end_offset, stair.visual_tread)
+	if id.begins_with("Luggage"):
+		# Movable loading skids are shallow timber, not a new masonry building.
+		for step in samples:
+			_box(Rect2(step.left, step.y, step.right - step.left + 0.05, depth), -0.25, 1.10, wood, id + "LoadingTread")
+		_extrude(PackedVector2Array([a, b, b + Vector2(0, depth), a + Vector2(0, depth)]), -0.8, 0.3, wood, id + "LoadingSkid")
+		return
 	if stair.get("one_way"):
 		# Open maintenance flights have visible daylight between narrow treads.
 		# Two thin stringers carry them; a solid riser or skirt would lie about
@@ -258,7 +279,20 @@ func _stair(stair: Node2D) -> void:
 	# The stair flight also needs an actual retaining wall behind it. Flat floor
 	# foundations cannot cover the sloped interval between their endpoints.
 	# Keep its front behind recessed facade glass and every playable surface.
-	_extrude(PackedVector2Array([a + Vector2(0, -80), b + Vector2(0, -80), Vector2(b.x, 3520), Vector2(a.x, 3520)]), -3.9, -2.62, stone, id + "ContinuousRearFoundation")
+	if id == "S08":
+		# The station arcade is an actual recess under the upper stair, with a
+		# continuous below-road foundation, side piers and a load-bearing lintel.
+		_box(Rect2(a.x, 1120, b.x - a.x, 2400), -3.26, 1.28, stone, id + "ContinuousRearFoundation")
+		for span in [Vector2(a.x, 1090), Vector2(1498, b.x)]:
+			var left_y: float = a.y + (span.x - a.x) / (b.x - a.x) * (b.y - a.y) - 80
+			var right_y: float = a.y + (span.y - a.x) / (b.x - a.x) * (b.y - a.y) - 80
+			_extrude(PackedVector2Array([Vector2(span.x,left_y), Vector2(span.y,right_y), Vector2(span.y,1120), Vector2(span.x,1120)]), -3.9, -2.62, stone, id + "ArcadeFoundationPier")
+		var roof_left := a.y + (1090 - a.x) / (b.x - a.x) * (b.y - a.y) - 80
+		var roof_right := a.y + (1498 - a.x) / (b.x - a.x) * (b.y - a.y) - 80
+		_extrude(PackedVector2Array([Vector2(1090,roof_left), Vector2(1498,roof_right), Vector2(1498,918), Vector2(1090,918)]), -3.9, -2.62, stone, id + "ArcadeFoundationLintel")
+	else:
+		var foundation_bottom := maxf(3520.0, maxf(a.y, b.y) + depth + 80.0)
+		_extrude(PackedVector2Array([a + Vector2(0, -80), b + Vector2(0, -80), Vector2(b.x, foundation_bottom), Vector2(a.x, foundation_bottom)]), -3.9, -2.62, stone, id + "ContinuousRearFoundation")
 	_extrude(PackedVector2Array([a + Vector2(0, 6), b + Vector2(0, 6), b + Vector2(0, depth + 12), a + Vector2(0, depth + 12)]), -2.7, -1.17, stone, id + "RearContactApron")
 	# A low retaining parapet follows the flight, not a huge blank screen that
 	# hides the approved facade. Its coping and end piers explain the structure.
@@ -581,7 +615,8 @@ func _cargo_setdress() -> void:
 
 func _lamp(at: Vector2, id: String) -> void:
 	_box(Rect2(at - Vector2(4, 0), Vector2(8, 18)), -1.30, 0.12, brass, id + "SconceMount")
-	_box(Rect2(at - Vector2(6, 22), Vector2(12, 24)), -1.21, 0.16, glass, id + "Lantern")
+	# Use the authored lantern head; its mounting remains a real wall bracket.
+	_flow_prop(Rect2(670, 638, 128, 162), Vector2(at.x, at.y + 3), 22, -1.18, id + "Lantern")
 	# A few warm pools preserve the cold stone hierarchy; avoid one light per step.
 	var light := OmniLight3D.new()
 	light.name = id + "Lamplight"
@@ -592,57 +627,69 @@ func _lamp(at: Vector2, id: String) -> void:
 	stage.scenery.add_child(light, true)
 
 func _arrival_station() -> void:
-	var rect := _source(Rect2(18, 320, 164, 110))
-	var depot_texture := preload("res://assets/environments/crimson/industrial_facade_v1.png")
-	var depot_source := Rect2(0, 0, 1086, 724)
-	var depot_windows := [Rect2(102, 95, 185, 322), Rect2(700, 108, 238, 267)]
-	# A drawn depot replaces the former full-screen timber slab. The shallow
-	# masonry footing is behind the paper elevation; posts and roof remain real.
-	_box(Rect2(rect.position.x, rect.end.y - 112, rect.size.x, 112), -3.55, 0.36,
-		stone, "StationRearFoundation")
-	_paperboard_cutout(rect, depot_texture, depot_source, depot_windows, -3.2, "StationPaintedDepot")
-	_layered_windows(rect, depot_texture, depot_source, depot_windows, -3.2, "StationLayeredWindow")
-	_roof(rect.position - Vector2(32, 0), rect.size.x + 64, 128, "Station")
-	for x in [rect.position.x + 30, rect.end.x - 48]:
-		_box(Rect2(x, rect.position.y, 18, rect.size.y), -1.42, 0.28, wood, "StationSupportedPost")
-		_box(Rect2(x - 12, rect.end.y - 24, 42, 24), -1.42, 0.50, stone, "StationPostFoot")
-	for x in range(int(rect.position.x + 180), int(rect.end.x), 300):
-		_lamp(Vector2(x, rect.end.y - 95), "Station")
-		_box(Rect2(x - 45, rect.end.y - 22, 90, 8), -1.38, 0.3, wood, "StationBench")
-		for leg in [-36, 36]:
-			_box(Rect2(x + leg, rect.end.y - 14, 6, 14), -1.38, 0.24, iron, "StationBenchLeg")
+	_flow_arcade(Vector2(1090, 1120), "StationPaintedDepot")
 	_station_carriage()
 
 func _station_carriage() -> void:
-	# The carriage belongs to the arrival platform, not to its paper backdrop.
-	# Its body, roof, axle and wheel faces have real depth; every part samples a
-	# wood, metal, brass or stone texture already used by this scene.
-	var ground := 1120.0
-	_box(Rect2(1154, 1015, 218, 76), -0.84, 0.64, wood, "StationCarriageBody")
-	_box(Rect2(1150, 1007, 226, 10), -0.48, 0.72, brass, "StationCarriageUpperBand")
-	_box(Rect2(1160, 980, 208, 25), -0.84, 0.75, roof, "StationCarriageCanopy")
-	_box(Rect2(1156, 978, 216, 6), -0.47, 0.78, brass, "StationCarriageRoofLip")
-	for x in [1160.0, 1360.0]:
-		_box(Rect2(x, 1001, 9, 49), -0.47, 0.14, brass, "StationCarriageCanopyPost")
-	for x in [1180.0, 1285.0]:
-		_box(Rect2(x, 1024, 71, 42), -0.47, 0.09, roof, "StationCarriageWindowRecess")
-		_box(Rect2(x - 4, 1021, 79, 5), -0.39, 0.10, brass, "StationCarriageWindowHead")
-		_box(Rect2(x - 4, 1066, 79, 5), -0.39, 0.10, brass, "StationCarriageWindowSill")
-	_box(Rect2(1148, 1086, 231, 8), -0.43, 0.18, iron, "StationCarriageAxleFrame")
-	_beam(Vector2(1373, 1083), Vector2(1432, 1100), 7, -0.60, 0.15, iron, "StationCarriageHitch")
-	for wheel_index in 2:
-		var x := 1202.0 if wheel_index == 0 else 1328.0
-		var wheel: MeshInstance3D = stage._cylinder(Vector3(x * P, -(ground - 28) * P, -0.37), 0.28, 0.28, 0.08, iron, "StationCarriageWheel%d" % (wheel_index + 1))
-		wheel.rotation.x = PI * 0.5
-		for arc in 16:
-			var center := Vector2(x, ground - 28)
-			var a := center + Vector2.from_angle(TAU * arc / 16.0) * 27
-			var b := center + Vector2.from_angle(TAU * (arc + 1) / 16.0) * 27
-			_beam(a, b, 3, -0.29, 0.05, brass, "StationCarriageWheelRim")
-		for spoke in 8:
-			var angle := TAU * spoke / 8.0
-			_beam(Vector2(x, ground - 28), Vector2(x, ground - 28) + Vector2.from_angle(angle) * 23, 3, -0.30, 0.05, brass, "StationCarriageWheelSpoke")
-		_box(Rect2(x - 5, ground - 33, 10, 10), -0.25, 0.10, trim, "StationCarriageWheelHub")
+	_flow_prop(Rect2(8, 275, 565, 385), Vector2(1220, 1120), 114, -0.72, "StationCarriagePainted")
+	# Narrow body behind the illustration gives the cart an actual end face.
+	_box(Rect2(1182, 1089, 86, 12), -0.93, 0.36, wood, "StationCarriageBody")
+
+func _flow_prop(source: Rect2, foot: Vector2, width: float, z: float, label: String) -> Sprite3D:
+	var extent := source.size * (width / source.size.x)
+	var card := _paperboard(Rect2(foot - Vector2(width * 0.5, extent.y), extent),
+		preload("res://assets/environments/crimson/flow_props_v1.png"), source, z, label)
+	card.modulate = Color.WHITE
+	card.set_meta("support_y", foot.y)
+	return card
+
+func _flow_arcade(foot: Vector2, label: String) -> void:
+	var texture := preload("res://assets/environments/crimson/flow_arcade_v1.png")
+	var source := Rect2(0, 0, 1774, 866)
+	var rect := Rect2(foot - Vector2(0, 199.18), Vector2(408.02, 199.18))
+	var pane_source := Rect2(1520, 464, 64, 188)
+	var wall := _paperboard_cutout(rect, texture, source, [pane_source], -1.64, label)
+	wall.material_override.albedo_color = Color.WHITE
+	wall.material_override.metallic_specular = 0.0
+	wall.material_override.roughness = 1.0
+	var pane_rect := _paper_detail_rect(rect, source, pane_source)
+	var pane := _paperboard(pane_rect, texture, pane_source, -1.72, label + "Glass")
+	pane.modulate = Color.WHITE
+	pane.set_meta("wall_z", -1.64)
+	_layered_window_reveal(pane_rect, -1.68, label + "Window")
+	_box(Rect2(pane_rect.position.x - 2, pane_rect.end.y, pane_rect.size.x + 4, 3), -1.58, 0.16, trim, label + "WindowSill")
+	_box(Rect2(foot.x, foot.y - 1, rect.size.x, 18), -1.91, 1.48, close_stone, label + "FoundationContact")
+	# Return faces sit behind the opaque drawn piers, not across the open arch.
+	for x in [foot.x + 18, foot.x + 184, foot.x + 308, foot.x + 394]:
+		_box(Rect2(x, foot.y - 161, 9, 161), -1.84, 0.34, close_stone, label + "PierReturn")
+	for offset in [Vector2(46, -88), Vector2(190, -88), Vector2(301, -88)]:
+		_warm_window_light(foot + offset, 1.4, 0.3, label + "Lamp")
+
+func _flow_setdress() -> void:
+	# These are stage furniture behind the actors, never extra invisible obstacles.
+	_flow_prop(Rect2(590, 372, 452, 269), Vector2(3970, 1408), 70, -0.55, "MaraLedgerDesk")
+	_flow_prop(Rect2(950, 740, 478, 310), Vector2(4908, 1408), 60, -0.58, "InaToolWorkbench")
+	_flow_prop(Rect2(26, 718, 531, 317), Vector2(4100, 1408), 88, -0.67, "CourtyardFreightBefore")
+	stage.flow_visuals.append({"piece": stage.scenery.get_child(-1), "fact": "vira_dead", "show": false})
+	_flow_prop(Rect2(26, 718, 531, 317), Vector2(3810, 1408), 88, -0.67, "CourtyardFreightReturned")
+	stage.flow_visuals.append({"piece": stage.scenery.get_child(-1), "fact": "vira_dead", "show": true})
+	_flow_arcade(Vector2(3660, 1408), "CourtyardPaperArcade")
+	_flow_arcade(Vector2(7880, 1696), "CooperationPaperArcade")
+	_flow_arcade(Vector2(12016, 1424), "HallPaperArcade")
+	_flow_prop(Rect2(950, 740, 478, 310), Vector2(7180, 2632), 60, -0.61, "PumpMaintenanceBench")
+	_flow_prop(Rect2(8, 275, 565, 385), Vector2(15450, 1424), 114, -0.72, "ViraDepartureCarriage")
+	_flow_prop(Rect2(1060, 4, 382, 662), Vector2(15554, 1424), 90, -1.30, "DepartureCargoDoor")
+	for at in [Vector2(1430, 1120), Vector2(3820, 1408), Vector2(6528, 1448), Vector2(11088, 1424), Vector2(14640, 1424)]:
+		_flow_prop(Rect2(665, 636, 150, 425), at, 22, -0.85, "FlowStandingLantern")
+		_warm_window_light(at + Vector2(0, -47), 2.0, 0.85, "FlowLantern")
+	# The moving door is separate from its drawn frame and chain.
+	var lift_source := Rect2(1060, 4, 382, 662)
+	var door_source := Rect2(1108, 261, 180, 392)
+	var lift_rect := Rect2(6355, 1408 - 220, 127, 220)
+	_paperboard_cutout(lift_rect, preload("res://assets/environments/crimson/flow_props_v1.png"), lift_source, [door_source], -1.32, "FreightLiftFrame")
+	var door_rect := _paper_detail_rect(lift_rect, lift_source, door_source)
+	var door := _paperboard(door_rect, preload("res://assets/environments/crimson/flow_props_v1.png"), door_source, -1.35, "FreightLiftDoor")
+	stage.flow_visuals.append({"piece": door, "fact": "lift_repaired", "show": false})
 
 func _crane() -> void:
 	var base := _source_point(Vector2(527, 466))

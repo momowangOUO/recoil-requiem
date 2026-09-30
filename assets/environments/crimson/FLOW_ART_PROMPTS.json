@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-30",
+  "tool": "built-in image_gen; model selector unavailable",
+  "assets": [
+    {
+      "file": "flow_props_v1.png",
+      "prompt": "Create a production transparent sprite atlas for this Gothic steampunk pixel-art paper-theatre game. Reference image01 and04 establish EXACT material style: hand-authored crisp rich pixel clusters, deep blue-grey stone, weathered timber, old brass, warm lanterns. This is a new asset sheet, not a screenshot. 2048x1536 transparent background. Six clearly separated complete objects in a 3-column x 2-row arrangement, no clipping and ample transparent gaps: top left a covered wooden freight carriage side elevation, canvas dark charcoal canopy, two ornate wooden wheels touching same baseline, NO horse, no character, three-quarter tiny visible right side and top matching side-view platformer camera; top middle a low wide Gothic clerk desk with opened ledger, papers, tiny lantern and crimson cloth, unoccupied; top right a tall CLOSED timber freight elevator door in a complete riveted iron frame, pulley and chain, front elevation, no wall around it; bottom left stacked freight crates and one barrel; bottom middle tall ornate freestanding lantern on low stone foot with warm flame; bottom right a workbench with tools and small handwheel. Fully separate objects with true transparent alpha, no floor plane, no drop shadow outside sprites, NO labels or text, NO characters or UI. Fine illustrative pixel art consistent with reference, not smooth vector, not 3D render. Preserve hard silhouettes and legible pixel material shading. All object bottoms present; finished authored art suitable placing behind existing pixel heroine.",
+      "references": [
+        "dev-design/flow-review/images/01.png",
+        "dev-design/flow-review/images/04.png"
+      ],
+      "source": "Generated images are saved to C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6 as C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-2be4076c-8aa8-4435-b770-738c1155e3b1.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "file": "flow_arcade_v1.png",
+      "prompt": "Generate a new production environment asset, based on this Gothic pixel-art paper-theatre screenshot reference. Wide 2048x1024 TRUE TRANSPARENT sprite of ONE near-camera station / monastery arcade frontage. No scene screenshot or player. Front elevation with tiny suggested thickness, exquisite crisp pixel clusters and restrained blue-grey stone, warm amber lamps, old brass, crimson narrow banners. Three connected bays: left a timber roofed loading porch with open void between full-height posts, middle a tall open pointed arch with transparent opening, right a solid stone wall with one narrow lit gothic window. Complete heavy weathered stone bases all on same baseline. Upper roof and cornice fully visible, no cropping. Exactly 3 coherent readable architectural masses, avoid busy repeated miniature texture. Spacious transparent openings actually alpha, no sky or castle painted into them. No road, stairs, characters, text, foreground bushes or props. Keep this material finish close to reference 01, this will be split to independent wall/window/frame layers and placed behind real 3D walkable stairs. Blue stone and warm lighting with subtle stylized pixels, not photoreal and not smooth concept painting.",
+      "references": [
+        "dev-design/flow-review/images/01.png"
+      ],
+      "source": "Generated images are saved to C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6 as C:\\Users\\liyian.andy\\.codex\\generated_images\\01a07f58-c285-75e2-a38d-3494ff7338f6\\exec-fadb8935-2101-4c9f-849b-474392a3c262.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ]
+}

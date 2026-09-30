@@ -44,7 +44,7 @@ func run() -> void:
 		frame.aim_world = player.aim_origin() + Vector2.RIGHT * 100
 		player.step(frame, 1.0 / 60.0)
 		if player.position.x >= 3880: break
-	check(start.distance_to(Vector2(960,1120)) < 4, "Fresh campaign starts at the authored transport shelter")
+	check(start.distance_to(Vector2(1260,1120)) < 4, "Fresh campaign starts with carriage behind and the entrance stair in view")
 	check(player.position.x >= 3880 and absf(player.position.y - 1408) < 4, "First NPC reached by continuous walking without jump, fire or teleport")
 	check(player.health == health, "Walking to the first conversation does not take unavoidable entry damage")
 	check(session.nearest().get("id", "") == "mara", "Walking arrival selects the actual first NPC")
@@ -73,7 +73,11 @@ func run() -> void:
 	check(session.ui.is_panel_open(), "Root viewport M opens map")
 	key(KEY_ESCAPE)
 	await settle()
-	check(session.state.snapshot() == progress, "Journal/map input does not mutate quest progress")
+	var after: Dictionary = session.state.snapshot()
+	check(session.has("tutorial_map"), "Opening the map records its completed tutorial")
+	after.facts.erase("tutorial_map")
+	after.results.erase("tutorial_map")
+	check(after == progress, "Journal/map input leaves narrative quest progress unchanged")
 	session.close()
 	app.free()
 	print("CAMPAIGN ENTRY INPUT STAGE RESULT: %d checks, %d failures" % [checks, failures])

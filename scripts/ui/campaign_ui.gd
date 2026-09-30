@@ -52,10 +52,11 @@ var _completion_serial := 0
 var _completion_active := false
 var _opening_started := false
 var _opening_active := false
-var _opening_serial := 0
-var _onboarding_active := true
-var _onboarding_started := false
-var _onboarding_serial := 0
+var _onboarding_active := false
+var tutorial_action := ""
+var _opening_elapsed := 0.0
+var _departure_armed := false
+var _departure_buttons: Array[Button] = []
 var _interaction_target := ""
 var _interaction_action := ""
 var _external_pause_hidden := false
@@ -121,12 +122,13 @@ func _ready() -> void:
 	_opening.add_theme_constant_override("outline_size", 2)
 	_opening.hide()
 	add_child(_opening)
-	_controls = _label(str(_ui_copy.get("controls", "")), 16, SILVER)
+	_controls = _label("", 20, SILVER)
 	_controls.position = Vector2(360, 632)
 	_controls.size = Vector2(560, 50)
 	_controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_controls.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	add_child(_controls)
+	_controls.hide()
 	_completion = _label("", 19, Color("e0bd7a"))
 	_completion.position = Vector2(420, 300)
 	_completion.size = Vector2(440, 42)
@@ -166,7 +168,18 @@ func _ready() -> void:
 	get_window().size_changed.connect(_adapt_type)
 	_adapt_type()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if panel_kind == "departure" and not _departure_armed and not _confirmation_held():
+		_departure_armed = true
+		for button in _departure_buttons: button.disabled = false
+	if _opening_active and panel_kind.is_empty() and not get_tree().paused:
+		_opening_elapsed += delta
+		var lines: Array = _ui_copy.get("lines", [])
+		if _opening_elapsed >= 7.0:
+			_opening_active = false
+			_opening.hide()
+		elif _opening_elapsed >= 3.0 and lines.size() > 1:
+			_opening.text = str(_ui_copy.get("speaker", "")) + "：" + str(lines[1])
 	# Lab pause/settings owns the whole screen. Campaign modals also pause the tree,
 	# so only hide when the pause did not originate from this UI.
 	var should_hide := get_tree().paused and panel_kind.is_empty()
@@ -235,8 +248,8 @@ func _label(value: String, font_size: int = 24, color: Color = INK) -> Label:
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return label
 
-func set_tracker(main_text: String, side_text: String = "") -> void:
-	if not _last_main_text.is_empty() and main_text != _last_main_text:
+func set_tracker(main_text: String, side_text: String = "", announce_change := true) -> void:
+	if announce_change and not _last_main_text.is_empty() and main_text != _last_main_text:
 		_show_completion(_last_main_text)
 	var is_opening := main_text == str(_ui_copy.get("objective", ""))
 	if is_opening and not _opening_started:
@@ -244,8 +257,7 @@ func set_tracker(main_text: String, side_text: String = "") -> void:
 	elif not is_opening:
 		_opening_active = false
 		_opening.hide()
-	_controls.text = str(_ui_copy.get("opening_controls", "")) if is_opening else str(_ui_copy.get("controls", ""))
-	_controls.visible = _onboarding_active and panel_kind.is_empty() and _interaction_action.is_empty()
+	_refresh_tutorial()
 	# Keep category labels inline. Fixed title-only rows wasted half the compact
 	# tracker and could push a selected side quest into the lower ornament at 960.
 	_main.text = COPY.main + "　" + main_text if not main_text.is_empty() else ""
@@ -257,28 +269,39 @@ func set_tracker(main_text: String, side_text: String = "") -> void:
 func _start_opening_caption() -> void:
 	_opening_started = true
 	_opening_active = true
-	_opening_serial += 1
-	var serial := _opening_serial
+	_opening_elapsed = 0.0
 	var opening_lines: Array = _ui_copy.get("lines", [])
-	_opening.text = str(_ui_copy.get("speaker", "")) + "：" + "\n".join(opening_lines)
+	_opening.text = str(_ui_copy.get("speaker", "")) + "：" + str(opening_lines[0]) if not opening_lines.is_empty() else ""
 	_opening.visible = panel_kind.is_empty()
-	_start_onboarding_timeout()
-	get_tree().create_timer(6.0, true).timeout.connect(func():
-		if serial == _opening_serial:
-			_opening_active = false
-			_opening.hide()
-	)
 
-func _start_onboarding_timeout() -> void:
-	if _onboarding_started: return
-	_onboarding_started = true
-	_onboarding_serial += 1
-	var serial := _onboarding_serial
-	get_tree().create_timer(8.0, true).timeout.connect(func():
-		if serial == _onboarding_serial:
-			_onboarding_active = false
-			_controls.hide()
-	)
+func suppress_opening() -> void:
+	_opening_started = true
+	_opening_active = false
+	_opening.hide()
+
+func restart_opening() -> void:
+	_start_opening_caption()
+
+func set_tutorial(action: String, completed: Array = []) -> void:
+	tutorial_action = "" if action in completed else action
+	var input_action: String = {"move":"move_left", "shoot":"fire", "shotgun":"fire", "smg":"fire", "claw":"melee", "switch":"switch_weapon"}.get(action, action)
+	_controls.text = str(_ui_copy.get("tutorial_" + tutorial_action, "")).replace("{key}", _binding(input_action)).replace("{key2}", _binding("move_right"))
+	_onboarding_active = not _controls.text.is_empty()
+	_refresh_tutorial()
+
+func _binding(action: String) -> String:
+	if action == "map": return "M" # Map uses the existing session key handler.
+	if not InputMap.has_action(action): return ""
+	for event in InputMap.action_get_events(action):
+		if event is InputEventKey:
+			var code: int = event.physical_keycode if event.physical_keycode else event.keycode
+			return str(_ui_copy.get("key_space", "Space")) if code == KEY_SPACE else OS.get_keycode_string(code)
+		if event is InputEventMouseButton:
+			return str(_ui_copy.get("key_mouse_" + str(event.button_index), event.as_text()))
+	return ""
+
+func _refresh_tutorial() -> void:
+	_controls.visible = _onboarding_active and panel_kind.is_empty() and _interaction_action.is_empty()
 
 func _show_completion(objective: String) -> void:
 	_completion_serial += 1
@@ -298,12 +321,12 @@ func set_interaction_prompt(target: String = "", action: String = "") -> void:
 	if action.is_empty():
 		_interaction_label.text = ""
 		_interaction_art.hide()
+		_refresh_tutorial()
 		return
 	# Reaching a concrete world action ends the transient opening/tutorial stage.
 	# Keep the contextual E prompt as the only instruction near the player.
 	_opening_active = false
 	_opening.hide()
-	_onboarding_active = false
 	_controls.hide()
 	var target_copy := "" if target.is_empty() else "　" + target
 	_interaction_label.text = str(_ui_copy.get("interact", "E　{action}{target}")).replace("{action}", action).replace("{target}", target_copy)
@@ -317,6 +340,7 @@ func is_panel_open() -> bool:
 
 func close_panel() -> void:
 	panel_kind = ""
+	_departure_buttons.clear()
 	panel.hide()
 	_modal_scrim.hide()
 	tracker.show()
@@ -388,6 +412,27 @@ func show_dialogue(_speaker: String, lines: Array, choices: Array) -> void:
 		var id := str(choice.get("id", ""))
 		button.pressed.connect(func(): choice_selected.emit(id))
 		body.add_child(button)
+
+func _confirmation_held() -> bool:
+	return Input.is_physical_key_pressed(KEY_E) or Input.is_physical_key_pressed(KEY_SPACE) or Input.is_physical_key_pressed(KEY_ENTER) or Input.is_action_pressed("ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+
+func show_departure(lines: Array, choices: Array, title: String = "") -> void:
+	_open("departure", title)
+	_departure_armed = false
+	_departure_buttons.clear()
+	var body := _scroll()
+	for line in lines: body.add_child(_label(str(line)))
+	for choice in choices:
+		var button := Button.new()
+		button.text = str(choice.get("text", ""))
+		button.custom_minimum_size.y = 72
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.disabled = true
+		var id := str(choice.get("id", ""))
+		button.pressed.connect(func():
+			if _departure_armed: choice_selected.emit(id))
+		body.add_child(button)
+		_departure_buttons.append(button)
 
 func _add_dialogue_line(body: VBoxContainer, value: String) -> void:
 	var separator := value.find("：")

@@ -76,10 +76,12 @@ func run() -> void:
 			push_error("Stairwell sconce has no continuous attachment to masonry")
 			failures += 1
 	if landing_count != 5 or mounts.size() != 5: failures += 1
-	var carriage: Array = stage.scenery.find_children("StationCarriage*", "MeshInstance3D", false, false)
-	var wheels: Array = stage.scenery.find_children("StationCarriageWheel*", "MeshInstance3D", false, false).filter(func(node: Node): return not str(node.name).contains("Spoke") and not str(node.name).contains("Hub") and not str(node.name).contains("Rim"))
-	if carriage.size() < 10 or wheels.size() != 2:
-		push_error("The arrival station needs a textured, grounded carriage with two wheels")
+	var carriage: Array = stage.scenery.find_children("StationCarriagePainted", "Sprite3D", false, false)
+	if carriage.size() != 1 or stage.scenery.find_children("StationCarriageBody", "MeshInstance3D", false, false).size() != 1:
+		push_error("The arrival carriage requires one authored two-wheel face and its depth-bearing body")
+		failures += 1
+	elif absf(carriage[0].position.y - carriage[0].region_rect.size.y * carriage[0].pixel_size * 0.5 + 11.2) > 0.001:
+		push_error("The carriage wheels must touch the real arrival platform")
 		failures += 1
 	app.free()
 	print("IMAGE VISUAL STAGE RESULT: stair surface error <= 6px, open flights=", open_count, ", supported landing checks=", landing_count, ", failures=", failures)

@@ -24,7 +24,8 @@ func run() -> void:
 		"celine_after": Vector2(12320,1424), "celine_return": Vector2(3920,1408)
 	}
 	check(game.environment.get("image_led") == true, "Main campaign selects image-led authored world")
-	check(game.environment.get("story_positions") == authored, "Image map supplies all authored story markers")
+	for id in authored:
+		check(game.environment.story_positions.get(id) == authored[id], "Image map supplies authored story marker " + id)
 	var saved_markers: Dictionary = game.environment.story_positions.duplicate()
 	game.environment.story_positions.clear()
 	check(session.story_position("elite") == Vector2(10350,1120), "Legacy elite marker fallback remains compatible")

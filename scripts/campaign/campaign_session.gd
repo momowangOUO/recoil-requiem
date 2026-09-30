@@ -41,6 +41,64 @@ var observed_people: Dictionary = {}
 var npc_actors: Dictionary = {}
 var ally_cooldown := 0.0
 var _interaction_hint_key := ""
+var _vira_departure_pending := false
+var _victory_quiet := 0.0
+var _tracked_main_quest := ""
+
+func _checkpoint_event(id: String) -> Dictionary:
+	var serial: int = state.snapshot().results.size()
+	return {"event_id":id,"source_id":"monastery","id":id,"result_id":"%s_%d" % [id,serial],"kind":"checkpoint"}
+
+func commit_progress(flags: Array, checkpoint: String = "") -> Error:
+	var events: Array = []
+	for id in flags:
+		events.append(_fact_event(id))
+		if FACT_CONSEQUENCES.has(id): events.append(_fact_event(FACT_CONSEQUENCES[id]))
+	if not checkpoint.is_empty(): events.append(_checkpoint_event(checkpoint))
+	var error: Error
+	if autosave:
+		error = state.commit_events(events, save_path)
+		_set_save_status("ready" if error == OK else "write_failed", error, save_status.preserved_path)
+	elif save_status.code == "load_failed": return save_status.error
+	else: error = state.apply_events(events)
+	if error == OK: refresh()
+	return error
+
+func selected_route() -> String:
+	return state.snapshot().get("selected_route", "")
+
+func select_route(id: String) -> void:
+	if not id in ["lift", "maintenance"] or has("departed") or save_status.code == "load_failed": return
+	var serial: int = state.snapshot().results.size()
+	var events := [{"event_id":"route_"+id,"source_id":"monastery","id":id,"result_id":"route_%s_%d" % [id,serial],"kind":"route"}]
+	var error: Error = state.commit_events(events, save_path) if autosave else state.apply_events(events)
+	if error != OK: _set_save_status("write_failed", error)
+	elif autosave and save_status.code != "recovered": _set_save_status("ready")
+	refresh()
+
+func current_main_title_id() -> String:
+	var title := Data.main_title_id(state.snapshot().facts)
+	if title != "mon.main03.title": return title
+	if selected_route() == "lift": return "mon.flow.route.upper" if has("lift_repaired") else "mon.flow.route.lift"
+	if selected_route() == "maintenance": return "mon.flow.route.service"
+	return title
+
+func pending_departure_tasks() -> Array[String]:
+	var pending: Array[String] = []
+	for id in ["tools", "records", "luggage"]:
+		if (has(id) if id != "luggage" else has("luggage_request")) and not side_done(id):
+			pending.append(text("mon.flow.departure." + id))
+	return pending
+
+func chapter_summary() -> Array[String]:
+	var summary: Array[String] = []
+	for flag in ["records", "lift_repaired", "maintenance_open"]:
+		if has(flag): summary.append(text({"records":"mon.flow.chapter.records", "lift_repaired":"mon.flow.chapter.lift", "maintenance_open":"mon.flow.chapter.service"}[flag]))
+	if has("tools_ina"): summary.append(text("mon.ina.after.return"))
+	elif has("tools_mara"): summary.append(text("mon.ina.after.keep"))
+	if has("records_ruka") or has("records_mara"): summary.append(text("mon.ruka.after.records"))
+	summary.append(text("mon.flow.chapter.celine"))
+	return summary
 
 func setup(owner_lab: Node) -> void:
 	lab = owner_lab
@@ -62,17 +120,21 @@ func setup(owner_lab: Node) -> void:
 func has(id: String) -> bool:
 	return state.has_flag(id)
 
-func event(id: String, kind: String = "fact") -> void:
-	if kind in ["fact","evidence"] and has(id): return
+func event(id: String, kind: String = "fact") -> Error:
+	if kind in ["fact","evidence"] and has(id): return OK
+	if save_status.code == "load_failed": return save_status.error
 	var serial: int = state.snapshot().results.size()
 	var result := "%s_%d" % [id, serial] if kind in ["visit", "checkpoint"] else id
 	var events := [{"event_id":id,"source_id":"monastery","id":id,"result_id":result,"kind":kind}]
 	if kind == "fact" and FACT_CONSEQUENCES.has(id):
 		events.append(_fact_event(FACT_CONSEQUENCES[id]))
-	var error: Error = state.apply_events(events)
-	assert(error == OK, "Unregistered campaign event: " + id)
-	if autosave: save_now()
+	var error: Error = state.commit_events(events, save_path) if autosave else state.apply_events(events)
+	if error != OK:
+		_set_save_status("write_failed", error, save_status.preserved_path)
+		return error
+	if autosave and save_status.code != "recovered": _set_save_status("ready")
 	refresh()
+	return OK
 
 func _fact_event(id: String) -> Dictionary:
 	return {"event_id":id,"source_id":"monastery","id":id,"result_id":id,"kind":"fact"}
@@ -98,6 +160,8 @@ func load_save() -> Error:
 		if str(flag).begins_with("heard_"):
 			var id: String = str(flag).trim_prefix("heard_")
 			observed_people[id.split(".")[1]] = text(id)
+	if has("celine_observed") and not observed_people.has("celine"):
+		observed_people.celine = text("mon.flow.celine.job")
 	_set_save_status("recovered" if result.recovered else "ready", OK, result.preserved_path)
 	var repairs: Array = []
 	for trigger in FACT_CONSEQUENCES:
@@ -179,6 +243,7 @@ func bind_world() -> void:
 	modal_actions.clear()
 	_interaction_hint_key = ""
 	ally_cooldown = 0
+	_vira_departure_pending = false
 	last_region = ""
 	ui.close_panel()
 	for p in lab.environment.npc_points:
@@ -191,6 +256,10 @@ func bind_world() -> void:
 			actor.art_path = "res://assets/characters/campaign/%s.png" % ("boss_actions_v1" if p.id == "vira" else "elite_actions_v1")
 		lab.world.add_child(actor)
 		npc_actors[p.id] = actor
+		if p.id == "vira": actor.path_finished.connect(func(): event("vira_relocated"))
+		if p.id == "vira" and has("met_vira"):
+			actor.position = story_position("vira_after")
+			points.back().position = actor.position
 	for p in lab.environment.action_points:
 		points.append({"id":p.id,"position":p.position,"npc":false})
 	var checkpoint: String = state.snapshot().checkpoint
@@ -198,6 +267,7 @@ func bind_world() -> void:
 		if p.id == checkpoint: lab.player.position = p.position
 	if checkpoint.is_empty(): event("cp_mon_01", "checkpoint")
 	for marker in lab.environment.enemy_spawns:
+		if has("vira_dead"): break
 		var group_id := "clear_%02d" % int(marker.get_meta("encounter_id", 1))
 		if has(group_id): continue
 		var archetype: String = marker.get_meta("enemy_archetype", "shield")
@@ -208,6 +278,8 @@ func bind_world() -> void:
 		else:
 			guard = Enemy.new()
 			guard.archetype = archetype
+		guard.set_meta("wake_radius", marker.get_meta("wake_radius", 600.0))
+		guard.set_meta("patrol_bounds", marker.get_meta("patrol_bounds", Rect2()))
 		add_enemy(guard, marker.position, group_id)
 	if has("departed") and not has("celine_defeated"): spawn_special("elite")
 	if has("celine_defeated") and not has("vira_dead"): spawn_special("boss")
@@ -240,22 +312,49 @@ func story_position(id: String) -> Vector2:
 		"elite": Vector2(10350,1120), "boss": Vector2(11500,400),
 		"celine_after": Vector2(10300,1120), "celine_return": Vector2(3400,1120)
 	}
-	return legacy[id]
+	if legacy.has(id): return legacy[id]
+	for point in points:
+		if point.id == "vira": return point.position
+	return Vector2.ZERO
 
 func enemy_down(group_id: String) -> void:
 	if not groups.has(group_id): return
 	for guard in groups[group_id]:
 		if is_instance_valid(guard) and guard.state != ShieldEnemy.State.DEAD: return
 	if group_id == "elite":
+		if has("celine_defeated"): return
+		if commit_progress(["celine_defeated"], "cp_mon_16") != OK: return
 		for guard in groups[group_id]: guard.hide()
-		event("celine_defeated")
 		spawn_special("boss")
 		dialogue("celine", ["mon.celine.defeated"])
 	elif group_id == "boss":
-		event("vira_dead")
+		if has("vira_dead"): return
+		_victory_quiet = 3.0
+		if commit_progress(["vira_dead"], "cp_mon_16") != OK:
+			_victory_quiet = 0.0
+			return
+		if is_instance_valid(lab) and lab.get("projectiles") != null:
+			lab.combat_timer = 0
+			for projectile in lab.projectiles.get_children(): projectile.queue_free()
 	else: event(group_id)
 
 func step(delta: float) -> void:
+	_victory_quiet = maxf(0.0, _victory_quiet - delta)
+	for encounter in ["elite", "boss"]:
+		if groups.has(encounter) and not has("celine_defeated" if encounter == "elite" else "vira_dead"):
+			var defeated := true
+			for guard in groups[encounter]:
+				if is_instance_valid(guard) and guard.state != ShieldEnemy.State.DEAD: defeated = false
+			if defeated and save_status.code == "ready": enemy_down(encounter)
+	if npc_actors.has("vira"):
+		for point in points:
+			if point.id == "vira": point.position = npc_actors.vira.position
+	if not has("met_celine") and not has("departed") and npc_actors.has("celine") and lab.player.position.distance_to(npc_actors.celine.position) < 180:
+		if event("met_celine") == OK:
+			observed_people.celine = text("mon.flow.celine.job")
+			lab.overlay.show_notice(text("mon.flow.celine.job"))
+	if has("met_celine") and not has("departed") and npc_actors.has("celine") and lab.player.position.distance_to(npc_actors.celine.position) < 220 and not has("celine_observed"):
+		event("celine_observed")
 	if has("celine_helped") and has("gate_west") and not has("celine_returned") and not has("departed") and npc_actors.has("celine") and lab.player.position.distance_to(npc_actors.celine.position) < 42:
 		event("celine_returned")
 		dialogue("celine",["mon.player.return","mon.celine.return"])
@@ -277,7 +376,9 @@ func step(delta: float) -> void:
 			fall.damage = 100000
 			guard.receive_hit(fall,guard.position)
 			continue
-		var awake: bool = guard.position.distance_to(lab.player.position) < 600 and active < 6
+		var patrol: Rect2 = guard.get_meta("patrol_bounds", Rect2())
+		var awake: bool = not has("vira_dead") and guard.position.distance_to(lab.player.position) < float(guard.get_meta("wake_radius",600.0)) and active < 6
+		if patrol.has_area() and not patrol.has_point(lab.player.position + Vector2(0,-2)): awake = false
 		guard.target = lab.player if awake else null
 		var mode := Node.PROCESS_MODE_PAUSABLE if awake else Node.PROCESS_MODE_DISABLED
 		if guard.process_mode != mode: guard.process_mode = mode
@@ -286,19 +387,32 @@ func step(delta: float) -> void:
 	if tick < 0.15: return
 	tick = 0
 	var region: String = lab.environment.space_at(lab.player.position + Vector2(0,-2))
-	if not region.is_empty() and region != last_region:
-		last_region = region
-		event(region, "visit")
-		if region == "mon_14" and not has("inner_reached"): event("inner_reached")
+	if not region.is_empty() and region != last_region and save_status.code != "write_failed":
+		if event(region, "visit") == OK: last_region = region
+	if region == "mon_14" and not has("inner_reached") and save_status.code != "write_failed": event("inner_reached")
 	for p in lab.environment.checkpoints:
-		if lab.player.is_on_floor() and lab.player.position.distance_to(p.position) < 40 and state.snapshot().checkpoint != p.id:
+		if lab.player.is_on_floor() and lab.player.position.distance_to(p.position) < 40 and state.snapshot().checkpoint != p.id and checkpoint_allowed(p.id):
 			event(p.id, "checkpoint")
 	refresh()
+
+func checkpoint_allowed(id: String) -> bool:
+	if has("vira_dead"): return id in ["cp_mon_16", "cp_mon_03"]
+	if has("celine_defeated"): return id == "cp_mon_16"
+	if has("departed"): return id == "cp_mon_15"
+	return not id in ["cp_mon_15", "cp_mon_16"]
 
 func refresh() -> void:
 	if not initialized or not is_instance_valid(lab.environment): return
 	for gate in ["gate_entry", "gate_west", "gate_east", "gate_return"]:
 		lab.environment.set_gate_state(gate, has(gate))
+	lab.environment.set_gate_state("gate_lift", has("lift_repaired"))
+	lab.environment.set_gate_state("gate_maintenance", has("maintenance_open"))
+	if lab.environment.has_method("set_luggage_home"):
+		lab.environment.set_luggage_home(has("luggage_home"))
+		for action in lab.environment.action_points:
+			if action.id != "luggage": continue
+			for point in points:
+				if point.id == "luggage": point.position = action.position
 	lab.environment.set_gate_state("gate_departure", has("celine_defeated"))
 	lab.environment.set_gate_state("gate_departure_back", has("celine_defeated"))
 	for id in npc_actors:
@@ -308,9 +422,11 @@ func refresh() -> void:
 			actor.position = story_position("celine_return" if has("vira_dead") else "celine_after")
 			for point in points:
 				if point.id == "celine": point.position = actor.position
-	var title := Data.main_title_id(state.snapshot().facts)
+	var title := current_main_title_id()
 	var side: String = tracked_side_text()
-	ui.set_tracker(text(title), side)
+	var quest := Data.main_title_id(state.snapshot().facts)
+	ui.set_tracker("" if _victory_quiet > 0 else text(title), side, _victory_quiet <= 0 and not _tracked_main_quest.is_empty() and quest != _tracked_main_quest)
+	_tracked_main_quest = quest
 	_update_interaction_prompt({} if lab.combat_timer > 0 else nearest())
 
 func text(id: String) -> String:
@@ -321,7 +437,6 @@ func nearest() -> Dictionary:
 	var distance := 48.0
 	for p in points:
 		if p.id == "tools" and has("tools"): continue
-		if p.id == "luggage" and has("luggage_home"): continue
 		if p.id.ends_with("_travel") and not lab.environment.gate_states.get(str(p.id).trim_suffix("_travel"), false): continue
 		if p.id == "departure" and has("departed"): continue
 		if p.get("npc",false) and p.id == "vira" and has("departed"): continue
@@ -329,7 +444,10 @@ func nearest() -> Dictionary:
 		var d: float = lab.player.position.distance_to(p.position)
 		if d >= distance: continue
 		var ray := PhysicsRayQueryParameters2D.create(lab.player.position + Vector2(0,-18), p.position + Vector2(0,-18), 1)
-		if not lab.player.get_world_2d().direct_space_state.intersect_ray(ray).is_empty(): continue
+		var obstruction: Dictionary = lab.player.get_world_2d().direct_space_state.intersect_ray(ray)
+		if not obstruction.is_empty():
+			var target_cover: bool = p.id == "luggage" and str(obstruction.collider.get_parent().name).begins_with("Luggage")
+			if not target_cover: continue
 		best = p
 		distance = d
 	return best
@@ -398,6 +516,16 @@ func close() -> void:
 	ui.close_panel()
 	modal_actions.clear()
 	lab.resume_trial()
+	if _vira_departure_pending:
+		_vira_departure_pending = false
+		if npc_actors.has("vira"):
+			var path: Array[Vector2] = [story_position("vira_departure_mid"), story_position("vira_departure_end")]
+			var authored = lab.environment.get("story_positions")
+			for index in range(1,6):
+				var key := "vira_path_%02d" % index
+				if authored is Dictionary and authored.has(key): path.append(authored[key])
+			path.append(story_position("vira_after"))
+			npc_actors.vira.walk_path(path)
 
 func dialogue(speaker: String, ids: Array, choices: Array = []) -> void:
 	pause()
@@ -430,27 +558,44 @@ func interact(id: String, npc: bool = false) -> void:
 		else: lab.overlay.show_notice(text("mon.passage.locked"))
 		return
 	if id.begins_with("gate_"):
-		event(id)
+		# Quest gates only open through their corresponding committed consequence.
+		if id not in ["gate_lift", "gate_maintenance", "gate_departure", "gate_departure_back"]: event(id)
 		return
 	if npc:
 		talk(id)
 		return
 	match id:
+		"lift_repair":
+			select_route("lift")
+			if has("lift_repaired"): return
+			if has("tools_ina") or has("tools_mara"):
+				lab.overlay.show_notice(text("mon.flow.repair.delivered"))
+			elif not has("tools") or not has("repair_explained"):
+				lab.overlay.show_notice(text("mon.flow.repair.need"))
+			elif commit_progress(["lift_repaired"]) == OK:
+				lab.overlay.show_notice(text("mon.flow.repair.done"))
+		"maintenance_isolate":
+			if commit_progress(["maintenance_open"]) == OK:
+				select_route("maintenance")
+				lab.overlay.show_notice(text("mon.flow.service.safe"))
 		"tools", "records", "luggage":
 			if id == "tools" and has("tools"): return
-			if id == "luggage" and has("luggage_home"): return
-			event(id,"evidence")
+			if event(id,"evidence") != OK: return
 			if id == "tools": dialogue("",["mon.tools.inspect"])
 			elif id == "records": dialogue("",["mon.records.note"])
 			else:
 				var options: Array = luggage_choices() if has("luggage_request") else []
-				dialogue("vira",["mon.luggage.tag"],options)
+				dialogue("vira",["mon.luggage.tag", "mon.flow.luggage.preview"] if not options.is_empty() else ["mon.luggage.tag"],options)
 		"departure":
 			if has("departed"): return
-			if not has("met_vira"):
+			if not has("met_vira") or not has("met_mara") or not has("inner_reached"):
 				lab.overlay.show_notice(text("mon.main02.title"))
 				return
-			dialogue("vira",["mon.depart.prompt"],[["depart","mon.depart.confirm"],["later","mon.depart.wait"]])
+			pause()
+			modal_actions = {"depart":true,"later":true}
+			var lines: Array = [text("mon.flow.departure.body")]
+			lines.append_array(pending_departure_tasks())
+			ui.show_departure(lines,[{"id":"depart","text":text("mon.flow.departure.go")},{"id":"later","text":text("mon.flow.departure.wait")}],text("mon.flow.departure.title"))
 		"exit":
 			if has("vira_dead"): dialogue("mara",["mon.exit.notice"])
 			else: lab.overlay.show_notice(text(Data.main_title_id(state.snapshot().facts)))
@@ -476,21 +621,21 @@ func choose(id: String) -> void:
 	if id.begins_with("tools_") and tool_choices().is_empty(): return
 	if id.begins_with("records_") and record_choices().is_empty(): return
 	if id.begins_with("luggage_") and (here != "luggage" or luggage_choices().is_empty()): return
-	if id == "depart" and (has("departed") or not has("met_vira") or here != "departure"): return
+	if id == "depart" and (has("departed") or not has("met_vira") or not has("met_mara") or not has("inner_reached") or here != "departure"): return
+	if id == "depart" and commit_progress(["departed"], "cp_mon_15") != OK: return
 	close()
 	if id == "later": return
 	if id == "restart":
 		if restart_chapter() == OK: lab.reset_trial.call_deferred(3)
 		return
 	if id == "depart":
-		event("departed")
 		spawn_special("elite")
 		dialogue("celine",["mon.celine.stop","mon.player.stop","mon.celine.worked" if has("celine_helped") else "mon.celine.strangers","mon.player.continue"])
 		return
 	if has("departed"): return
 	var conflicts := {"tools_ina":"tools_mara","tools_mara":"tools_ina","records_ruka":"records_mara","records_mara":"records_ruka","luggage_home":"luggage_cart","luggage_cart":"luggage_home"}
 	if not conflicts.has(id) or has(conflicts[id]) or has(id): return
-	event(id)
+	if commit_progress([id]) != OK: return
 	var results := {"tools_ina":["ina","mon.ina.returned"],"tools_mara":["mara","mon.mara.tools"],"records_ruka":["ruka","mon.ruka.records"],"records_mara":["mara","mon.mara.records"],"luggage_home":["vira","mon.vira.returned"],"luggage_cart":["vira","mon.vira.left"]}
 	# Moving a box is a local action; Vira comments when approached again.
 	if not id.begins_with("luggage_"):
@@ -501,8 +646,8 @@ func talk(id: String) -> void:
 	if has("vira_dead"):
 		match id:
 			"mara":
-				event("met_mara")
-				event("returned")
+				if event("met_mara") != OK: return
+				if commit_progress(["returned"], "cp_mon_03") != OK: return
 				dialogue(id,["mon.mara.after","mon.exit.notice"])
 			"ina":
 				event("met_ina")
@@ -517,7 +662,7 @@ func talk(id: String) -> void:
 	match id:
 		"mara":
 			if not has("met_mara"):
-				event("met_mara")
+				if event("met_mara") != OK: return
 				dialogue(id,["mon.mara.hello","mon.player.entry","mon.mara.ask","mon.player.target","mon.mara.target"])
 			else:
 				var lines := ["mon.mara.repeat"]
@@ -535,17 +680,18 @@ func talk(id: String) -> void:
 				dialogue(id,lines,choices)
 		"vira":
 			if not has("met_vira"):
-				event("met_vira")
+				if event("met_vira") != OK: return
+				_vira_departure_pending = true
 				dialogue(id,["mon.vira.hello","mon.player.hunt","mon.vira.recognize","mon.player.confirm","mon.vira.reply","mon.player.luggage","mon.vira.luggage"])
 			else:
 				if has("luggage_home"): dialogue(id,["mon.vira.returned"])
 				elif has("luggage_cart"): dialogue(id,["mon.vira.left"])
 				else:
-					event("luggage_request")
+					if event("luggage_request") != OK: return
 					dialogue(id,["mon.vira.request"])
 		"ina":
 			var first := not has("met_ina")
-			event("met_ina")
+			if commit_progress(["met_ina", "repair_explained"]) != OK: return
 			if has("tools_mara"): dialogue(id,["mon.ina.withheld"])
 			elif has("tools_ina"): dialogue(id,["mon.ina.returned"])
 			elif has("departed"): dialogue("",["mon.closed.side.notice"])
@@ -555,7 +701,7 @@ func talk(id: String) -> void:
 			else: dialogue(id,["mon.ina.hello","mon.player.tools","mon.ina.tools"] if first else ["mon.ina.repeat"])
 		"ruka":
 			var first := not has("met_ruka")
-			event("met_ruka")
+			if event("met_ruka") != OK: return
 			var lines := ["mon.ruka.hello","mon.player.route","mon.ruka.route"] if first else ["mon.ruka.route"]
 			if has("departed") and not has("records_ruka") and not has("records_mara"): lines.append("mon.closed.side.notice")
 			elif has("records"): lines.append("mon.records.note")
@@ -565,8 +711,8 @@ func talk(id: String) -> void:
 				dialogue(id,["mon.celine.defeated"])
 				return
 			if has("departed"): return
-			event("met_celine")
-			dialogue(id,["mon.celine.hello","mon.celine.cover"])
+			if event("met_celine") != OK: return
+			dialogue(id,["mon.celine.hello","mon.flow.celine.job","mon.celine.cover"])
 
 func side_known(id: String) -> bool:
 	return has({"tools":"met_ina", "records":"met_ruka", "luggage":"luggage_request"}.get(id,""))
@@ -581,6 +727,10 @@ func tracked_side_text() -> String:
 	return text("mon." + selected_side + ".title")
 
 func select_side(id: String) -> void:
+	if id in ["route_lift", "route_maintenance"]:
+		select_route(id.trim_prefix("route_"))
+		ui.show_journal(journal_entries())
+		return
 	if id not in ["tools","records","luggage"] or not side_known(id) or side_done(id) or has("departed"): return
 	selected_side = id
 	refresh()
@@ -602,9 +752,11 @@ func ally_cover(delta: float) -> void:
 		var shot := ShotContext.new()
 		shot.source_position = origin
 		shot.direction = (end-origin).normalized()
-		shot.damage = 16
+		# Cover interrupts and creates space; it cannot clear the encounter alone.
+		shot.damage = minf(16.0, maxf(0.0, guard.health - 1.0))
 		shot.knockback = 80
 		guard.receive_hit(shot,end)
+		ally.play_cover(end)
 		ally_cooldown = 0.85
 		var tracer := Line2D.new()
 		tracer.points = PackedVector2Array([origin,end])
@@ -613,11 +765,14 @@ func ally_cover(delta: float) -> void:
 		lab.world.add_child(tracer)
 		tracer.create_tween().tween_callback(tracer.queue_free).set_delay(0.08)
 		lab.audio.play("revolver")
-		if lab.combat_timer > 0: event("celine_helped")
+		event("celine_helped")
 		return
 
 func journal_entries() -> Array:
 	var entries: Array = []
+	if has("met_vira") and not has("departed"):
+		for route in ["lift", "maintenance"]:
+			entries.append({"title":text("mon.flow.route.lift.choice" if route == "lift" else "mon.flow.route.service.choice"),"body":text("mon.flow.route.other"),"category":"tasks","track_id":"route_"+route,"tracked":selected_route() == route})
 	for index in range(1,8):
 		var id := "mon_main_%02d" % index
 		var status: String = state.quest_status(id)

@@ -29,9 +29,9 @@ LABEL_ANCHORS = {
     "mon_05": [4880, 1408], "mon_06": [5300, 688],
     "mon_07": [6080, 1408], "mon_08": [8000, 1696],
     "mon_09": [9760, 256], "mon_10": [4000, 2280],
-    "mon_11": [7440, 2632], "mon_12": [5800, 2280],
-    "mon_13": [6864, 880], "mon_14": [10800, 1424],
-    "mon_15": [14600, 1424], "mon_16": [14300, 2720],
+    "mon_11": [7440, 2632], "mon_12": [8840, 2312],
+    "mon_13": [10320, 1424], "mon_14": [10800, 1424],
+    "mon_15": [12400, 1424], "mon_16": [14800, 1424],
 }
 
 # A few genuine transition pieces lie just outside the non-overlapping Section
@@ -42,6 +42,7 @@ TRANSITION_VISIBILITY = {
     "F16_BellUnderpass": ["mon_08", "mon_14"],
     "F20_TowerLanding3": ["mon_09"],
     "F20_TowerLanding5": ["mon_09"],
+    "RecoveryAscent": ["mon_01", "mon_10"],
 }
 
 
@@ -49,9 +50,9 @@ def main() -> None:
     records = json.loads(SOURCE.read_text(encoding="utf-8"))
     segments = [
         {"id": item["id"], "kind": item["kind"], "start": item["start"], "end": item["end"], "one_way": item["one_way"]}
-        for item in records if item["id"] != "RecoveryRoad"
+        for item in records if item["id"] != "RecoveryRoad" and not item["id"].startswith("Luggage")
     ]
-    payload = {"world_bounds": [0, -560, 16384, 3040], "segments": segments, "landmarks": LANDMARKS, "label_anchors": LABEL_ANCHORS, "transition_visibility": TRANSITION_VISIBILITY}
+    payload = {"world_bounds": [0, -2080, 16384, 4120], "segments": segments, "landmarks": LANDMARKS, "label_anchors": LABEL_ANCHORS, "transition_visibility": TRANSITION_VISIBILITY}
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 

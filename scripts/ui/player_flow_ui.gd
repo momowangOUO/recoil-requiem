@@ -125,6 +125,7 @@ func _button(id: String, disabled := false) -> Button:
 	var button := Button.new()
 	button.name = id
 	button.text = COPY[id]
+	if id == "explore": button.text = str(preload("res://scripts/campaign/monastery_data.gd").texts().get("mon.flow.chapter.explore", COPY[id]))
 	button.disabled = disabled
 	button.custom_minimum_size.y = 56
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -156,6 +157,8 @@ func show_page(kind: String, values: Dictionary) -> void:
 			_label(COPY.chapter, 26)
 			_button("continue" if context.get("has_progress", false) else "begin", blocked)
 			if context.get("has_progress", false):
+				_label(str(context.get("location", "")), 22).name = "ContinueLocation"
+				_label(str(context.get("current_objective", "")), 20).name = "ContinueObjective"
 				_button("restart", blocked)
 			_button("settings")
 			_button("help")
@@ -176,6 +179,7 @@ func show_page(kind: String, values: Dictionary) -> void:
 		"completed":
 			_label(COPY.completed, 28)
 			_label(COPY.completed_body)
+			for line in context.get("summary", []): _label(str(line), 20)
 			_button("explore")
 			_button("journal")
 			_button("title_return")

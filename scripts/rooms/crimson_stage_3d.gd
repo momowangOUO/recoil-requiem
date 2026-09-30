@@ -36,6 +36,7 @@ var door_material: StandardMaterial3D
 var ui_host: Node
 var platform_visuals: Dictionary = {}
 var action_visuals: Dictionary = {}
+var flow_visuals: Array = []
 var alarm_light: OmniLight3D
 var bell_clapper: MeshInstance3D
 var night: NightBackdrop
@@ -119,6 +120,7 @@ func _room_reset() -> void:
 	shadow_cards.clear()
 	platform_visuals.clear()
 	action_visuals.clear()
+	flow_visuals.clear()
 	alarm_light = null
 	bell_clapper = null
 	foreground = null
@@ -455,6 +457,10 @@ func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 		prop.region_enabled = true
 		prop.region_rect = quest_regions[action.action_id]
 		prop.pixel_size = 0.28 / prop.region_rect.size.x
+		if action.action_id == "luggage" and game.environment.has_method("set_luggage_home"):
+			prop.pixel_size = 0.56 / prop.region_rect.size.x
+			at.y -= 0.36
+			at.z = -0.02
 		prop.position = at + Vector3(0, prop.region_rect.size.y * prop.pixel_size * 0.5, 0)
 		prop.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 		prop.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
@@ -569,12 +575,17 @@ func _physics_process(delta: float) -> void:
 	if campaign_enabled and residency_enabled: residency.update_at(game.player.position)
 	for module in platform_visuals:
 		for piece in platform_visuals[module]: piece.visible = module.active
+	for visual in flow_visuals:
+		visual.piece.visible = game.campaign_session.has(visual.fact) == visual.show
 	for action in action_visuals:
 		var visual: Dictionary = action_visuals[action]
 		if visual.has("quest"):
 			var session = game.campaign_session
-			var taken: bool = session.has("tools") if visual.quest == "tools" else (session.has("luggage_home") if visual.quest == "luggage" else false)
+			var taken: bool = session.has("tools") if visual.quest == "tools" else false
 			visual.piece.visible = not taken
+			if visual.quest == "luggage" and game.environment.has_method("set_luggage_home"):
+				visual.piece.pixel_size = 0.56 / visual.piece.region_rect.size.x
+				visual.piece.position = to_stage(action.position + Vector2(0, 36), -0.02) + Vector3(0, visual.piece.region_rect.size.y * visual.piece.pixel_size * 0.5, 0)
 			visual.piece.modulate = Color("aba8a1") if visual.quest == "records" and session.has("records") else Color.WHITE
 			continue
 		visual.material.albedo_color = Color("5b938a") if action.activated else Color("d8b96f")

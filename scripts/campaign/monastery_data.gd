@@ -11,16 +11,20 @@ static func texts() -> Dictionary:
 
 static func onboarding_ui() -> Dictionary:
 	var copy := texts()
-	return {
+	var result := {
 		"objective": str(copy.get("mon.main01.title", "")),
 		"speaker": str(NAMES.player),
-		"lines": [str(copy.get("mon.opening.target", "")), str(copy.get("mon.opening.intent", ""))],
+		"lines": [str(copy.get("mon.opening.target", "")), str(copy.get("mon.flow.opening.intent", ""))],
 		"opening_controls": str(copy.get("mon.ui.opening_controls", "")),
 		"controls": str(copy.get("mon.ui.controls", "")),
 		"completed": str(copy.get("mon.ui.completed", "已完成：{objective}")),
 		"end_talk": str(copy.get("mon.ui.end_talk", "结束交谈 · Esc")),
 		"interact": str(copy.get("mon.ui.interact", "E　{action}{target}"))
 	}
+	for action in ["move", "jump", "shoot", "reload", "claw", "switch", "map", "shotgun", "smg"]:
+		result["tutorial_" + action] = str(copy.get("mon.flow.tutorial." + action, ""))
+	for key in ["key_space", "key_mouse_1", "key_mouse_2"]: result[key] = str(copy.get("mon.flow." + key, ""))
+	return result
 
 static func main_title_id(facts: Variant) -> String:
 	if "returned" in facts: return "mon.exit.title"
@@ -51,6 +55,8 @@ static func interaction_prompt(id: String, npc: bool, known_npc: bool = false) -
 
 static func catalog() -> Dictionary:
 	var facts: Array = FACTS.duplicate()
+	facts.append_array(["lift_repaired", "maintenance_open", "repair_explained", "vira_relocated", "celine_observed", "opening_seen"])
+	for action in ["move", "jump", "shoot", "reload", "claw", "switch", "map"]: facts.append("tutorial_" + action)
 	facts.append("boss_met")
 	facts.append("celine_helped")
 	facts.append("celine_returned")
@@ -64,7 +70,7 @@ static func catalog() -> Dictionary:
 		regions.append(id)
 		checkpoints["cp_" + id] = id
 		facts.append("clear_%02d" % i)
-	return {"facts":facts,"evidence":EVIDENCE.duplicate(),"regions":regions,"checkpoints":checkpoints}
+	return {"facts":facts,"evidence":EVIDENCE.duplicate(),"regions":regions,"checkpoints":checkpoints,"routes":["lift","maintenance"]}
 
 static func quests() -> Array:
 	var result: Array = []

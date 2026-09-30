@@ -3,7 +3,7 @@ extends RefCounted
 signal changed
 signal quest_completed(quest_id: String)
 const Quest = preload("res://scripts/campaign/quest_definition.gd")
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 var _catalog: Dictionary = {}
 var _quests: Array = []
 var _data: Dictionary = {}
@@ -28,7 +28,7 @@ func configure(catalog: Dictionary, quests: Array) -> Error:
 		if q.completed_flag != "" and not q.completed_flag in catalog.facts: return ERR_INVALID_DATA
 	_catalog = catalog.duplicate(true)
 	for q in quests: _quests.append(q.duplicate(true))
-	_data = {"version": SAVE_VERSION, "facts": [], "evidence": [], "outcomes": [], "visited_regions": [], "results": [], "current_region": "", "checkpoint": ""}
+	_data = {"version": SAVE_VERSION, "facts": [], "evidence": [], "outcomes": [], "visited_regions": [], "results": [], "current_region": "", "checkpoint": "", "selected_route": ""}
 	return OK
 
 func _valid_id(value: Variant) -> bool:
@@ -50,6 +50,21 @@ func _valid_ids(values: Array) -> bool:
 func apply_event(event: Dictionary) -> Error:
 	return apply_events([event])
 
+## Publish permanent progress only after the staged snapshot is durable.
+func commit_events(events: Array, path: String) -> Error:
+	var staged = get_script().new()
+	staged.configure(_catalog, _quests)
+	staged._data = snapshot()
+	var error: Error = staged.apply_events(events)
+	if error == OK: error = staged.save_to(path)
+	if error != OK: return error
+	var previous: Array = _data.outcomes.duplicate()
+	_data = staged.snapshot()
+	changed.emit()
+	for id in _data.outcomes:
+		if not id in previous: quest_completed.emit(id)
+	return OK
+
 ## Validate and commit a related group once; observers never see partial facts.
 func apply_events(events: Array) -> Error:
 	if _catalog.is_empty(): return ERR_UNCONFIGURED
@@ -69,12 +84,13 @@ func _stage_event(data: Dictionary, event: Dictionary) -> Error:
 	for key in ["event_id", "source_id", "id", "result_id"]:
 		if not _valid_id(event.get(key)): return ERR_INVALID_DATA
 	var kind: Variant = event.get("kind")
-	var registry := {"fact": "facts", "evidence": "evidence", "visit": "regions", "checkpoint": "checkpoints"}
+	var registry := {"fact": "facts", "evidence": "evidence", "visit": "regions", "checkpoint": "checkpoints", "route": "routes"}
 	if not kind is String or not registry.has(kind): return ERR_INVALID_DATA
-	if not event.id in _catalog[registry[kind]]: return ERR_INVALID_DATA
+	if not event.id in _catalog.get(registry[kind], []): return ERR_INVALID_DATA
 	if event.result_id in data.results: return OK
 	data.results.append(event.result_id)
 	match kind:
+		"route": data.selected_route = event.id
 		"fact", "evidence":
 			var key: String = registry[kind]
 			if not event.id in data[key]: data[key].append(event.id)
@@ -139,7 +155,9 @@ func _validate(data: Variant) -> Error:
 	if not data is Dictionary: return ERR_INVALID_DATA
 	if not data.get("version") is float and not data.get("version") is int: return ERR_INVALID_DATA
 	if data.version != SAVE_VERSION: return ERR_FILE_UNRECOGNIZED
-	if data.size() != 8: return ERR_INVALID_DATA
+	if data.size() != 9: return ERR_INVALID_DATA
+	if not data.get("selected_route") is String: return ERR_INVALID_DATA
+	if data.selected_route != "" and not data.selected_route in _catalog.get("routes", []): return ERR_INVALID_DATA
 	var quest_ids: Array = []
 	for q in _quests: quest_ids.append(q.quest_id)
 	var registries := {"facts": _catalog.facts, "evidence": _catalog.evidence, "outcomes": quest_ids, "visited_regions": _catalog.regions, "results": null}
@@ -166,6 +184,10 @@ func _read(path: String) -> Dictionary:
 	var error := json.parse(file.get_as_text())
 	file.close()
 	if error != OK: return {"error": ERR_PARSE_ERROR}
+	# Version 1 has no route choice; all original facts and results stay intact.
+	if json.data is Dictionary and json.data.get("version") == 1 and json.data.size() == 8:
+		json.data.version = SAVE_VERSION
+		json.data.selected_route = ""
 	error = _validate(json.data)
 	return {"error": error, "data": json.data}
 

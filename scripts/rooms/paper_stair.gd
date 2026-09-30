@@ -4,6 +4,13 @@ extends Node2D
 ## Origin and end_offset are the two standing-line endpoints, in logical pixels.
 ## Collision is a thin closed slope shell. Treads are visual geometry only.
 
+@export var active := true
+
+func set_active(value: bool) -> void:
+	active = value
+	visible = value
+	_refresh()
+
 @export var end_offset := Vector2(384, -192):
 	set(value):
 		end_offset = value
@@ -73,7 +80,7 @@ func _refresh() -> void:
 		collider.polygon = shell_polygon() if absf(end_offset.x) >= 1.0 else PackedVector2Array()
 		collider.one_way_collision = one_way
 		collider.one_way_collision_margin = 2.0
-		get_node("RampCollision").collision_layer = 1024 if one_way else 1
+		get_node("RampCollision").collision_layer = (1024 if one_way else 1) if active else 0
 	update_configuration_warnings()
 
 func _get_configuration_warnings() -> PackedStringArray:

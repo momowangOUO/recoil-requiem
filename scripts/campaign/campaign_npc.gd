@@ -13,6 +13,17 @@ var _offsets: Array[Vector2] = []
 var _elapsed := 0.0
 var _frame := 0
 var _own_sheet := true
+var _motion_path: Array[Vector2] = []
+var _cover_time := 0.0
+signal path_finished
+
+func walk_path(path: Array[Vector2]) -> void:
+	_motion_path = path.duplicate()
+	_elapsed = 0.0
+
+func play_cover(target: Vector2) -> void:
+	facing_left = target.x < position.x
+	_cover_time = 0.36
 
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -38,12 +49,16 @@ func reload_art() -> void:
 	var own_sheet := path.contains("/npcs/")
 	_own_sheet = own_sheet
 	var authored_anchor := Vector2.INF
+	var authored_frames: Array = []
+	var authored_scale := 0.0
 	var manifest_path := "res://assets/characters/campaign/manifest_data.gd"
 	if not own_sheet and ResourceLoader.exists(manifest_path):
 		var manifest = load(manifest_path).DATA
 		for kind in ["elite", "boss"]:
 			if path != manifest.get(kind,{}).get("path", ""): continue
 			var first: Dictionary = manifest[kind].frames[0]
+			authored_frames = manifest[kind].frames
+			authored_scale = manifest[kind].scale
 			var r: Array = first.region
 			art_region = Rect2i(r[0],r[1],r[2],r[3])
 			authored_anchor = Vector2(first.anchor[0],first.anchor[1])
@@ -55,16 +70,21 @@ func reload_art() -> void:
 			var color := image.get_pixel(x,y)
 			if color.r > 0.55 and color.b > 0.55 and color.g < minf(color.r,color.b) * 0.6:
 				image.set_pixel(x,y,Color.TRANSPARENT)
-	var count := 2 if own_sheet else 1
+	var count := 2 if own_sheet else maxi(1, authored_frames.size())
 	for i in count:
 		var region := Rect2i(Vector2i(i * cell.x, 0), cell)
 		if not own_sheet and art_region.has_area(): region = art_region
+		if not authored_frames.is_empty():
+			var pose: Dictionary = authored_frames[i]
+			region = Rect2i(pose.region[0],pose.region[1],pose.region[2],pose.region[3])
+			authored_anchor = Vector2(pose.anchor[0],pose.anchor[1])
 		var frame := image.get_region(region)
 		var used := frame.get_used_rect()
 		if used.size.y <= 0: continue
 		if not own_sheet and authored_anchor == Vector2.INF: frame = frame.get_region(used)
 		_frames.append(ImageTexture.create_from_image(frame))
 		var factor := display_height / (96.0 if own_sheet else float(frame.get_height()))
+		if authored_scale > 0: factor = authored_scale
 		var dimensions := Vector2(frame.get_width(),frame.get_height()) * factor
 		_sizes.append(dimensions)
 		if authored_anchor != Vector2.INF:
@@ -76,9 +96,20 @@ func reload_art() -> void:
 	queue_redraw()
 
 func _process(delta: float) -> void:
-	if _frames.size() < 2: return
 	_elapsed += delta
-	var next := int(_elapsed / 0.85) % _frames.size()
+	_cover_time = maxf(0.0, _cover_time - delta)
+	var walking := not _motion_path.is_empty()
+	if walking:
+		var destination := _motion_path[0]
+		facing_left = destination.x < position.x
+		position = position.move_toward(destination, delta * 96.0)
+		if position.distance_to(destination) < 0.1:
+			_motion_path.pop_front()
+			if _motion_path.is_empty(): path_finished.emit()
+	if _frames.size() < 2: return
+	var next := int(_elapsed / 0.85) % _frames.size() if _own_sheet else 0
+	if not _own_sheet and walking: next = 1 + int(_elapsed / 0.14) % 2
+	elif not _own_sheet and _cover_time > 0: next = 4 if _cover_time > 0.18 else 5
 	if next != _frame:
 		_frame = next
 		queue_redraw()

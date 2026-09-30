@@ -208,8 +208,8 @@ func run() -> void:
 		"Arrival station does not restore the giant flat timber backwall")
 	check(stage.scenery.find_children("StationPaintedDepot", "MeshInstance3D", true, false).size() == 1,
 		"Arrival station uses one authored cut-paper depot elevation")
-	check(stage.scenery.find_children("StationLayeredWindow*Glass", "Sprite3D", true, false).size() >= 2,
-		"Arrival depot separates its glass from the wall elevation")
+	check(stage.scenery.find_children("StationPaintedDepotGlass", "Sprite3D", true, false).size() == 1,
+		"Arrival depot separates its authored narrow glass from wall and projecting sill")
 	stage.game.reset_trial(3)
 	await process_frame
 	check(stage.scenery.find_children("ImageMonasteryForeground", "Node3D", true, false).size() == 1,

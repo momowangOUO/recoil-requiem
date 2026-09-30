@@ -31,7 +31,8 @@ func run() -> void:
 		var visual: Dictionary = stage.action_visuals[action]
 		var prop = visual.piece
 		check(prop is Sprite3D and visual.get("quest") == id, "Quest item uses its generated paper prop: " + id)
-		check(absf(prop.position.y - prop.region_rect.size.y * prop.pixel_size * 0.5 + action.position.y * 0.01) < 0.001, "Prop bottom meets authored floor: " + id)
+		var floor_y: float = action.position.y + (36 if id == "luggage" else 0)
+		check(absf(prop.position.y - prop.region_rect.size.y * prop.pixel_size * 0.5 + floor_y * 0.01) < 0.001, "Prop bottom meets authored floor: " + id)
 		stage.camera_target = CrimsonStage3D.to_stage(action.position + Vector2(-12, -48))
 		stage.camera.position = stage.camera_target + Vector3(0.12, 1.18, 4.8)
 		stage.camera.look_at(stage.camera_target)
@@ -44,7 +45,16 @@ func run() -> void:
 		session.event(id, "evidence")
 		if id == "luggage": session.event("luggage_home")
 		stage._physics_process(1.0 / 60.0)
-		check(prop.visible == (id == "records"), "Collected prop state matches gameplay; ledger remains readable: " + id)
+		check(prop.visible == (id != "tools"), "Tools leave the scene; records and relocated luggage remain inspectable: " + id)
+		if id == "luggage":
+			check(absf(prop.position.x - 104.8) < 0.01, "Returned luggage artwork moves with its collision and interaction")
+			var active_ramps := 0
+			for module in stage.platform_visuals:
+				if str(module.name).begins_with("Luggage"):
+					for piece in stage.platform_visuals[module]:
+						check(piece.visible == module.active, "Relocated cargo has no stale road or ramp visuals")
+					if module.active: active_ramps += 1
+			check(active_ramps == 3, "Exactly one crate and its two loading skids remain active")
 	app.free()
 	print("QUEST PROP VISUALS STAGE RESULT: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)

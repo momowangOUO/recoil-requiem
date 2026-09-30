@@ -16,6 +16,14 @@ var _return_page := "title"
 var _confirm_return_page := "title"
 var _developer_pause := false
 var _test_mode := false
+var _tutorial_actor: PlayerController
+var _tutorial_position := Vector2.ZERO
+var _tutorial_walked := 0.0
+var _tutorial_jump_requested := false
+var _tutorial_runtime: WeaponRuntime
+var _tutorial_ammo := 0
+var _tutorial_was_reloading := false
+var _tutorial_weapon_tip := ""
 
 func _enter_tree() -> void:
 	# Custom draw_string calls and 3D labels share the native UI's authored glyphs.
@@ -56,6 +64,8 @@ func _ready() -> void:
 		flow.setting_changed.connect(set_player_setting)
 		stage.game.campaign_session.save_status_changed.connect(func(_status: Dictionary): refresh_flow())
 		completion_seen = stage.game.campaign_session.has("returned")
+		if stage.game.campaign_session.has("opening_seen") or stage.game.campaign_session.has("met_mara"):
+			stage.game.campaign_session.ui.suppress_opening()
 		get_tree().auto_accept_quit = false
 		if not _test_mode:
 			load_player_settings()
@@ -92,6 +102,7 @@ func get_aim_screen() -> Vector2:
 
 func _process(_delta: float) -> void:
 	if flow == null: return
+	if stage.game.campaign_session.ui.panel_kind == "map": _learn_tutorial("map")
 	_update_player_shake()
 	var session = stage.game.campaign_session
 	if flow.visible:
@@ -99,6 +110,94 @@ func _process(_delta: float) -> void:
 	elif not completion_seen and session.has("returned") and not session.ui.is_panel_open() and not stage.game.paused:
 		completion_seen = true
 		_show_flow("completed")
+
+func _learn_tutorial(action: String) -> void:
+	var session = stage.game.campaign_session
+	if session.save_status.code in ["write_failed", "load_failed"]: return
+	if not session.has("tutorial_" + action): session.event("tutorial_" + action)
+
+func _physics_process(_delta: float) -> void:
+	if flow == null: return
+	var game = stage.game
+	var actor: PlayerController = game.player
+	var session = game.campaign_session
+	if _tutorial_actor != actor:
+		_tutorial_actor = actor
+		_tutorial_position = actor.position
+		_tutorial_runtime = actor.weapons.current()
+		_tutorial_ammo = _tutorial_runtime.ammo
+		_tutorial_walked = 0.0
+		_tutorial_jump_requested = false
+		_tutorial_was_reloading = false
+		_tutorial_weapon_tip = ""
+		actor.shot_fired.connect(func(_shot, _weapon):
+			_tutorial_weapon_tip = ""
+			_learn_tutorial("shoot"))
+		actor.weapons.equipment_result.connect(func(_index, success, changed, _source):
+			if success and changed and not game.paused:
+				if not session.has("tutorial_switch"):
+					_tutorial_weapon_tip = {1:"shotgun", 2:"smg"}.get(_index, "")
+				_learn_tutorial("switch"))
+	if game.paused:
+		_tutorial_position = actor.position
+		return
+	# Read outcomes, not arbitrary key presses: pushing against a wall, a rejected
+	# jump, a dry trigger or a cancelled reload cannot complete a lesson.
+	var traveled := absf(actor.position.x - _tutorial_position.x)
+	if absf(actor.move_intent_x) > 0.1 and traveled < 32:
+		_tutorial_walked += traveled
+	if _tutorial_walked >= 24: _learn_tutorial("move")
+	_tutorial_position = actor.position
+	if Input.is_action_just_pressed("jump"): _tutorial_jump_requested = true
+	if _tutorial_jump_requested and actor.velocity.y < -actor.tuning.jump_impulse * 0.5 and not actor.is_on_floor():
+		_learn_tutorial("jump")
+		_tutorial_jump_requested = false
+	if not Input.is_action_pressed("jump") and actor.jump_buffer_time <= 0: _tutorial_jump_requested = false
+	if actor.melee.active(): _learn_tutorial("claw")
+	var runtime: WeaponRuntime = actor.weapons.current()
+	if runtime == _tutorial_runtime and _tutorial_was_reloading and runtime.ammo > _tutorial_ammo:
+		_learn_tutorial("reload")
+	_tutorial_runtime = runtime
+	_tutorial_ammo = runtime.ammo
+	_tutorial_was_reloading = runtime.reloading
+	_update_tutorial()
+
+func _update_tutorial() -> void:
+	var game = stage.game
+	var session = game.campaign_session
+	var action := ""
+	var region: String = game.environment.space_at(game.player.position + Vector2(0, -2))
+	var runtime: WeaponRuntime = game.player.weapons.current()
+	if session.loaded_from_disk and session.has("met_mara") and not session.has("tutorial_move"):
+		session.ui.set_tutorial("") # Old saves do not restart an opening lesson.
+		return
+	if not session.has("tutorial_move"):
+		action = "move"
+	elif session.has("tutorial_shoot") and not session.has("tutorial_reload") and runtime.ammo <= maxi(1, runtime.data.magazine_size / 3):
+		action = "reload"
+	elif not session.has("tutorial_claw") and _near_tutorial_enemy(68):
+		action = "claw"
+	elif not _tutorial_weapon_tip.is_empty():
+		action = _tutorial_weapon_tip
+	elif not session.has("tutorial_jump") and _near_tutorial_marker("tutorial_jump", 110):
+		action = "jump"
+	elif not session.has("tutorial_shoot") and _near_tutorial_marker("tutorial_shoot", 140):
+		action = "shoot"
+	elif not session.has("tutorial_switch") and session.has("met_vira") and region in ["mon_06", "mon_08"]:
+		action = "switch"
+	elif not session.has("tutorial_map") and session.has("met_vira") and region in ["mon_07", "mon_08"]:
+		action = "map"
+	session.ui.set_tutorial(action)
+
+func _near_tutorial_enemy(distance: float) -> bool:
+	for enemy in stage.game.enemies:
+		if enemy is Node2D and enemy.health > 0 and enemy.global_position.distance_to(stage.game.player.global_position) < distance:
+			return true
+	return false
+
+func _near_tutorial_marker(id: String, distance: float) -> bool:
+	var points: Dictionary = stage.game.environment.story_positions
+	return points.has(id) and stage.game.player.position.distance_to(points[id]) < distance
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST and flow != null:
@@ -123,7 +222,13 @@ func _flow_context() -> Dictionary:
 	if session.save_status.code in ["recovered", "load_failed", "write_failed"]:
 		messages.append(session.save_status.message)
 	if not settings_error.is_empty(): messages.append(settings_error)
-	return {"has_progress": run_started or session.loaded_from_disk, "save_code": session.save_status.code, "status": "\n".join(messages), "settings": player_settings}
+	var region: String = stage.game.environment.space_at(stage.game.player.position + Vector2(0, -2))
+	var location := ""
+	if region.begins_with("mon_"):
+		var index := int(region.trim_prefix("mon_")) - 1
+		if index >= 0 and index < session.Data.SPACE_NAMES.size(): location = session.Data.SPACE_NAMES[index]
+	return {"has_progress": run_started or session.loaded_from_disk, "save_code": session.save_status.code, "status": "\n".join(messages), "settings": player_settings,
+		"location": location, "current_objective": session.text(session.current_main_title_id()), "summary": session.chapter_summary()}
 
 func _show_flow(page: String) -> void:
 	var game = stage.game
@@ -163,6 +268,9 @@ func _resume_play() -> void:
 	if game.overlay.combat != null: game.overlay.combat.suspend(false)
 	game.campaign_session.ui.show()
 	game.campaign_session.ui._process(0.0)
+	if not run_started and game.campaign_session.has("opening_seen"): game.campaign_session.ui.suppress_opening()
+	if not game.campaign_session.has("opening_seen"): game.campaign_session.event("opening_seen")
+	_update_tutorial()
 	run_started = true
 
 func handle_flow_action(id: String) -> void:
@@ -187,6 +295,7 @@ func handle_flow_action(id: String) -> void:
 				return
 			completion_seen = false
 			game.reset_trial(3)
+			session.ui.restart_opening()
 			_apply_player_settings()
 			_resume_play()
 		"cancel": _show_flow(_confirm_return_page)

@@ -14,6 +14,8 @@ func setup(stage: Node3D) -> void:
 	_scenery = weakref(stage.scenery)
 	for node in stage.scenery.get_children():
 		if not node is VisualInstance3D or node is Light3D: continue
+		# Its side-quest choice relocates it across cells after setup.
+		if node.name == "QuestProp_luggage": continue
 		if node == stage.bell_clapper: continue
 		if node is MeshInstance3D and node in stage.shadow_cards: continue
 		if node is MeshInstance3D and node.material_override == stage.door_material: continue

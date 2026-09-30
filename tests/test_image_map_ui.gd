@@ -25,6 +25,20 @@ func run() -> void:
 	game.player.manual_control = true
 	check(not session.autosave, "Test session cannot access the user save")
 	check(game.environment.space_bounds.size() == 16, "All sixteen actual map regions loaded")
+	var actual_segments := {}
+	for module in game.environment.modules:
+		if module.has_meta("gate_id") or module.collision_depth > 80 or str(module.name).begins_with("Luggage"): continue
+		actual_segments[str(module.name)] = [module.position, module.position+Vector2(module.width,0)]
+	for stair in game.environment.stairs:
+		if str(stair.name).begins_with("Luggage"): continue
+		actual_segments[str(stair.name)] = [stair.position, stair.position+stair.end_offset]
+	check(ui._map_source.segments.size() == actual_segments.size(), "Map includes exactly the authored static walkable modules")
+	for segment in ui._map_source.segments:
+		check(actual_segments.has(str(segment.id)), "Map segment exists in runtime scene: "+str(segment.id))
+		if actual_segments.has(str(segment.id)):
+			var expected: Array = actual_segments[str(segment.id)]
+			check(expected[0].distance_to(Vector2(segment.start[0],segment.start[1])) < 0.01 and expected[1].distance_to(Vector2(segment.end[0],segment.end[1])) < 0.01, "Map endpoints match runtime collision: "+str(segment.id))
+
 	check(ui._map_art_texture != null, "Generated architectural atlas is loaded into the actual map")
 	check(ui._map_art_source.get("layers", []).size() >= 8, "Generated architectural layers include the arrival station")
 	var cut: Array = ui._subtract_map_rect(Rect2(0, 0, 100, 100), Rect2(25, 25, 50, 50))
@@ -98,8 +112,13 @@ func run() -> void:
 					check(absf(fitted.size.x / fitted.size.y - cell_size.x / cell_size.y) < 0.001, "Generated architecture keeps its original aspect ratio")
 				check(ui._map_data.player == game.player.position, "Player marker uses current position")
 				check(ui._map_data.checkpoints == game.environment.checkpoints, "Checkpoint coordinates match authored map")
-				check(session.state.snapshot() == before, "Viewing map does not mutate campaign state")
-				check(ui._map_source.get("segments", []).size() == 56, "Map uses the actual 56 floor/stair segments")
+				var after: Dictionary = session.state.snapshot()
+				check(session.has("tutorial_map"), "Viewing the map records the completed map lesson")
+				if not "tutorial_map" in before.facts:
+					after.facts.erase("tutorial_map")
+					after.results.erase("tutorial_map")
+				check(after == before, "Viewing map leaves narrative campaign state unchanged")
+				check(ui._map_source.get("segments", []).size() == actual_segments.size(), "Map retains all authored floor/stair segments")
 				check(ui._map_source.get("landmarks", []).size() == 7, "Map uses seven authored imagegen landmarks")
 				check(ui._map_source.get("label_anchors", {}).size() == 16, "Every room number has an authored anchor on a real route")
 				if dimensions.x == 1280 and explored == 3 and not opened:
@@ -165,7 +184,7 @@ func run() -> void:
 						ui.call("_select_map_region", "mon_15")
 						var chapel_bounds: Rect2 = ui._map_selection_bounds("mon_15")
 						check(ui._map_view().grow(-18).encloses(Rect2(chapel_bounds.position * ui._map_zoom + ui._map_offset(), chapel_bounds.size * ui._map_zoom)), "Selecting the chapel frames its complete discovered architecture and routes without cutting off its spire")
-						check(chapel_bounds.has_point(Vector2(14600,1424)), "Region framing keeps the real walking deck in view")
+						check(chapel_bounds.has_point(Vector2(12400,1424)), "Region framing keeps the real walking deck in view")
 						if DisplayServer.get_name() != "headless":
 							await RenderingServer.frame_post_draw
 							root.get_texture().get_image().save_png("res://artifacts/image_map_ui_1280_selected_chapel.png")

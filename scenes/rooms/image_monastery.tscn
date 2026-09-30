@@ -67,7 +67,7 @@ metadata/structural_id = "F02"
 [node name="F03" type="Node2D" parent="Gameplay"]
 position = Vector2(7024, 1696)
 script = ExtResource("2")
-width = 2256
+width = 448
 collision_depth = 48
 one_way = false
 metadata/structural_id = "F03"
@@ -75,7 +75,7 @@ metadata/structural_id = "F03"
 [node name="F04" type="Node2D" parent="Gameplay"]
 position = Vector2(10088, 1424)
 script = ExtResource("2")
-width = 1672
+width = 528
 collision_depth = 48
 one_way = false
 metadata/structural_id = "F04"
@@ -453,17 +453,17 @@ grounded = true
 metadata/recovery_road = true
 
 [node name="gate_departure" type="Node2D" parent="Gameplay"]
-position = Vector2(13160, -2080)
+position = Vector2(13160, 1248)
 script = ExtResource("2")
 width = 48
-collision_depth = 3504
+collision_depth = 176
 metadata/gate_id = "gate_departure"
 
 [node name="gate_departure_back" type="Node2D" parent="Gameplay"]
-position = Vector2(13160, 1472)
+position = Vector2(13160, 2544)
 script = ExtResource("2")
 width = 48
-collision_depth = 2648
+collision_depth = 176
 metadata/gate_id = "gate_departure_back"
 
 [node name="gate_entry" type="Node2D" parent="Gameplay"]
@@ -605,14 +605,14 @@ title = ""
 metadata/space_id = "mon_07"
 
 [node name="Action_records" type="Marker2D" parent="Gameplay"]
-position = Vector2(6896, 880)
+position = Vector2(10320, 1424)
 script = ExtResource("4")
 action_id = "records"
 title = ""
 metadata/space_id = "mon_13"
 
 [node name="Action_luggage" type="Marker2D" parent="Gameplay"]
-position = Vector2(10992, 1424)
+position = Vector2(10992, 1388)
 script = ExtResource("4")
 action_id = "luggage"
 title = ""
@@ -630,10 +630,10 @@ position = Vector2(16000, 1424)
 script = ExtResource("4")
 action_id = "exit"
 title = ""
-metadata/space_id = "mon_15"
+metadata/space_id = "mon_16"
 
 [node name="Checkpoint_01" type="Marker2D" parent="Gameplay"]
-position = Vector2(960, 1120)
+position = Vector2(1260, 1120)
 script = ExtResource("3")
 kind = 0
 metadata/checkpoint_id = "cp_mon_01"
@@ -661,7 +661,7 @@ metadata/checkpoint_id = "cp_mon_06"
 metadata/space_id = "mon_06"
 
 [node name="Checkpoint_13" type="Marker2D" parent="Gameplay"]
-position = Vector2(6864, 880)
+position = Vector2(10320, 1424)
 script = ExtResource("3")
 kind = 0
 metadata/checkpoint_id = "cp_mon_13"
@@ -710,7 +710,7 @@ metadata/checkpoint_id = "cp_mon_10"
 metadata/space_id = "mon_10"
 
 [node name="Checkpoint_12" type="Marker2D" parent="Gameplay"]
-position = Vector2(5760, 2280)
+position = Vector2(8840, 2312)
 script = ExtResource("3")
 kind = 0
 metadata/checkpoint_id = "cp_mon_12"
@@ -724,28 +724,28 @@ metadata/checkpoint_id = "cp_mon_11"
 metadata/space_id = "mon_11"
 
 [node name="Checkpoint_14" type="Marker2D" parent="Gameplay"]
-position = Vector2(10560, 1424)
+position = Vector2(11200, 1424)
 script = ExtResource("3")
 kind = 0
 metadata/checkpoint_id = "cp_mon_14"
 metadata/space_id = "mon_14"
 
 [node name="Checkpoint_15" type="Marker2D" parent="Gameplay"]
-position = Vector2(14720, 1424)
+position = Vector2(11840, 1424)
 script = ExtResource("3")
 kind = 0
 metadata/checkpoint_id = "cp_mon_15"
 metadata/space_id = "mon_15"
 
 [node name="Checkpoint_16" type="Marker2D" parent="Gameplay"]
-position = Vector2(12560, 1424)
+position = Vector2(13780, 1424)
 script = ExtResource("3")
 kind = 0
 metadata/checkpoint_id = "cp_mon_16"
 metadata/space_id = "mon_16"
 
 [node name="PlayerSpawn" type="Marker2D" parent="Gameplay"]
-position = Vector2(960, 1120)
+position = Vector2(1260, 1120)
 script = ExtResource("3")
 kind = 0
 
@@ -755,139 +755,37 @@ script = ExtResource("3")
 kind = 1
 
 [node name="Encounter1_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(4320, 1408)
+position = Vector2(2800, 1120)
 script = ExtResource("3")
 kind = 2
 metadata/encounter_id = 1
-metadata/space_id = "mon_03"
-metadata/room_id = "mon_03"
+metadata/space_id = "mon_02"
+metadata/room_id = "mon_02"
 metadata/enemy_archetype = "shield"
-
-[node name="Encounter1_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(4448, 1408)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 1
-metadata/space_id = "mon_03"
-metadata/room_id = "mon_03"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter1_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(4496, 1408)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 1
-metadata/space_id = "mon_03"
-metadata/room_id = "mon_03"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter2_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(5200, 1408)
-script = ExtResource("3")
-kind = 2
-metadata/encounter_id = 2
-metadata/space_id = "mon_05"
-metadata/room_id = "mon_05"
-metadata/enemy_archetype = "shield"
-
-[node name="Encounter2_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(5344, 1408)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 2
-metadata/space_id = "mon_05"
-metadata/room_id = "mon_05"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter2_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(5440, 1428.0)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 2
-metadata/space_id = "mon_05"
-metadata/room_id = "mon_05"
-metadata/enemy_archetype = "charger"
-
-[node name="Encounter3_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(5168, 688)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 3
-metadata/space_id = "mon_06"
-metadata/room_id = "mon_06"
-metadata/enemy_archetype = "grenadier"
-
-[node name="Encounter3_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(5520, 688)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 3
-metadata/space_id = "mon_06"
-metadata/room_id = "mon_06"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter3_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(5808, 688)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 3
-metadata/space_id = "mon_06"
-metadata/room_id = "mon_06"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter4_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(5696, 1540.0)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 4
-metadata/space_id = "mon_07"
-metadata/room_id = "mon_07"
-metadata/enemy_archetype = "charger"
-
-[node name="Encounter4_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(5760, 1540.0)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 4
-metadata/space_id = "mon_07"
-metadata/room_id = "mon_07"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter4_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(5880, 1540.0)
-script = ExtResource("3")
-kind = 2
-metadata/encounter_id = 4
-metadata/space_id = "mon_07"
-metadata/room_id = "mon_07"
-metadata/enemy_archetype = "shield"
+metadata/wake_radius = 240.0
+metadata/patrol_bounds = Rect2(2380, 940, 800, 220)
 
 [node name="Encounter5_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(8576, 1696)
+position = Vector2(8256, 1696)
 script = ExtResource("3")
 kind = 2
 metadata/encounter_id = 5
 metadata/space_id = "mon_08"
 metadata/room_id = "mon_08"
 metadata/enemy_archetype = "shield"
+metadata/wake_radius = 240.0
+metadata/patrol_bounds = Rect2(8160, 1480, 1080, 250)
 
 [node name="Encounter5_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(8720, 1696)
+position = Vector2(8784, 1696)
 script = ExtResource("3")
 kind = 3
 metadata/encounter_id = 5
 metadata/space_id = "mon_08"
 metadata/room_id = "mon_08"
 metadata/enemy_archetype = "rifle"
-
-[node name="Encounter5_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(8960, 1696)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 5
-metadata/space_id = "mon_08"
-metadata/room_id = "mon_08"
-metadata/enemy_archetype = "support"
+metadata/wake_radius = 180.0
+metadata/patrol_bounds = Rect2(8160, 1480, 1080, 250)
 
 [node name="Encounter6_0" type="Marker2D" parent="Gameplay"]
 position = Vector2(9520, -400)
@@ -916,230 +814,197 @@ metadata/space_id = "mon_09"
 metadata/room_id = "mon_09"
 metadata/enemy_archetype = "flyer"
 
-[node name="Encounter7_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(3440, 2280)
-script = ExtResource("3")
-kind = 2
-metadata/encounter_id = 7
-metadata/space_id = "mon_10"
-metadata/room_id = "mon_10"
-metadata/enemy_archetype = "shield"
+[node name="ArrivalUp" type="Node2D" parent="Gameplay"]
+position = Vector2(1440, 1120)
+script = ExtResource("5")
+end_offset = Vector2(192, -96)
+stair_depth = 48
+one_way = false
+metadata/structural_id = "ArrivalUp"
 
-[node name="Encounter7_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(3600, 2280)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 7
-metadata/space_id = "mon_10"
-metadata/room_id = "mon_10"
-metadata/enemy_archetype = "rifle"
+[node name="ArrivalLanding" type="Node2D" parent="Gameplay"]
+position = Vector2(1632, 1024)
+script = ExtResource("2")
+width = 192
+collision_depth = 48
+one_way = false
+metadata/structural_id = "ArrivalLanding"
 
-[node name="Encounter7_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(3712, 2280)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 7
-metadata/space_id = "mon_10"
-metadata/room_id = "mon_10"
-metadata/enemy_archetype = "charger"
+[node name="ArrivalDown" type="Node2D" parent="Gameplay"]
+position = Vector2(1824, 1024)
+script = ExtResource("5")
+end_offset = Vector2(192, 96)
+stair_depth = 48
+one_way = false
+metadata/structural_id = "ArrivalDown"
 
-[node name="Encounter8_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(8000, 2320)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 8
-metadata/space_id = "mon_11"
-metadata/room_id = "mon_11"
-metadata/enemy_archetype = "flyer"
+[node name="GuardBypassUp" type="Node2D" parent="Gameplay"]
+position = Vector2(2360, 1120)
+script = ExtResource("5")
+end_offset = Vector2(288, -144)
+stair_depth = 48
+one_way = false
+metadata/structural_id = "GuardBypassUp"
 
-[node name="Encounter8_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(7696, 2632)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 8
-metadata/space_id = "mon_11"
-metadata/room_id = "mon_11"
-metadata/enemy_archetype = "rifle"
+[node name="GuardBypassBridge" type="Node2D" parent="Gameplay"]
+position = Vector2(2648, 976)
+script = ExtResource("2")
+width = 304
+collision_depth = 48
+one_way = false
+metadata/structural_id = "GuardBypassBridge"
 
-[node name="Encounter8_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(7840, 2632)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 8
-metadata/space_id = "mon_11"
-metadata/room_id = "mon_11"
-metadata/enemy_archetype = "support"
+[node name="GuardBypassDown" type="Node2D" parent="Gameplay"]
+position = Vector2(2952, 976)
+script = ExtResource("5")
+end_offset = Vector2(352, 244)
+stair_depth = 48
+one_way = false
+metadata/structural_id = "GuardBypassDown"
 
-[node name="Encounter9_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(5200, 2280)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 9
+[node name="F03_PumpHatch" type="Node2D" parent="Gameplay"]
+position = Vector2(7472, 1696)
+script = ExtResource("2")
+width = 256
+collision_depth = 48
+one_way = true
+metadata/structural_id = "F03_PumpHatch"
+
+[node name="F03_East" type="Node2D" parent="Gameplay"]
+position = Vector2(7728, 1696)
+script = ExtResource("2")
+width = 1552
+collision_depth = 48
+one_way = false
+metadata/structural_id = "F03_East"
+
+[node name="PumpEntryUpper" type="Node2D" parent="Gameplay"]
+position = Vector2(7600, 1696)
+script = ExtResource("5")
+end_offset = Vector2(-736, 368)
+stair_depth = 48
+one_way = true
+metadata/structural_id = "PumpEntryUpper"
+
+[node name="PumpEntryLanding" type="Node2D" parent="Gameplay"]
+position = Vector2(6672, 2064)
+script = ExtResource("2")
+width = 192
+collision_depth = 48
+one_way = true
+metadata/structural_id = "PumpEntryLanding"
+
+[node name="PumpEntryLower" type="Node2D" parent="Gameplay"]
+position = Vector2(6864, 2064)
+script = ExtResource("5")
+end_offset = Vector2(1136, 568)
+stair_depth = 48
+one_way = true
+metadata/structural_id = "PumpEntryLower"
+
+[node name="MaintenanceAscent" type="Node2D" parent="Gameplay"]
+position = Vector2(9024, 2312)
+script = ExtResource("5")
+end_offset = Vector2(1792, -888)
+stair_depth = 48
+one_way = false
+metadata/structural_id = "MaintenanceAscent"
+
+[node name="MaintenanceExitHatch" type="Node2D" parent="Gameplay"]
+position = Vector2(10616, 1424)
+script = ExtResource("2")
+width = 200
+collision_depth = 48
+one_way = true
+metadata/structural_id = "MaintenanceExitHatch"
+
+[node name="F04_East" type="Node2D" parent="Gameplay"]
+position = Vector2(10816, 1424)
+script = ExtResource("2")
+width = 944
+collision_depth = 48
+one_way = false
+metadata/structural_id = "F04_East"
+
+[node name="RecoveryAscent" type="Node2D" parent="Gameplay"]
+position = Vector2(240, 3840)
+script = ExtResource("5")
+end_offset = Vector2(3120, -1560)
+stair_depth = 48
+one_way = false
+metadata/structural_id = "RecoveryAscent"
+
+[node name="gate_lift" type="Node2D" parent="Gameplay"]
+position = Vector2(6220, 1248)
+script = ExtResource("2")
+width = 32
+collision_depth = 160
+one_way = false
+metadata/structural_id = "gate_lift"
+metadata/gate_id = "gate_lift"
+
+[node name="LiftRoof" type="Node2D" parent="Gameplay"]
+position = Vector2(6140, 1200)
+script = ExtResource("2")
+width = 208
+collision_depth = 48
+one_way = false
+metadata/structural_id = "LiftRoof"
+
+[node name="gate_maintenance" type="Node2D" parent="Gameplay"]
+position = Vector2(8900, 2152)
+script = ExtResource("2")
+width = 32
+collision_depth = 160
+one_way = false
+metadata/structural_id = "gate_maintenance"
+metadata/gate_id = "gate_maintenance"
+
+[node name="MaintenanceRoof" type="Node2D" parent="Gameplay"]
+position = Vector2(8816, 2104)
+script = ExtResource("2")
+width = 208
+collision_depth = 48
+one_way = false
+metadata/structural_id = "MaintenanceRoof"
+
+[node name="DepartureHeadwall" type="Node2D" parent="Gameplay"]
+position = Vector2(13160, -2080)
+script = ExtResource("2")
+width = 48
+collision_depth = 3328
+one_way = false
+metadata/structural_id = "DepartureHeadwall"
+
+[node name="DeparturePier" type="Node2D" parent="Gameplay"]
+position = Vector2(13160, 1472)
+script = ExtResource("2")
+width = 48
+collision_depth = 1072
+one_way = false
+metadata/structural_id = "DeparturePier"
+
+[node name="DepartureFoundation" type="Node2D" parent="Gameplay"]
+position = Vector2(13160, 2768)
+script = ExtResource("2")
+width = 48
+collision_depth = 1352
+one_way = false
+metadata/structural_id = "DepartureFoundation"
+
+[node name="Action_lift_repair" type="Marker2D" parent="Gameplay"]
+position = Vector2(6170, 1408)
+script = ExtResource("4")
+action_id = "lift_repair"
+title = ""
+metadata/space_id = "mon_07"
+
+[node name="Action_maintenance_isolate" type="Marker2D" parent="Gameplay"]
+position = Vector2(8790, 2312)
+script = ExtResource("4")
+action_id = "maintenance_isolate"
+title = ""
 metadata/space_id = "mon_12"
-metadata/room_id = "mon_12"
-metadata/enemy_archetype = "grenadier"
-
-[node name="Encounter9_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(5392, 2280)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 9
-metadata/space_id = "mon_12"
-metadata/room_id = "mon_12"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter9_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(5632, 2280)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 9
-metadata/space_id = "mon_12"
-metadata/room_id = "mon_12"
-metadata/enemy_archetype = "charger"
-
-[node name="Encounter10_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(6768, 880)
-script = ExtResource("3")
-kind = 2
-metadata/encounter_id = 10
-metadata/space_id = "mon_13"
-metadata/room_id = "mon_13"
-metadata/enemy_archetype = "shield"
-
-[node name="Encounter10_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(6992, 880)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 10
-metadata/space_id = "mon_13"
-metadata/room_id = "mon_13"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter10_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(7040, 880)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 10
-metadata/space_id = "mon_13"
-metadata/room_id = "mon_13"
-metadata/enemy_archetype = "support"
-
-[node name="Encounter11_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(11120, 1424)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 11
-metadata/space_id = "mon_14"
-metadata/room_id = "mon_14"
-metadata/enemy_archetype = "charger"
-
-[node name="Encounter11_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(11232, 1424)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 11
-metadata/space_id = "mon_14"
-metadata/room_id = "mon_14"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter11_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(11312, 1424)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 11
-metadata/space_id = "mon_14"
-metadata/room_id = "mon_14"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter12_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(12720, 2720)
-script = ExtResource("3")
-kind = 2
-metadata/encounter_id = 12
-metadata/space_id = "mon_16"
-metadata/room_id = "mon_16"
-metadata/enemy_archetype = "shield"
-
-[node name="Encounter12_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(12896, 2720)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 12
-metadata/space_id = "mon_16"
-metadata/room_id = "mon_16"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter12_2" type="Marker2D" parent="Gameplay"]
-position = Vector2(13056, 2720)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 12
-metadata/space_id = "mon_16"
-metadata/room_id = "mon_16"
-metadata/enemy_archetype = "support"
-
-[node name="Encounter13_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(3136, 0)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 13
-metadata/space_id = "mon_04"
-metadata/room_id = "mon_04"
-metadata/enemy_archetype = "charger"
-
-[node name="Encounter14_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(4704, 688)
-script = ExtResource("3")
-kind = 2
-metadata/encounter_id = 14
-metadata/space_id = "mon_06"
-metadata/room_id = "mon_06"
-metadata/enemy_archetype = "shield"
-
-[node name="Encounter14_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(4832, 688)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 14
-metadata/space_id = "mon_06"
-metadata/room_id = "mon_06"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter15_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(8656, 2312)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 15
-metadata/space_id = "mon_11"
-metadata/room_id = "mon_11"
-metadata/enemy_archetype = "rifle"
-
-[node name="Encounter15_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(8800, 2312)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 15
-metadata/space_id = "mon_11"
-metadata/room_id = "mon_11"
-metadata/enemy_archetype = "support"
-
-[node name="Encounter16_0" type="Marker2D" parent="Gameplay"]
-position = Vector2(5840, 2280)
-script = ExtResource("3")
-kind = 2
-metadata/encounter_id = 16
-metadata/space_id = "mon_12"
-metadata/room_id = "mon_12"
-metadata/enemy_archetype = "shield"
-
-[node name="Encounter16_1" type="Marker2D" parent="Gameplay"]
-position = Vector2(6000, 2280)
-script = ExtResource("3")
-kind = 3
-metadata/encounter_id = 16
-metadata/space_id = "mon_12"
-metadata/room_id = "mon_12"
-metadata/enemy_archetype = "charger"
 
 [node name="Sections" type="Node2D" parent="."]
 
@@ -1157,15 +1022,15 @@ metadata/space_bounds = Rect2(1440, -480, 1920, 1120)
 
 [node name="mon_06" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_06"
-metadata/space_bounds = Rect2(3360, -160, 3040, 928)
+metadata/space_bounds = Rect2(3360, -160, 3712, 1232)
 
 [node name="mon_13" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_13"
-metadata/space_bounds = Rect2(6400, -320, 672, 1392)
+metadata/space_bounds = Rect2(10088, 1280, 584, 192)
 
 [node name="mon_09" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_09"
-metadata/space_bounds = Rect2(9104, -800, 896, 2224)
+metadata/space_bounds = Rect2(9104, -800, 984, 2544)
 
 [node name="mon_03" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_03"
@@ -1185,15 +1050,15 @@ metadata/space_bounds = Rect2(6440, 880, 2840, 1008)
 
 [node name="mon_10" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_10"
-metadata/space_bounds = Rect2(3200, 1640, 1520, 920)
+metadata/space_bounds = Rect2(3200, 1640, 3240, 1000)
 
 [node name="mon_12" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_12"
-metadata/space_bounds = Rect2(4720, 1640, 1720, 1000)
+metadata/space_bounds = Rect2(8624, 1680, 2192, 784)
 
 [node name="mon_11" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_11"
-metadata/space_bounds = Rect2(6440, 1888, 2664, 1120)
+metadata/space_bounds = Rect2(6440, 1888, 2184, 1120)
 
 [node name="mon_14" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_14"
@@ -1201,11 +1066,11 @@ metadata/space_bounds = Rect2(9840, 400, 1920, 1280)
 
 [node name="mon_15" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_15"
-metadata/space_bounds = Rect2(13280, -1520, 3104, 3360)
+metadata/space_bounds = Rect2(11760, -1520, 1520, 4640)
 
 [node name="mon_16" type="Node2D" parent="Sections"]
 metadata/space_id = "mon_16"
-metadata/space_bounds = Rect2(11760, 240, 4624, 2880)
+metadata/space_bounds = Rect2(13280, -1520, 3104, 4640)
 
 [node name="Connections" type="Node2D" parent="."]
 
@@ -1231,7 +1096,7 @@ metadata/gate_id = ""
 
 [node name="Link4" type="Node2D" parent="Connections"]
 metadata/from = "mon_06"
-metadata/to = "mon_13"
+metadata/to = "mon_07"
 metadata/gate_id = ""
 
 [node name="Link5" type="Node2D" parent="Connections"]
@@ -1256,7 +1121,7 @@ metadata/gate_id = ""
 
 [node name="Link9" type="Node2D" parent="Connections"]
 metadata/from = "mon_10"
-metadata/to = "mon_12"
+metadata/to = "mon_11"
 metadata/gate_id = ""
 
 [node name="Link10" type="Node2D" parent="Connections"]
@@ -1267,7 +1132,7 @@ metadata/gate_id = ""
 [node name="Link11" type="Node2D" parent="Connections"]
 metadata/from = "mon_07"
 metadata/to = "mon_08"
-metadata/gate_id = ""
+metadata/gate_id = "gate_lift"
 
 [node name="Link12" type="Node2D" parent="Connections"]
 metadata/from = "mon_08"
@@ -1275,18 +1140,18 @@ metadata/to = "mon_09"
 metadata/gate_id = ""
 
 [node name="Link13" type="Node2D" parent="Connections"]
-metadata/from = "mon_08"
-metadata/to = "mon_14"
+metadata/from = "mon_09"
+metadata/to = "mon_13"
 metadata/gate_id = ""
 
 [node name="Link14" type="Node2D" parent="Connections"]
 metadata/from = "mon_14"
-metadata/to = "mon_16"
+metadata/to = "mon_15"
 metadata/gate_id = ""
 
 [node name="Link15" type="Node2D" parent="Connections"]
-metadata/from = "mon_16"
-metadata/to = "mon_15"
+metadata/from = "mon_15"
+metadata/to = "mon_16"
 metadata/gate_id = "gate_departure"
 
 [node name="Link16" type="Node2D" parent="Connections"]
@@ -1394,3 +1259,124 @@ position = Vector2(12320, 1424)
 
 [node name="celine_return" type="Marker2D" parent="StoryPositions"]
 position = Vector2(3920, 1408)
+
+
+[node name="vira_departure_mid" type="Marker2D" parent="StoryPositions"]
+position = Vector2(6448, 1408)
+
+[node name="vira_departure_end" type="Marker2D" parent="StoryPositions"]
+position = Vector2(6740, 1554)
+
+[node name="vira_after" type="Marker2D" parent="StoryPositions"]
+position = Vector2(10900, 1424)
+
+[node name="PumpEntry" type="Node2D" parent="Connections"]
+metadata/from = "mon_08"
+metadata/to = "mon_11"
+metadata/gate_id = ""
+
+[node name="MaintenanceExit" type="Node2D" parent="Connections"]
+metadata/from = "mon_12"
+metadata/to = "mon_14"
+metadata/gate_id = "gate_maintenance"
+
+[node name="ArchiveExit" type="Node2D" parent="Connections"]
+metadata/from = "mon_13"
+metadata/to = "mon_14"
+metadata/gate_id = ""
+
+[node name="vira_path_01" type="Marker2D" parent="StoryPositions"]
+position = Vector2(7024, 1696)
+
+[node name="vira_path_02" type="Marker2D" parent="StoryPositions"]
+position = Vector2(9280, 1696)
+
+[node name="vira_path_03" type="Marker2D" parent="StoryPositions"]
+position = Vector2(9600, 1540)
+
+[node name="vira_path_04" type="Marker2D" parent="StoryPositions"]
+position = Vector2(9856, 1540)
+
+[node name="vira_path_05" type="Marker2D" parent="StoryPositions"]
+position = Vector2(10088, 1424)
+
+[node name="tutorial_jump" type="Marker2D" parent="StoryPositions"]
+position = Vector2(1700, 1024)
+
+[node name="tutorial_shoot" type="Marker2D" parent="StoryPositions"]
+position = Vector2(2120, 1120)
+
+
+[node name="MaintenanceHeadwall" type="Node2D" parent="Gameplay"]
+position = Vector2(8900, 1744)
+script = ExtResource("2")
+width = 32
+collision_depth = 408
+metadata/structural_id = "MaintenanceHeadwall"
+
+[node name="MaintenanceFoundation" type="Node2D" parent="Gameplay"]
+position = Vector2(8900, 2360)
+script = ExtResource("2")
+width = 32
+collision_depth = 1760
+metadata/structural_id = "MaintenanceFoundation"
+
+[node name="LiftHeadwall" type="Node2D" parent="Gameplay"]
+position = Vector2(6220, 736)
+script = ExtResource("2")
+width = 32
+collision_depth = 512
+metadata/structural_id = "LiftHeadwall"
+
+[node name="CargoUnderpass" type="Node2D" parent="Connections"]
+metadata/from = "mon_07"
+metadata/to = "mon_08"
+metadata/gate_id = ""
+
+[node name="luggage_home" type="Marker2D" parent="StoryPositions"]
+position = Vector2(10480, 1424)
+
+[node name="LuggageHomeCover" type="Node2D" parent="Gameplay"]
+position = Vector2(10452, 1388)
+script = ExtResource("2")
+width = 56
+collision_depth = 36
+metadata/structural_id = "LuggageHomeCover"
+
+[node name="LuggageHomeUp" type="Node2D" parent="Gameplay"]
+position = Vector2(10380, 1424)
+script = ExtResource("5")
+end_offset = Vector2(72, -36)
+stair_depth = 8
+metadata/structural_id = "LuggageHomeUp"
+
+[node name="LuggageHomeDown" type="Node2D" parent="Gameplay"]
+position = Vector2(10508, 1388)
+script = ExtResource("5")
+end_offset = Vector2(72, 36)
+stair_depth = 8
+metadata/structural_id = "LuggageHomeDown"
+
+[node name="luggage_cart" type="Marker2D" parent="StoryPositions"]
+position = Vector2(10992, 1424)
+
+[node name="LuggageCartCover" type="Node2D" parent="Gameplay"]
+position = Vector2(10964, 1388)
+script = ExtResource("2")
+width = 56
+collision_depth = 36
+metadata/structural_id = "LuggageCartCover"
+
+[node name="LuggageCartUp" type="Node2D" parent="Gameplay"]
+position = Vector2(10892, 1424)
+script = ExtResource("5")
+end_offset = Vector2(72, -36)
+stair_depth = 8
+metadata/structural_id = "LuggageCartUp"
+
+[node name="LuggageCartDown" type="Node2D" parent="Gameplay"]
+position = Vector2(11020, 1388)
+script = ExtResource("5")
+end_offset = Vector2(72, 36)
+stair_depth = 8
+metadata/structural_id = "LuggageCartDown"

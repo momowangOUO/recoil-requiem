@@ -20,6 +20,9 @@ func run() -> void:
 	for stair in stage.game.environment.stairs:
 		var id: String = stair.get_meta("structural_id", str(stair.name))
 		var walls := stage.scenery.find_children(id + "ContinuousRearFoundation", "MeshInstance3D", true, false)
+		if id.begins_with("Luggage"):
+			check(walls.is_empty() and stage.scenery.find_children(id + "LoadingSkid", "MeshInstance3D", true, false).size() == 1, "Movable cargo ramp uses a shallow wooden skid instead of a tall foundation")
+			continue
 		if stair.one_way:
 			check(walls.is_empty(), "Open metal stair keeps its intentionally open underside: " + id)
 			continue
@@ -34,11 +37,15 @@ func run() -> void:
 			check(float(close_walls[0].get_meta("height_above_flight", 999)) <= 64, "Stair backing stays a low retaining wall instead of hiding the landmark")
 			check(stage.scenery.find_children(id + "RetainingCoping", "MeshInstance3D", true, false).size() == 1, "Retaining wall ends with an authored structural coping")
 		if walls.is_empty(): continue
-		var bounds: AABB = walls[0].get_aabb()
-		check(absf(bounds.position.y + 35.2) < 0.001 and bounds.end.z < -2.5, "Retaining wall continues to foundation behind glass and gameplay: " + id)
+		var bounds: AABB = walls[0].global_transform * walls[0].get_aabb()
+		var bottom := maxf(3520.0, maxf(stair.position.y, stair.position.y + stair.end_offset.y) + stair.stair_depth + 80.0)
+		check(absf(bounds.position.y + bottom * 0.01) < 0.001 and bounds.end.z < -2.5, "Retaining wall continues below its road behind glass and gameplay: " + id)
 		for t in [0.05, 0.5, 0.95]:
 			var at: Vector2 = stair.position + stair.end_offset * t
-			check(bounds.has_point(Vector3(at.x * 0.01, -(at.y + stair.stair_depth + 50) * 0.01, -3.0)), "Stair interval is backed below its tread instead of open sky: " + id)
+			var supported := bounds.has_point(Vector3(at.x * 0.01, -(at.y + stair.stair_depth + 50) * 0.01, -3.0))
+			for pier: MeshInstance3D in stage.scenery.find_children(id + "ArcadeFoundation*", "MeshInstance3D", true, false):
+				supported = supported or (pier.global_transform * pier.get_aabb()).has_point(Vector3(at.x * 0.01, -(at.y + stair.stair_depth + 50) * 0.01, -3.0))
+			check(supported, "Stair interval is carried by a wall or the station arcade pier/lintel: " + id)
 	var details := stage.scenery.find_children("*CloseStory*Wall", "MeshInstance3D", true, false)
 	check(details.size() > 20, "Near-ground building surfaces use authored detail modules")
 	for wall in details:
