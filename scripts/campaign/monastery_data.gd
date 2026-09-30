@@ -55,6 +55,8 @@ static func interaction_prompt(id: String, npc: bool, known_npc: bool = false) -
 
 static func catalog() -> Dictionary:
 	var facts: Array = FACTS.duplicate()
+	var staging: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/chapter_staging.json"))
+	for id in staging: facts.append("stage_"+id)
 	facts.append_array(["lift_repaired", "maintenance_open", "repair_explained", "vira_relocated", "celine_observed", "opening_seen"])
 	for action in ["move", "jump", "shoot", "reload", "claw", "switch", "map"]: facts.append("tutorial_" + action)
 	facts.append("boss_met")

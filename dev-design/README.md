@@ -22,6 +22,8 @@
 
 ## 当前可读资料
 
+- 2026-09-30 章节演出与清晰度修订：[十二段施工表](flow-review/CHAPTER_STAGING.md)、[实施与验证](flow-review/CHAPTER_STAGING_IMPLEMENTATION.md)。对白首帧稳定性、漫画式段落、旧存档和暂停行为以此记录为准。
+
 - 2026-09-30 已按用户确认接入 [12 幅流程示意](flow-review/flow.html)：逐步教学、会面和合作、双路线、发车确认、分战斗恢复及回访。施工与验证现况见 [接入记录](flow-review/IMPLEMENTATION.md)；图稿仍是美术目标，不能把已接入逻辑当作全部视觉细节已经还原。
 
 - 2026-09-22地图建筑、花棚、莉芙人物标题、玩家菜单及存档恢复：[先图后施工记录](IMAGE_LED_WORKFLOW.md)。新增素材来源与实际配准见 [UI来源补记](../assets/ui/v2/SOURCE_2026-09-22.md)；已实现切片不等于全章体验验收，建筑露底与密度仍在推进。

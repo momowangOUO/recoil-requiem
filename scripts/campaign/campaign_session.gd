@@ -44,12 +44,17 @@ var _interaction_hint_key := ""
 var _vira_departure_pending := false
 var _victory_quiet := 0.0
 var _tracked_main_quest := ""
+var staging: Control
+var _boss_interlude := 0.0
+var _post_dialogue_cue := ""
+var _restored_duel := ""
 
 func _checkpoint_event(id: String) -> Dictionary:
 	var serial: int = state.snapshot().results.size()
 	return {"event_id":id,"source_id":"monastery","id":id,"result_id":"%s_%d" % [id,serial],"kind":"checkpoint"}
 
 func commit_progress(flags: Array, checkpoint: String = "") -> Error:
+	var new_flags := flags.filter(func(id): return not has(id))
 	var events: Array = []
 	for id in flags:
 		events.append(_fact_event(id))
@@ -61,7 +66,9 @@ func commit_progress(flags: Array, checkpoint: String = "") -> Error:
 		_set_save_status("ready" if error == OK else "write_failed", error, save_status.preserved_path)
 	elif save_status.code == "load_failed": return save_status.error
 	else: error = state.apply_events(events)
-	if error == OK: refresh()
+	if error == OK:
+		refresh()
+		for id in new_flags: _stage_fact(id)
 	return error
 
 func selected_route() -> String:
@@ -134,7 +141,13 @@ func event(id: String, kind: String = "fact") -> Error:
 		return error
 	if autosave and save_status.code != "recovered": _set_save_status("ready")
 	refresh()
+	if kind == "fact": _stage_fact(id)
 	return OK
+
+func _stage_fact(id: String) -> void:
+	if id == "inner_reached" and (not has("met_mara") or not has("met_vira")): return
+	var cue: String = {"celine_helped":"cooperation", "inner_reached":"departure", "lift_repaired":"route_lift", "maintenance_open":"route_service", "tools_ina":"tools", "tools_mara":"tools", "records_ruka":"records", "records_mara":"records", "luggage_home":"luggage", "luggage_cart":"luggage", "returned":"return"}.get(id,"")
+	if not cue.is_empty() and staging != null: staging.request(cue)
 
 func _fact_event(id: String) -> Dictionary:
 	return {"event_id":id,"source_id":"monastery","id":id,"result_id":id,"kind":"fact"}
@@ -173,6 +186,7 @@ func load_save() -> Error:
 		# Reading succeeded: the world can use the coherent state even if the
 		# repair write fails. save_now exposes the failure and permits retry.
 		save_now()
+	if staging != null: staging.capture_loaded_progress()
 	return OK
 
 ## Explicit confirmed restart. Keep a durable archive outside the rotating .bak
@@ -197,6 +211,7 @@ func restart_chapter() -> Error:
 		restart_backup_path = archive
 	state = fresh
 	loaded_from_disk = false
+	if staging != null: staging.capture_loaded_progress()
 	observed_people.clear()
 	selected_side = ""
 	_set_save_status("ready" if autosave else "disabled")
@@ -207,6 +222,9 @@ func restart_chapter() -> Error:
 func save_now() -> Error:
 	if not autosave:
 		return save_status.error if save_status.error != OK else ERR_UNAVAILABLE
+	if staging != null:
+		var presentation_error: Error = staging.flush_seen()
+		if presentation_error != OK: return presentation_error
 	var error: Error = state.save_to(save_path)
 	if error != OK:
 		_set_save_status("write_failed", error, save_status.preserved_path)
@@ -237,6 +255,7 @@ func _process(delta: float) -> void:
 		_save_notice_elapsed = 0.0
 
 func bind_world() -> void:
+	if staging != null: staging.cancel()
 	groups.clear()
 	points.clear()
 	npc_actors.clear()
@@ -244,6 +263,9 @@ func bind_world() -> void:
 	_interaction_hint_key = ""
 	ally_cooldown = 0
 	_vira_departure_pending = false
+	_boss_interlude = 0
+	_post_dialogue_cue = ""
+	_restored_duel = ""
 	last_region = ""
 	ui.close_panel()
 	for p in lab.environment.npc_points:
@@ -283,7 +305,27 @@ func bind_world() -> void:
 		add_enemy(guard, marker.position, group_id)
 	if has("departed") and not has("celine_defeated"): spawn_special("elite")
 	if has("celine_defeated") and not has("vira_dead"): spawn_special("boss")
+	# Reset discards callbacks tied to the old world, but committed encounter
+	# facts still need their unfinished introduction before the actor can unlock.
+	if staging != null and staging.enabled:
+		if has("departed") and not has("celine_defeated") and not staging._seen("celine_duel"):
+			_restored_duel = "elite"
+		elif has("celine_defeated") and has("boss_met") and not has("vira_dead") and not staging._seen("vira_duel"):
+			_restored_duel = "boss"
 	refresh()
+
+func _resume_restored_duel() -> bool:
+	if _restored_duel.is_empty() or staging == null or not staging.enabled: return false
+	if lab.paused or ui.is_panel_open() or not staging._safe_to_pause(): return false
+	if lab.player.position.distance_to(story_position(_restored_duel)) >= 550: return false
+	var archetype := _restored_duel
+	_restored_duel = ""
+	if staging._seen("celine_duel" if archetype == "elite" else "vira_duel"): return false
+	if archetype == "elite":
+		dialogue("celine",["mon.celine.stop","mon.player.stop","mon.celine.worked" if has("celine_helped") else "mon.celine.strangers","mon.player.continue"])
+	else:
+		dialogue("vira",["mon.vira.fight","mon.player.fight","mon.vira.answer"])
+	return true
 
 func add_enemy(guard: ShieldEnemy, at: Vector2, group_id: String) -> void:
 	guard.position = at
@@ -302,6 +344,7 @@ func spawn_special(archetype: String) -> void:
 	var at := story_position(archetype)
 	var guard := Enemy.new()
 	guard.archetype = archetype
+	guard.staging_locked = staging != null and staging.enabled and not staging._seen("celine_duel" if archetype == "elite" else "vira_duel")
 	add_enemy(guard, at, archetype)
 
 func story_position(id: String) -> Vector2:
@@ -326,6 +369,7 @@ func enemy_down(group_id: String) -> void:
 		if commit_progress(["celine_defeated"], "cp_mon_16") != OK: return
 		for guard in groups[group_id]: guard.hide()
 		spawn_special("boss")
+		_boss_interlude = 4.0
 		dialogue("celine", ["mon.celine.defeated"])
 	elif group_id == "boss":
 		if has("vira_dead"): return
@@ -336,10 +380,17 @@ func enemy_down(group_id: String) -> void:
 		if is_instance_valid(lab) and lab.get("projectiles") != null:
 			lab.combat_timer = 0
 			for projectile in lab.projectiles.get_children(): projectile.queue_free()
+		if staging != null: staging.request("vira_after",Callable(),3.0)
 	else: event(group_id)
 
 func step(delta: float) -> void:
 	_victory_quiet = maxf(0.0, _victory_quiet - delta)
+	_boss_interlude = maxf(0.0, _boss_interlude - delta)
+	if _resume_restored_duel(): return
+	if staging != null and staging.enabled:
+		if has("inner_reached") and has("met_mara") and has("met_vira") and not has("departed"): staging.request("departure")
+		if has("tutorial_move") and not has("met_mara") and lab.player.position.x > 1450: staging.request("stairs")
+		if not has("met_mara") and groups.has("clear_01") and not groups.clear_01.is_empty() and lab.player.position.distance_to(groups.clear_01[0].position) < 300: staging.request("first_guard")
 	for encounter in ["elite", "boss"]:
 		if groups.has(encounter) and not has("celine_defeated" if encounter == "elite" else "vira_dead"):
 			var defeated := true
@@ -352,14 +403,14 @@ func step(delta: float) -> void:
 	if not has("met_celine") and not has("departed") and npc_actors.has("celine") and lab.player.position.distance_to(npc_actors.celine.position) < 180:
 		if event("met_celine") == OK:
 			observed_people.celine = text("mon.flow.celine.job")
-			lab.overlay.show_notice(text("mon.flow.celine.job"))
+			if staging == null or not staging.enabled: lab.overlay.show_notice(text("mon.flow.celine.job"))
 	if has("met_celine") and not has("departed") and npc_actors.has("celine") and lab.player.position.distance_to(npc_actors.celine.position) < 220 and not has("celine_observed"):
 		event("celine_observed")
 	if has("celine_helped") and has("gate_west") and not has("celine_returned") and not has("departed") and npc_actors.has("celine") and lab.player.position.distance_to(npc_actors.celine.position) < 42:
 		event("celine_returned")
 		dialogue("celine",["mon.player.return","mon.celine.return"])
 		return
-	if has("celine_defeated") and not has("vira_dead") and not has("boss_met") and lab.player.position.distance_to(story_position("boss")) < 550:
+	if has("celine_defeated") and not has("vira_dead") and not has("boss_met") and _boss_interlude <= 0 and lab.player.is_on_floor() and lab.combat_timer <= 0 and lab.player.position.distance_to(story_position("boss")) < 550:
 		event("boss_met")
 		dialogue("vira",["mon.vira.fight","mon.player.fight","mon.vira.answer"])
 		return
@@ -378,6 +429,11 @@ func step(delta: float) -> void:
 			continue
 		var patrol: Rect2 = guard.get_meta("patrol_bounds", Rect2())
 		var awake: bool = not has("vira_dead") and guard.position.distance_to(lab.player.position) < float(guard.get_meta("wake_radius",600.0)) and active < 6
+		if guard.get("archetype") == "boss" and not has("boss_met"): awake = false
+		if staging != null and staging.enabled:
+			if guard.get("archetype") in ["elite","boss"]:
+				guard.staging_locked = not staging._seen("celine_duel" if guard.archetype == "elite" else "vira_duel")
+				if guard.staging_locked: awake = false
 		if patrol.has_area() and not patrol.has_point(lab.player.position + Vector2(0,-2)): awake = false
 		guard.target = lab.player if awake else null
 		var mode := Node.PROCESS_MODE_PAUSABLE if awake else Node.PROCESS_MODE_DISABLED
@@ -519,6 +575,9 @@ func close() -> void:
 	ui.close_panel()
 	modal_actions.clear()
 	lab.resume_trial()
+	if not _post_dialogue_cue.is_empty() and staging != null:
+		staging.request(_post_dialogue_cue)
+		_post_dialogue_cue = ""
 	if _vira_departure_pending:
 		_vira_departure_pending = false
 		if npc_actors.has("vira"):
@@ -531,6 +590,14 @@ func close() -> void:
 			npc_actors.vira.walk_path(path)
 
 func dialogue(speaker: String, ids: Array, choices: Array = []) -> void:
+	if ids.has("mon.celine.defeated"): _post_dialogue_cue = "celine_after"
+	var introductions := {"mon.mara.hello":"mara", "mon.vira.hello":"vira", "mon.celine.stop":"celine_duel", "mon.vira.fight":"vira_duel"}
+	if staging != null and not ids.is_empty() and introductions.has(ids[0]):
+		staging.request(introductions[ids[0]],func(): _show_dialogue(speaker,ids,choices))
+		return
+	_show_dialogue(speaker,ids,choices)
+
+func _show_dialogue(speaker: String, ids: Array, choices: Array = []) -> void:
 	pause()
 	current_npc = speaker
 	var lines: Array = []
@@ -576,11 +643,11 @@ func interact(id: String, npc: bool = false) -> void:
 			elif not has("tools") or not has("repair_explained"):
 				lab.overlay.show_notice(text("mon.flow.repair.need"))
 			elif commit_progress(["lift_repaired"]) == OK:
-				lab.overlay.show_notice(text("mon.flow.repair.done"))
+				if staging == null or not staging.enabled: lab.overlay.show_notice(text("mon.flow.repair.done"))
 		"maintenance_isolate":
 			if commit_progress(["maintenance_open"]) == OK:
 				select_route("maintenance")
-				lab.overlay.show_notice(text("mon.flow.service.safe"))
+				if staging == null or not staging.enabled: lab.overlay.show_notice(text("mon.flow.service.safe"))
 		"tools", "records", "luggage":
 			if id == "tools" and has("tools"): return
 			if event(id,"evidence") != OK: return

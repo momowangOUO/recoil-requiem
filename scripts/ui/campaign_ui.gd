@@ -66,8 +66,15 @@ var _dialogue_pages: Array = []
 var _dialogue_choices: Array = []
 var _dialogue_index := 0
 var _dialogue_armed := false
-var _dialogue_row: HBoxContainer
-var _dialogue_actions: HBoxContainer
+var _dialogue_row: Control
+var _dialogue_actions: Control
+var _dialogue_reading: Control
+var _dialogue_choice_row: Control
+var _dialogue_text: Label
+var _dialogue_rect := Rect2()
+var _dialogue_text_rect := Rect2()
+var _dialogue_action_rect := Rect2()
+var _dialogue_has_speaker := false
 var _dialogue_quest := "entry"
 var _opening_portrait: TextureRect
 var _dialogue_portrait: TextureRect
@@ -132,16 +139,17 @@ func _ready() -> void:
 	_side = _label("", 20)
 	tracker.add_child(_side)
 	_opening = _label("", 21, Color("f3e5d0"))
-	_opening.position = Vector2(210, 550)
-	_opening.size = Vector2(860, 78)
-	_opening.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Combat HUD occupies the first 300 authored pixels at the lower left.
+	_opening.position = Vector2(426, 550)
+	_opening.size = Vector2(820, 78)
+	_opening.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_opening.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_opening.add_theme_color_override("font_outline_color", Color(0.06, 0.035, 0.05, 0.98))
 	_opening.add_theme_constant_override("outline_size", 2)
 	_opening.hide()
 	add_child(_opening)
 	_opening_portrait = _illustration("portraits", "player", Vector2(82, 96))
-	_opening_portrait.position = Vector2(126, 535)
+	_opening_portrait.position = Vector2(328, 535)
 	_opening_portrait.hide()
 	add_child(_opening_portrait)
 	_opening.visibility_changed.connect(func(): _opening_portrait.visible = _opening.visible)
@@ -174,7 +182,6 @@ func _ready() -> void:
 	panel.add_theme_stylebox_override("panel", _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
 	add_child(panel)
 	panel.hide()
-	panel.minimum_size_changed.connect(func(): _align_dialogue_art.call_deferred())
 	content = VBoxContainer.new()
 	content.add_theme_constant_override("separation", 14)
 	panel.add_child(content)
@@ -204,6 +211,7 @@ func _process(delta: float) -> void:
 		if _opening_elapsed >= 7.0:
 			_opening_active = false
 			_opening.hide()
+			_refresh_tutorial()
 		elif _opening_elapsed >= 3.0 and lines.size() > 1:
 			_opening.text = str(_ui_copy.get("speaker", "")) + "：" + str(lines[1])
 	# Lab pause/settings owns the whole screen. Campaign modals also pause the tree,
@@ -261,6 +269,9 @@ func _adapt_type() -> void:
 			label.add_theme_font_size_override("font_size", roundi(float(label.get_meta("base_font_size")) * _font_multiplier))
 	if is_instance_valid(_map): _map.queue_redraw()
 	_fit_tracker.call_deferred()
+	if panel_kind == "dialogue" and is_instance_valid(_dialogue_text):
+		_measure_dialogue()
+		_layout_dialogue()
 
 func _label(value: String, font_size: int = 24, color: Color = INK) -> Label:
 	var label := Label.new()
@@ -300,11 +311,13 @@ func _start_opening_caption() -> void:
 	var opening_lines: Array = _ui_copy.get("lines", [])
 	_opening.text = str(_ui_copy.get("speaker", "")) + "：" + str(opening_lines[0]) if not opening_lines.is_empty() else ""
 	_opening.visible = panel_kind.is_empty()
+	_refresh_tutorial()
 
 func suppress_opening() -> void:
 	_opening_started = true
 	_opening_active = false
 	_opening.hide()
+	_refresh_tutorial()
 
 func restart_opening() -> void:
 	_start_opening_caption()
@@ -328,7 +341,8 @@ func _binding(action: String) -> String:
 	return ""
 
 func _refresh_tutorial() -> void:
-	_controls.visible = _onboarding_active and panel_kind.is_empty() and _interaction_action.is_empty()
+	var opening_allows_hint := not _opening_active or tutorial_action == "move"
+	_controls.visible = _onboarding_active and opening_allows_hint and panel_kind.is_empty() and _interaction_action.is_empty()
 
 func _show_completion(objective: String) -> void:
 	_completion_serial += 1
@@ -377,7 +391,7 @@ func close_panel() -> void:
 	tracker.show()
 	if _tracker_art: _tracker_art.show()
 	_opening.visible = _opening_active
-	_controls.visible = _onboarding_active and _interaction_action.is_empty()
+	_refresh_tutorial()
 	_completion.visible = _completion_active
 	_interaction_art.visible = not _interaction_action.is_empty()
 
@@ -394,16 +408,14 @@ func _open(kind: String, title: String) -> void:
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
-	panel.position = Vector2(120, 38) if kind != "dialogue" else Vector2(330, 388)
-	panel.size = Vector2(1040, 644) if kind != "dialogue" else Vector2(918, 304)
 	if kind != "dialogue":
+		panel.position = Vector2(120, 38)
+		panel.size = Vector2(1040, 644)
 		panel.add_theme_stylebox_override("panel", _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
 	if kind == "dialogue":
 		_dialogue_close = Button.new()
 		_dialogue_close.text = "×"
 		_dialogue_close.tooltip_text = COPY.close
-		_dialogue_close.position = Vector2(1184, 444)
-		_dialogue_close.size = Vector2(44, 44)
 		_dialogue_close.add_theme_color_override("font_hover_color", Color("ffd18a"))
 		for state in ["normal", "hover", "pressed", "focus"]:
 			_dialogue_close.add_theme_stylebox_override(state, StyleBoxEmpty.new())
@@ -466,18 +478,56 @@ func show_dialogue(speaker: String, lines: Array, choices: Array, ids: Array = [
 		var spoken := value.substr(separator + 1).strip_edges() if not who.is_empty() else value
 		for sentence in sentence_pattern.search_all(spoken):
 			_dialogue_pages.append({"speaker":who, "text":sentence.get_string().strip_edges(), "quest":_dialogue_quest})
-	_dialogue_row = HBoxContainer.new()
-	_dialogue_row.add_theme_constant_override("separation", 20)
-	_dialogue_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_dialogue_row = Control.new()
 	_dialogue_row.mouse_filter = Control.MOUSE_FILTER_STOP
 	_dialogue_row.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			advance_dialogue()
 			_dialogue_row.accept_event())
-	content.add_child(_dialogue_row)
-	_dialogue_actions = HBoxContainer.new()
-	_dialogue_actions.add_theme_constant_override("separation", 20)
-	content.add_child(_dialogue_actions)
+	add_child(_dialogue_row)
+	_dialogue_text = _label("", 42)
+	_dialogue_text.add_theme_constant_override("line_spacing", 6)
+	_dialogue_text.name = "CurrentUtterance"
+	_dialogue_row.add_child(_dialogue_text)
+	_dialogue_portrait = _illustration("portraits", "", Vector2.ZERO)
+	add_child(_dialogue_portrait)
+	_dialogue_nameplate = PanelContainer.new()
+	_dialogue_nameplate.name = "DialogueNameplate"
+	_dialogue_nameplate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_nameplate.add_theme_stylebox_override("panel", _style("button_normal", 24, 22, 24, 22, 32, 18, 32, 18))
+	var name_label := _label("", 28, Color("d8b77c"))
+	name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_dialogue_nameplate.add_child(name_label)
+	add_child(_dialogue_nameplate)
+	_dialogue_illustration = _illustration("quests", "", Vector2.ZERO)
+	add_child(_dialogue_illustration)
+	_dialogue_reading = Control.new()
+	add_child(_dialogue_reading)
+	var counter := _label("", 18, SILVER)
+	counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_dialogue_reading.add_child(counter)
+	var next := Button.new()
+	next.tooltip_text = "E / Space / Enter"
+	next.pressed.connect(advance_dialogue)
+	_dialogue_reading.add_child(next)
+	_dialogue_choice_row = Control.new()
+	add_child(_dialogue_choice_row)
+	for choice in _dialogue_choices:
+		var button := Button.new()
+		button.theme_type_variation = "DialogueChoice"
+		button.text = str(choice.get("text", ""))
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.custom_minimum_size.y = 72
+		var id := str(choice.get("id", ""))
+		button.set_meta("choice_id", id)
+		button.pressed.connect(func():
+			if _dialogue_armed:
+				_dialogue_armed = false
+				choice_selected.emit(id))
+		_dialogue_choice_row.add_child(button)
+	_measure_dialogue()
 	_draw_dialogue_page()
 
 func advance_dialogue() -> void:
@@ -500,6 +550,10 @@ func _illustration(group: String, id: String, dimensions: Vector2) -> TextureRec
 	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	picture.texture = _dialogue_texture(group, id)
+	return picture
+
+func _dialogue_texture(group: String, id: String) -> Texture2D:
 	var spec: Dictionary = _dialogue_art.get(group, {}).get(id, {})
 	var path := str(spec.get("texture", ""))
 	if not path.is_empty() and ResourceLoader.exists(path):
@@ -507,11 +561,11 @@ func _illustration(group: String, id: String, dimensions: Vector2) -> TextureRec
 		atlas.atlas = load(path)
 		var rect: Array = spec.get("rect", [])
 		if rect.size() == 4: atlas.region = Rect2(rect[0], rect[1], rect[2], rect[3])
-		picture.texture = atlas
-	return picture
+		return atlas
+	return null
 
 func _hide_dialogue_art() -> void:
-	for art in [_dialogue_portrait, _dialogue_nameplate, _dialogue_illustration, _dialogue_close]:
+	for art in [_dialogue_row, _dialogue_reading, _dialogue_choice_row, _dialogue_portrait, _dialogue_nameplate, _dialogue_illustration, _dialogue_close]:
 		if is_instance_valid(art):
 			remove_child(art)
 			art.queue_free()
@@ -519,102 +573,114 @@ func _hide_dialogue_art() -> void:
 	_dialogue_nameplate = null
 	_dialogue_illustration = null
 	_dialogue_close = null
+	_dialogue_row = null
+	_dialogue_reading = null
+	_dialogue_choice_row = null
+	_dialogue_actions = null
+	_dialogue_text = null
 
 func _draw_dialogue_page() -> void:
-	for container in [_dialogue_row, _dialogue_actions]:
-		for child in container.get_children():
-			container.remove_child(child)
-			child.queue_free()
 	var page: Dictionary = _dialogue_pages[_dialogue_index] if not _dialogue_pages.is_empty() else {"speaker":"", "text":"", "quest":_dialogue_quest}
-	for art in [_dialogue_portrait, _dialogue_nameplate, _dialogue_illustration]:
-		if is_instance_valid(art):
-			remove_child(art)
-			art.queue_free()
-	_dialogue_portrait = null
-	_dialogue_nameplate = null
 	var is_spoken := not str(page.speaker).is_empty()
 	var has_choices := _dialogue_index + 1 >= _dialogue_pages.size() and not _dialogue_choices.is_empty()
-	var panel_height := 348.0 if has_choices else 300.0
-	panel.position = Vector2(292, 692 - panel_height)
-	panel.size = Vector2(956, panel_height)
-	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 108 if is_spoken else 64, 64, 52, 32))
-	_dialogue_close.position = Vector2(1184, panel.position.y + 50)
-	if is_spoken:
-		_dialogue_portrait = _illustration("portraits", str(page.speaker), Vector2.ZERO)
-		_dialogue_portrait.name = "DialoguePortrait_" + str(page.speaker)
-		var source_size := _dialogue_portrait.texture.get_size() if _dialogue_portrait.texture != null else Vector2.ONE
-		var fitted := source_size * minf(352.0 / source_size.x, 420.0 / source_size.y)
-		_dialogue_portrait.custom_minimum_size = fitted
-		_dialogue_portrait.size = fitted
-		_dialogue_portrait.position = Vector2(360 - fitted.x, 692 - fitted.y)
-		add_child(_dialogue_portrait)
-		_dialogue_nameplate = PanelContainer.new()
-		_dialogue_nameplate.name = "DialogueNameplate"
-		_dialogue_nameplate.position = Vector2(368, panel.position.y - 24)
-		_dialogue_nameplate.custom_minimum_size = Vector2(212, 72)
-		_dialogue_nameplate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_dialogue_nameplate.add_theme_stylebox_override("panel", _style("button_normal", 24, 22, 24, 22, 32, 18, 32, 18))
-		var name_label := _label(str(CampaignData.NAMES.get(page.speaker, "")), 28, Color("d8b77c"))
-		name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_dialogue_nameplate.add_child(name_label)
-		add_child(_dialogue_nameplate)
-	_dialogue_illustration = _illustration("quests", str(page.quest), Vector2(176, 130) if is_spoken else Vector2(230, 250))
-	_dialogue_illustration.position = Vector2(1068, panel.position.y - 146) if is_spoken else Vector2(42, panel.position.y + 10)
-	add_child(_dialogue_illustration)
-	var text_column := VBoxContainer.new()
-	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	text_column.alignment = BoxContainer.ALIGNMENT_CENTER
-	text_column.add_theme_constant_override("separation", 10)
-	text_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_dialogue_row.add_child(text_column)
-	var spoken := _label(str(page.text), 42)
-	spoken.add_theme_constant_override("line_spacing", 6)
-	spoken.name = "CurrentUtterance"
-	text_column.add_child(spoken)
-	if has_choices:
-		for choice in _dialogue_choices:
-			var button := Button.new()
-			button.theme_type_variation = "DialogueChoice"
-			button.text = str(choice.get("text", ""))
-			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			button.custom_minimum_size.y = 72
-			var id := str(choice.get("id", ""))
-			button.set_meta("choice_id", id)
-			button.pressed.connect(func():
-				if _dialogue_armed:
-					_dialogue_armed = false
-					choice_selected.emit(id))
-			_dialogue_actions.add_child(button)
-		_dialogue_actions.get_child(0).grab_focus()
-	else:
-		var counter := _label("%d / %d" % [_dialogue_index + 1, maxi(1, _dialogue_pages.size())], 18, SILVER)
-		counter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_dialogue_actions.add_child(counter)
-		var next := Button.new()
-		next.text = "下一句 · E" if _dialogue_index + 1 < _dialogue_pages.size() else COPY.close
-		next.tooltip_text = "E / Space / Enter"
-		next.custom_minimum_size.y = 60
-		next.pressed.connect(advance_dialogue)
-		_dialogue_actions.add_child(next)
-	_align_dialogue_art.call_deferred()
+	_dialogue_text.text = str(page.text)
+	_dialogue_portrait.texture = _dialogue_texture("portraits", str(page.speaker))
+	_dialogue_portrait.name = "DialoguePortrait_" + str(page.speaker)
+	_dialogue_portrait.visible = is_spoken
+	_dialogue_nameplate.visible = is_spoken
+	_dialogue_nameplate.get_child(0).text = str(CampaignData.NAMES.get(page.speaker, ""))
+	_dialogue_illustration.texture = _dialogue_texture("quests", str(page.quest))
+	_dialogue_illustration.name = "Quest_" + str(page.quest)
+	_dialogue_reading.get_child(0).text = "%d / %d" % [_dialogue_index + 1, maxi(1, _dialogue_pages.size())]
+	_dialogue_reading.get_child(1).text = "下一句 · E" if _dialogue_index + 1 < _dialogue_pages.size() else COPY.close
+	_dialogue_reading.visible = not has_choices
+	_dialogue_choice_row.visible = has_choices
+	_dialogue_actions = _dialogue_choice_row if has_choices else _dialogue_reading
+	_layout_dialogue()
+	if has_choices: _dialogue_choice_row.get_child(0).grab_focus()
 
-func _align_dialogue_art() -> void:
-	if panel_kind != "dialogue": return
-	# Measure after container layout; transient zero-width labels must not leave
-	# the panel permanently enlarged. Real multi-line content grows upward.
-	var base_height := 348.0 if _dialogue_index + 1 >= _dialogue_pages.size() and not _dialogue_choices.is_empty() else 300.0
-	panel.size = Vector2(956, maxf(base_height, panel.get_combined_minimum_size().y))
-	panel.position.y = 692 - panel.size.y
-	if is_instance_valid(_dialogue_close): _dialogue_close.position.y = panel.position.y + 50
-	if is_instance_valid(_dialogue_nameplate): _dialogue_nameplate.position.y = panel.position.y - 24
-	if is_instance_valid(_dialogue_illustration):
-		_dialogue_illustration.position.y = panel.position.y - 146 if is_instance_valid(_dialogue_portrait) else panel.position.y + 10
+func _paragraph_height(value: String, font: Font, font_size: int, width: float, spacing := 0.0) -> float:
+	var paragraph := TextParagraph.new()
+	paragraph.width = width
+	paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+	paragraph.line_spacing = spacing
+	paragraph.add_string(value, font, font_size)
+	return ceilf(paragraph.get_size().y)
+
+func _measure_dialogue() -> void:
+	# Measure the complete segment before publishing it; no minimum-size callback
+	# may resize the live frame as a new sentence or its choices appear.
+	_dialogue_has_speaker = _dialogue_pages.any(func(page): return not str(page.speaker).is_empty())
+	var left := 108.0 if _dialogue_has_speaker else 64.0
+	var width := 956.0 - left - 52.0
+	var font := _dialogue_text.get_theme_font("font")
+	var font_size := _dialogue_text.get_theme_font_size("font_size")
+	var body_height := 0.0
+	for page in _dialogue_pages:
+		body_height = maxf(body_height, _paragraph_height(str(page.text), font, font_size, width, 6))
+	var next: Button = _dialogue_reading.get_child(1)
+	var action_height := maxf(60, next.get_theme_font("font").get_height(next.get_theme_font_size("font_size")) + next.get_theme_stylebox("normal").get_minimum_size().y)
+	if not _dialogue_choices.is_empty():
+		var button_width := floorf((width - 20 * (_dialogue_choices.size() - 1)) / _dialogue_choices.size())
+		for button in _dialogue_choice_row.get_children():
+			var margin: Vector2 = button.get_theme_stylebox("normal").get_minimum_size()
+			action_height = maxf(action_height, _paragraph_height(button.text, button.get_theme_font("font"), button.get_theme_font_size("font_size"), button_width - margin.x) + margin.y)
+	var height := ceilf(maxf(300 if _dialogue_choices.is_empty() else 348, 96 + body_height + 14 + action_height))
+	_dialogue_rect = Rect2(292, 692 - height, 956, height)
+	var body_space := height - 96 - 14 - action_height
+	_dialogue_text_rect = Rect2(292 + left, floorf(_dialogue_rect.position.y + 64 + (body_space - body_height) * 0.5), width, body_height)
+	_dialogue_action_rect = Rect2(292 + left, 660 - action_height, width, action_height)
+
+func _layout_dialogue() -> void:
+	# The only geometry writer. Plain Control slots isolate the fixed frame from
+	# Label/Button minimum-size notifications and deferred container sorting.
+	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 108 if _dialogue_has_speaker else 64, 64, 52, 32))
+	panel.position = _dialogue_rect.position
+	panel.size = _dialogue_rect.size
+	_dialogue_row.position = _dialogue_text_rect.position
+	_dialogue_row.size = _dialogue_text_rect.size
+	_dialogue_text.position = Vector2.ZERO
+	# Width must be published before height: Label otherwise clamps against its
+	# previous zero-width wrap minimum and retains an oversized first-frame rect.
+	_dialogue_text.size.x = _dialogue_text_rect.size.x
+	_dialogue_text.update_minimum_size()
+	_dialogue_text.size.y = _dialogue_text_rect.size.y
+	for row in [_dialogue_reading, _dialogue_choice_row]:
+		row.position = _dialogue_action_rect.position
+		row.size = _dialogue_action_rect.size
+	var next: Button = _dialogue_reading.get_child(1)
+	var button_font := next.get_theme_font("font")
+	var button_font_size := next.get_theme_font_size("font_size")
+	var margin := next.get_theme_stylebox("normal").get_minimum_size()
+	var next_width := ceilf(maxf(button_font.get_string_size("下一句 · E", HORIZONTAL_ALIGNMENT_LEFT, -1, button_font_size).x, button_font.get_string_size(COPY.close, HORIZONTAL_ALIGNMENT_LEFT, -1, button_font_size).x) + margin.x)
+	var next_height := maxf(60, button_font.get_height(button_font_size) + margin.y)
+	next.position = Vector2(_dialogue_action_rect.size.x - next_width, _dialogue_action_rect.size.y - next_height)
+	next.size = Vector2(next_width, next_height)
+	var counter: Label = _dialogue_reading.get_child(0)
+	counter.position = Vector2(0, next.position.y)
+	counter.size = Vector2(next.position.x - 20, next_height)
+	if not _dialogue_choices.is_empty():
+		var width := floorf((_dialogue_action_rect.size.x - 20 * (_dialogue_choices.size() - 1)) / _dialogue_choices.size())
+		for index in _dialogue_choice_row.get_child_count():
+			var button: Button = _dialogue_choice_row.get_child(index)
+			button.position = Vector2(index * (width + 20), 0)
+			button.size.x = width
+			button.update_minimum_size()
+			button.size.y = _dialogue_action_rect.size.y
+	_dialogue_close.position = Vector2(1184, panel.position.y + 50)
+	_dialogue_close.size = Vector2(44, 44)
+	var source_size := _dialogue_portrait.texture.get_size() if _dialogue_portrait.texture != null else Vector2.ONE
+	var fitted := source_size * minf(352.0 / source_size.x, 420.0 / source_size.y)
+	_dialogue_portrait.size = fitted
+	_dialogue_portrait.position = Vector2(360 - fitted.x, 692 - fitted.y)
+	var name_label: Label = _dialogue_nameplate.get_child(0)
+	var name_height := maxf(72, name_label.get_theme_font("font").get_height(name_label.get_theme_font_size("font_size")) + 36)
+	_dialogue_nameplate.position = Vector2(368, panel.position.y - 24)
+	_dialogue_nameplate.size = Vector2(212, name_height)
+	name_label.position = Vector2(32, 18)
+	name_label.size = Vector2(148, name_height - 36)
+	_dialogue_illustration.size = Vector2(176, 130) if _dialogue_portrait.visible else Vector2(230, 250)
+	_dialogue_illustration.position = Vector2(1068, panel.position.y - 146) if _dialogue_portrait.visible else Vector2(42, panel.position.y + 10)
 
 func _confirmation_held() -> bool:
 	return Input.is_physical_key_pressed(KEY_E) or Input.is_physical_key_pressed(KEY_SPACE) or Input.is_physical_key_pressed(KEY_ENTER) or Input.is_action_pressed("ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)

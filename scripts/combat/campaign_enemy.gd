@@ -3,6 +3,7 @@ extends ShieldEnemy
 var archetype := "charger"
 var attack_count := 0
 var max_health := 72.0
+var staging_locked := false
 var aim_angle := 0.0
 var phase := 1
 var attack_kind := ""
@@ -233,7 +234,7 @@ func _max_hp(other: ShieldEnemy) -> float:
 	return float(other.get_meta("campaign_max_health", 72 if other is RifleEnemy else 120))
 
 func receive_hit(shot: ShotContext, point: Vector2, weak := false) -> Dictionary:
-	if state == State.DEAD: return {}
+	if state == State.DEAD or staging_locked: return {}
 	var back := (shot.source_position - (global_position + Vector2(0, -24))).dot(forward_vector()) < 0
 	var multiplier := 2.0 if weak and weakpoint_open() else (1.5 if back else 1.0)
 	var damage := shot.damage * multiplier

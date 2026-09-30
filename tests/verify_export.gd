@@ -5,6 +5,14 @@ func _initialize() -> void:
 
 func run() -> void:
 	var failures := 0
+	for path in ["res://assets/ui/v2/runtime/chapter_comic_plate.png", "res://assets/environments/crimson/archive_bookshelf_v1.png", "res://assets/environments/crimson/garden_close_bay_v1.png", "res://assets/characters/npcs/mara_story_v1.png", "res://assets/characters/npcs/vira_story_v1.png"]:
+		if load(path) == null:
+			push_error("Missing chapter resource: " + path)
+			failures += 1
+	var cues = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/chapter_staging.json"))
+	if not cues is Dictionary or cues.size() != 17: failures += 1
+	for path in ["res://assets/characters/npcs/chapter_actions_source_v1.png", "res://assets/ui/v2/source/chapter_arrival_concept.png", "res://dev-design/flow-review/chapter-board-01-04.png", "res://dev-design/levels/image-led/clarity-20260930/garden-close-source.png"]:
+		if FileAccess.file_exists(path): failures += 1
 	for path in ["res://assets/ui/v2/runtime/map_elevations_v2.png", "res://assets/ui/v2/runtime/map_station_v2.png", "res://assets/ui/v2/runtime/title_stage_v1.png", "res://assets/ui/v2/runtime/title_hero_poses_v2.png", "res://assets/ui/v2/runtime/dialogue_portraits_v1.png", "res://assets/ui/v2/runtime/quest_station_v1.png", "res://assets/ui/v2/runtime/quest_routes_v1.png", "res://assets/ui/v2/runtime/quest_departure_v1.png", "res://assets/environments/crimson/garden_facade_v2.png", "res://assets/environments/crimson/close_facade_bays_v1.png"]:
 		if load(path) == null:
 			push_error("Missing new exported artwork: " + path)

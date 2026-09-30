@@ -28,7 +28,7 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	assert(ui.panel.get_rect().end.x <= 1280 and ui.panel.get_rect().end.y <= 720)
-	var buttons := ui.find_children("*", "Button", true, false)
+	var buttons := ui.find_children("*", "Button", true, false).filter(func(button): return button.is_visible_in_tree())
 	assert(buttons.size() == 2)
 	paused = true
 	var click := InputEventMouseButton.new()

@@ -7,6 +7,7 @@ var stage_viewport: SubViewport
 var mouse_screen := Vector2(160, 90)
 const FlowUI = preload("res://scripts/ui/player_flow_ui.gd")
 var flow
+var chapter_staging
 var settings_path := "user://player_settings.cfg"
 var player_settings := {"volume": 1.0, "fullscreen": false, "shake": false}
 var settings_error := ""
@@ -62,6 +63,13 @@ func _ready() -> void:
 		layer.add_child(flow)
 		flow.action_requested.connect(handle_flow_action)
 		flow.setting_changed.connect(set_player_setting)
+		var chapter_layer := CanvasLayer.new()
+		chapter_layer.layer = 35
+		add_child(chapter_layer)
+		chapter_staging = preload("res://scripts/campaign/chapter_staging.gd").new()
+		chapter_layer.add_child(chapter_staging)
+		chapter_staging.setup(stage.game.campaign_session,stage)
+		stage.game.campaign_session.staging = chapter_staging
 		stage.game.campaign_session.save_status_changed.connect(func(_status: Dictionary): refresh_flow())
 		completion_seen = stage.game.campaign_session.has("returned")
 		if stage.game.campaign_session.has("opening_seen") or stage.game.campaign_session.has("met_mara"):
@@ -70,9 +78,13 @@ func _ready() -> void:
 		if not _test_mode:
 			load_player_settings()
 			get_window().focus_exited.connect(_on_focus_exited)
+			get_window().focus_entered.connect(func(): chapter_staging.window_focused = true)
 			show_title()
 
 func _input(event: InputEvent) -> void:
+	if chapter_staging != null and (flow == null or not flow.visible) and chapter_staging.handle_input(event):
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouse:
 		mouse_screen = event.position
 	if flow != null:
@@ -107,7 +119,7 @@ func _process(_delta: float) -> void:
 	var session = stage.game.campaign_session
 	if flow.visible:
 		_hide_gameplay_ui()
-	elif not completion_seen and session.has("returned") and not session.ui.is_panel_open() and not stage.game.paused:
+	elif not completion_seen and session.has("returned") and not session.ui.is_panel_open() and not stage.game.paused and not chapter_staging.active() and chapter_staging.pending.is_empty():
 		completion_seen = true
 		_show_flow("completed")
 
@@ -163,6 +175,7 @@ func _physics_process(_delta: float) -> void:
 	_update_tutorial()
 
 func _update_tutorial() -> void:
+	if chapter_staging != null and chapter_staging.active(): return
 	var game = stage.game
 	var session = game.campaign_session
 	var action := ""
@@ -204,6 +217,8 @@ func _notification(what: int) -> void:
 		handle_flow_action("quit")
 
 func _on_focus_exited() -> void:
+	if chapter_staging != null: chapter_staging.window_focused = false
+	if chapter_staging != null and chapter_staging.locks_input(): return
 	if flow != null and not flow.visible and not _developer_pause and not stage.game.campaign_session.ui.is_panel_open():
 		_show_flow("pause")
 
@@ -260,6 +275,10 @@ func refresh_flow() -> void:
 
 func _resume_play() -> void:
 	flow.hide()
+	if chapter_staging != null and chapter_staging.locks_input():
+		stage.game.campaign_session.pause()
+		stage.game.overlay.hide()
+		return
 	_developer_pause = false
 	var game = stage.game
 	game.overlay.show()
@@ -272,6 +291,8 @@ func _resume_play() -> void:
 	if not game.campaign_session.has("opening_seen"): game.campaign_session.event("opening_seen")
 	_update_tutorial()
 	run_started = true
+	chapter_staging.enabled = true
+	chapter_staging.request("arrival")
 
 func handle_flow_action(id: String) -> void:
 	if flow == null: return

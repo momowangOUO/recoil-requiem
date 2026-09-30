@@ -27,6 +27,8 @@ var muzzle_light := OmniLight3D.new()
 var camera_target := Vector3.ZERO
 var yaw_offset := 0.0
 var frozen_camera := false
+var story_focus := Vector2.INF
+var story_focus_weight := 0.0
 var materials: Array[StandardMaterial3D] = []
 var greybox := false
 var shadow_cards: Array[MeshInstance3D] = []
@@ -565,7 +567,13 @@ func set_greybox(enabled: bool) -> void:
 		material.albedo_texture = null if enabled else material.get_meta("authored_texture")
 
 func _physics_process(delta: float) -> void:
-	if not is_instance_valid(game) or not is_instance_valid(game.player) or game.paused:
+	if not is_instance_valid(game) or not is_instance_valid(game.player):
+		return
+	if game.paused:
+		if story_focus != Vector2.INF:
+			_update_camera(delta)
+			night.follow_camera(camera.position,camera)
+			if is_instance_valid(foreground): foreground.call("follow_camera",camera)
 		return
 	if not frozen_camera:
 		_update_camera(delta)
@@ -623,6 +631,7 @@ func _physics_process(delta: float) -> void:
 
 func _update_camera(delta: float) -> void:
 	var target_2d := game.player.position + Vector2(game.player.aim_direction.x * 20, -minf(52, camera_distance * 10))
+	if story_focus != Vector2.INF: target_2d = target_2d.lerp(story_focus,story_focus_weight)
 	target_2d.x = clampf(target_2d.x, 150, game.environment.bounds.end.x - 150)
 	if game.environment.get("campaign"):
 		target_2d.y = clampf(target_2d.y, game.environment.bounds.position.y + 108, game.environment.bounds.end.y - 66)

@@ -45,8 +45,15 @@ func run() -> void:
 	session.step(0.01)
 	check(not session.has("boss_met"), "Legacy boss location cannot trigger relocated encounter")
 	game.player.position = authored.boss + Vector2(-200,0)
+	game.player.velocity = Vector2.ZERO
 	session.step(0.01)
-	check(session.has("boss_met"), "Approaching relocated boss triggers existing dialogue")
+	check(not session.has("boss_met"), "Approaching immediately after Celine preserves the interlude")
+	for i in 270:
+		game.player.step(InputFrame.new(), 1.0 / 60)
+		session.step(1.0 / 60)
+		if session.has("boss_met"): break
+	check(game.player.is_on_floor() and session._boss_interlude <= 0, "Boss introduction waits for real landing and the four-second interlude")
+	check(session.has("boss_met"), "Safe approach to relocated boss triggers existing dialogue after the interlude")
 	session.close()
 	for guard in session.groups.boss: guard.state = ShieldEnemy.State.DEAD
 	session.enemy_down("boss")

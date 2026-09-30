@@ -19,6 +19,12 @@ foreach ($renderFps in @(30, 60, 144)) {
     if ($LASTEXITCODE -ne 0 -or -not $feelResult -or ($feelOutput | Select-String 'SCRIPT ERROR:')) { $feelOutput | Write-Output; exit 1 }
     Write-Output "Responsive movement at $renderFps FPS: $feelResult"
 }
+foreach ($fixture in @('test_dialogue_stability', 'test_chapter_staging', 'test_chapter_sequence', 'test_background_clarity', 'replay_background_clarity', 'test_npc_story_actions')) {
+    $newOutput = & $Godot --headless --path $projectDirectory --log-file (Join-Path $artifactDirectory "$fixture.log") --fixed-fps 60 --script "res://tests/$fixture.gd" -- --campaign-test 2>&1
+    $newResult = $newOutput | Select-String 'STAGE RESULT:'
+    if ($LASTEXITCODE -ne 0 -or -not $newResult -or ($newOutput | Select-String 'SCRIPT ERROR:')) { $newOutput | Write-Output; exit 1 }
+    Write-Output $newResult
+}
 $overlayOutput = & $Godot --headless --path $projectDirectory --log-file (Join-Path $artifactDirectory 'overlay.log') --script res://tests/test_overlay.gd 2>&1
 if ($LASTEXITCODE -ne 0 -or ($overlayOutput | Select-String 'SCRIPT ERROR:')) { $overlayOutput | Write-Output; exit 1 }
 Write-Output 'Overlay configuration and layout checks: PASS'

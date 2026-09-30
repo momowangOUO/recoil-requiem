@@ -21,6 +21,22 @@ func _initialize() -> void:
 func settle(count := 4) -> void:
 	for i in count: await process_frame
 
+func drain_staging() -> Array[String]:
+	var played: Array[String] = []
+	var staging = presentation.chapter_staging
+	# Exercise the real queue and skip path; never mark a cue seen in the fixture.
+	for i in 120:
+		staging._process(0.9)
+		if staging.active():
+			played.append(str(staging.current.id))
+			staging.finish()
+		if staging.pending.is_empty() and not staging.active(): break
+		await physics_frame
+		await process_frame
+	check(staging.enabled and staging.pending.is_empty() and not staging.active(), "Real chapter cues drain before asserting menu contracts")
+	await settle()
+	return played
+
 func key(code: Key) -> void:
 	var event := InputEventKey.new()
 	event.physical_keycode = code
@@ -80,6 +96,8 @@ func run() -> void:
 	root.size = Vector2i(1280,720)
 	presentation.handle_flow_action("begin")
 	await settle()
+	var opening_cues := await drain_staging()
+	check("arrival" in opening_cues and session.has("stage_arrival"), "Start presents and acknowledges the actual arrival cue")
 	check(not paused and not presentation.flow.visible and game.reticle.visible, "Start restores play and reticle")
 	check(session.ui.visible and game.overlay.visible, "Resuming restores the campaign UI and HUD host")
 	await key(KEY_ESCAPE)
@@ -149,6 +167,8 @@ func run() -> void:
 	check(presentation.flow.page == "restart" and session.state.snapshot() == previous, "Restart requires a separate confirmation before changing progress")
 	presentation.handle_flow_action("confirm")
 	await settle(5)
+	var restart_cues := await drain_staging()
+	check("arrival" in restart_cues and session.has("stage_arrival"), "New chapter restart replays arrival through the real cue queue")
 	check(not session.has("met_mara") and not paused, "Confirmed restart restores chapter start")
 	check(not session.restart_backup_path.is_empty() and FileAccess.file_exists(session.restart_backup_path), "Restart keeps a durable backup outside rotating autosave")
 	var prior = session.Store.new()
@@ -161,6 +181,9 @@ func run() -> void:
 	check(not presentation.flow.visible, "Completion cannot interrupt an open dialogue")
 	session.close()
 	await settle()
+	check(not presentation.flow.visible, "Completion waits for the queued return staging")
+	var ending_cues := await drain_staging()
+	check("return" in ending_cues and session.has("stage_return"), "Return staging actually plays before chapter completion")
 	check(presentation.flow.page == "completed" and presentation.flow.visible and paused, "Completion appears after the final dialogue closes")
 	await capture("completed_1280")
 	presentation.handle_flow_action("journal")

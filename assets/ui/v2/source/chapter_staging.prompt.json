@@ -1,0 +1,21 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-09-30",
+  "concept": {
+    "file": "chapter_arrival_concept.png",
+    "prompt": "A production UI mockup for this exact gothic pixel-art side-view game. Keep the reference image's slightly perspective paper-theatre architecture, native crisp pixel density, tiny gameplay character and moonlit purple stone stage. Recompose as an impactful original manga chapter arrival screen. Large protruding portrait at LOWER LEFT: adult woman vampire, short WHITE bob, RED eyes, serious thoughtful expression, red Victorian gothic coat, white cravat and black corset. Maintain pixel art, never smooth painting. Across bottom third use a sharp asymmetrical diagonal wine-red panel with restrained aged SILVER engraved edges, flat quiet dark-crimson central text area and ivory Chinese title 猩红修道院. Subtitle 维拉今晚要走。沿石阶进入外庭。 Title begins to RIGHT of portrait. Add small framed carriage detail inset above panel at right. Rest of screen is real game scene, not a full illustration portrait. No black rectangle overlay over background, no elaborate ornaments behind writing, no gold jewelry frame. This finished full-screen mockup will guide a reusable chapter presentation, 16:9 landscape.",
+    "reference": "dev-design/flow-review/implemented-images/flow_01_arrival.png"
+  },
+  "runtime": {
+    "file": "../runtime/chapter_comic_plate.png",
+    "prompt": "Extract and redesign ONLY the lower wine-crimson manga chapter banner from the reference into a reusable transparent game UI ASSET, no character, no environment, no text, no letters, no picture inset, no icons. Wide horizontal single piece, about 3:1 aspect ratio, very crisp PIXEL ART. Continuous quiet dark-wine center with subtle low-contrast cloth grain; old silver thin engraved outline only at edges; angled clipped corners and a slightly diagonal top edge, restrained gothic flourishes only outside the central text safe area. Left end extends behind an overlapping portrait in runtime. Keep central 75% a calm uniform readable text-safe field, upper edge nearly level with only a subtle manga slope. No complicated ornament, no opaque black box, no gold. All pixels outside the banner must be actual transparent alpha; tight bounding margin. This single isolated banner will scale uniformly in game, native Chinese and separate portraits added later. Preserve the reference's gothic manga paper texture, colour and sharp silver edge.",
+    "atlas_region": [
+      14,
+      125,
+      2145,
+      480
+    ],
+    "composition": "Native Chinese and existing pixel portraits rendered separately; alpha-cropped AtlasTexture preserves generated pixels. Existing 12 flow references remain world-layout authority."
+  },
+  "failures": "Two attempted 12-panel/4-reference boards failed with network error; not counted as generated assets."
+}

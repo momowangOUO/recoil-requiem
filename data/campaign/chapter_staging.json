@@ -1,0 +1,19 @@
+{
+  "arrival": {"title": "猩红修道院", "subtitle": "维拉今晚要走。沿石阶进入外庭。", "portrait": "player", "quest": "entry", "duration": 3.0, "blocking": true},
+  "stairs": {"title": "门楼石阶", "subtitle": "沿石阶前往装卸入口。", "portrait": "", "quest": "entry", "duration": 1.0, "blocking": false},
+  "first_guard": {"title": "装卸入口", "subtitle": "穿过入口；上层也有一条路。", "portrait": "", "quest": "entry", "duration": 1.0, "blocking": false},
+  "mara": {"title": "玛拉", "subtitle": "货物还没交接完。", "portrait": "mara", "quest": "records", "duration": 3.0, "blocking": true},
+  "vira": {"title": "维拉", "subtitle": "她还在收拾行李。", "portrait": "vira", "quest": "luggage", "duration": 3.0, "blocking": true},
+  "cooperation": {"title": "有人守着上面", "subtitle": "借赛琳的掩护穿过中庭。", "portrait": "celine", "quest": "celine", "duration": 1.0, "blocking": false},
+  "route_lift": {"title": "货梯通了", "subtitle": "沿钟台和档案走廊进入内庭。", "portrait": "", "quest": "lift", "duration": 1.0, "blocking": false},
+  "route_service": {"title": "隔离杆已落锁", "subtitle": "沿维护道的楼梯进入内庭。", "portrait": "", "quest": "maintenance", "duration": 1.0, "blocking": false},
+  "tools": {"title": "工具已交付", "subtitle": "新开的侧门可以通行了。", "portrait": "", "quest": "tools", "duration": 1.0, "blocking": false},
+  "records": {"title": "记录已交付", "subtitle": "维修记录已有接收人。", "portrait": "", "quest": "records", "duration": 1.0, "blocking": false},
+  "luggage": {"title": "行李已安置", "subtitle": "看看箱子旁的路，再继续走。", "portrait": "", "quest": "luggage", "duration": 1.0, "blocking": false},
+  "departure": {"title": "最后一车", "subtitle": "准备好后，操作发车机关。", "portrait": "player", "quest": "departure", "duration": 3.0, "blocking": true},
+  "celine_duel": {"title": "赛琳挡住了去路", "subtitle": "她要让车先走。", "portrait": "celine", "quest": "celine", "duration": 3.0, "blocking": true},
+  "celine_after": {"title": "路让开了", "subtitle": "赛琳还活着。追上维拉。", "portrait": "celine", "quest": "celine", "duration": 3.0, "blocking": true},
+  "vira_duel": {"title": "追上维拉", "subtitle": "她还想带车离开。", "portrait": "vira", "quest": "vira", "duration": 3.0, "blocking": true},
+  "vira_after": {"title": "车停了", "subtitle": "回外庭找玛拉。", "portrait": "", "quest": "vira", "duration": 3.0, "blocking": true},
+  "return": {"title": "再回外庭", "subtitle": "交接之后，留下的事还要有人处理。", "portrait": "mara", "quest": "return", "duration": 3.0, "blocking": true}
+}

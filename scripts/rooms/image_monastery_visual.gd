@@ -85,6 +85,7 @@ func build(host: Node3D) -> void:
 	_bell_landmark()
 	_archive_and_stairwell()
 	_close_facade_layers()
+	_background_clarity_layers()
 	_flow_setdress()
 	stage.foreground = preload("res://scenes/rooms/image_monastery_foreground.tscn").instantiate()
 	stage.scenery.add_child(stage.foreground)
@@ -145,6 +146,66 @@ func _close_facade_layers() -> void:
 				_box(Rect2(x, module.position.y - 4, width, 8), (wall_z - 1.175) * 0.5, absf(wall_z + 1.175) + 0.02, stone, prefix + "FoundationContact")
 				x += width
 				index += 1
+
+func _background_clarity_layers() -> void:
+	# The whole-building paintings still define silhouettes. These bounded
+	# near surfaces use authored bays without magnifying their source pixels.
+	# They are behind the existing open stairs, piers, corbels and railings.
+	_clarity_facade(Rect2(9216, -1000, 784, 2776), -2.32, "Tower",
+		[Rect2(512, 0, 448, 768), Rect2(1536, 0, 512, 768)])
+	# S02 rises through the middle of B01, above its flat-floor detail layer.
+	# Keep the original glass openings; these cards only replace masonry.
+	_clarity_facade(Rect2(1536, -384, 1280, 1024), -2.36, "Gate",
+		[Rect2(1536, 0, 512, 768), Rect2(512, 0, 448, 768)],
+		[Rect2(1781.25, -232.5, 149.875, 323.59375), Rect2(2748.625, 9.3125, 122.625, 327)])
+	# The moving floor is a hole in the route, not a hole in B12's rear wall.
+	# This fills only that missing wall interval, with no floor or foundation.
+	_clarity_facade(Rect2(13472, 1040, 288, 384), -2.12, "Hall",
+		[Rect2(960, 0, 576, 768)])
+	_clarity_facade(Rect2(6336, 296, 336, 584), -2.36, "ArchiveHouse",
+		[Rect2(512, 0, 448, 768), Rect2(1536, 0, 512, 768)])
+	_clarity_facade(Rect2(7056, 296, 72, 584), -2.36, "ArchiveHouseRight",
+		[Rect2(1536, 0, 512, 768)])
+
+func _clarity_facade(bounds: Rect2, z: float, label: String, sources: Array, openings: Array = []) -> void:
+	var texture := preload("res://assets/environments/crimson/close_facade_bays_v1.png")
+	var y := bounds.end.y
+	var row := 0
+	while y > bounds.position.y:
+		var height := minf(384, y - bounds.position.y)
+		y -= height
+		var x := bounds.position.x
+		var column := 0
+		while x < bounds.end.x:
+			var source: Rect2 = sources[column % sources.size()]
+			var width := minf(source.size.x * 0.5, bounds.end.x - x)
+			source.position.y += source.size.y - height * 2.0
+			source.size = Vector2(width, height) * 2.0
+			var rect := Rect2(x, y, width, height)
+			var prefix := "Clarity%s%d_%d" % [label, row, column]
+			var holes: Array = []
+			for opening in openings:
+				var overlap: Rect2 = rect.intersection(opening)
+				if overlap.has_area(): holes.append(Rect2(source.position + (overlap.position - rect.position) * 2.0, overlap.size * 2.0))
+			var windows: Array = []
+			for pane in [Rect2(230,177,78,224), Rect2(1104,190,104,214), Rect2(1307,189,104,216)]:
+				if source.encloses(pane): windows.append(pane); holes.append(pane)
+			var wall := _paperboard_cutout(rect, texture, source, holes, z, prefix)
+			_clarity_metadata(wall, rect, source)
+			for pane_source in windows:
+				var pane_rect := _paper_detail_rect(rect, source, pane_source)
+				_box(pane_rect, z - 0.10, 0.025, roof, prefix + "WindowRecess")
+				var pane := _paperboard(pane_rect, texture, pane_source, z - 0.055, prefix + "WindowGlass")
+				pane.set_meta("wall_z", z)
+				_layered_window_reveal(pane_rect, z - 0.025, prefix + "Window")
+			x += width
+			column += 1
+		row += 1
+
+func _clarity_metadata(card: MeshInstance3D, rect: Rect2, source: Rect2) -> void:
+	card.set_meta("clarity_world_rect", rect)
+	card.set_meta("clarity_source_rect", source)
+	card.set_meta("logical_per_texel", rect.size.x / source.size.x)
 
 func _box(rect: Rect2, z: float, depth: float, material: Material, label: String) -> MeshInstance3D:
 	return stage._box(Vector3(rect.get_center().x * P, -rect.get_center().y * P, z), Vector3(rect.size.x * P, rect.size.y * P, depth), material, label)
@@ -545,10 +606,21 @@ func _bell(rect: Rect2, id: String) -> void:
 
 func _shelves(rect: Rect2, id: String) -> void:
 	_box(rect, -1.75, 0.8, wood, id + "CabinetBack")
+	var books := preload("res://assets/environments/crimson/archive_bookshelf_v1.png")
+	# Six actual source rows, not the seven requested in the generation prompt.
+	# Reuse one row for the seventh existing shelf; preserve all shelf heights.
+	var rows := [54.0, 274.0, 486.0, 704.0, 922.0, 1144.0]
+	var index := 0
 	for y in range(int(rect.position.y + 40), int(rect.end.y), 80):
 		_box(Rect2(rect.position.x, y, rect.size.x, 8), -1.46, 0.72, wood, id + "Shelf")
-		for x in range(int(rect.position.x + 12), int(rect.end.x - 12), 20):
-			_box(Rect2(x, y - 42, 13, 42), -1.32, 0.23, brass if posmod(x, 3) == 0 else wood, id + "BookSpine")
+		var source := Rect2(40, rows[index % rows.size()], 944, 188)
+		var height := minf(70.5, y - rect.position.y)
+		source.position.y += 188 - height / 0.375
+		source.size.y = height / 0.375
+		var book_rect := Rect2(rect.position.x + 15, y - height, 354, height)
+		var card := _paperboard_cutout(book_rect, books, source, [], -1.205, "ClarityArchiveBooks%d" % index)
+		_clarity_metadata(card, book_rect, source)
+		index += 1
 	for x in [rect.position.x, rect.end.x - 12]:
 		_box(Rect2(x, rect.position.y, 12, rect.size.y), -1.45, 0.72, wood, id + "CabinetUpright")
 
@@ -723,6 +795,7 @@ func _garden() -> void:
 	var windows := [Rect2(107, 302, 331, 299), Rect2(514, 302, 328, 299), Rect2(921, 302, 329, 299), Rect2(1328, 302, 329, 299), Rect2(1736, 302, 329, 299)]
 	_paperboard_cutout(facade, painting, source, windows, -2.48, "GardenPaintedFacade")
 	_layered_windows(facade, painting, source, windows, -2.48, "GardenLayeredWindow")
+	_garden_close_bays(facade, source, windows)
 	_box(Rect2(10000, 1418, 1832, 6), -2.52, 0.85, stone, "GardenFacadeFooting")
 	# Re-seat the existing real lean-to roof on the authored eave. The old
 	# scaffold was over twice the illustration height, leaving an empty canopy.
@@ -753,6 +826,47 @@ func _garden() -> void:
 		rose.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 		rose.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 		stage.scenery.add_child(rose)
+
+func _garden_close_bays(facade: Rect2, source: Rect2, windows: Array) -> void:
+	# Preserve all five existing openings; crop masonry at the bay boundaries.
+	var texture := preload("res://assets/environments/crimson/garden_close_bay_v1.png")
+	var scale: float = (windows[0].size.y * facade.size.y / source.size.y) / 813.0
+	var openings: Array[Rect2] = []
+	for pane_source in windows:
+		openings.append(_paper_detail_rect(facade, source, pane_source))
+	for index in openings.size():
+		var opening := openings[index]
+		var pane_source := Rect2(627 - opening.size.x / scale * 0.5, 172, opening.size.x / scale, 813)
+		var origin := opening.position - pane_source.position * scale
+		var left := facade.position.x if index == 0 else (openings[index-1].get_center().x + opening.get_center().x) * 0.5
+		var right := facade.end.x if index == 4 else (openings[index+1].get_center().x + opening.get_center().x) * 0.5
+		var rect := Rect2(maxf(left, origin.x), origin.y, minf(right, origin.x + 1254 * scale) - maxf(left, origin.x), facade.end.y - origin.y)
+		var crop := Rect2((rect.position - origin) / scale, rect.size / scale)
+		var prefix := "ClarityGarden%d" % index
+		var wall := _paperboard_cutout(rect, texture, crop, [pane_source], -2.34, prefix + "Wall")
+		_clarity_metadata(wall, rect, crop)
+		# Lift only authored straight metal rails; the complete arch stays intact.
+		var rails: Array = [Rect2(pane_source.position.x,172,pane_source.size.x,12), Rect2(pane_source.position.x,970,pane_source.size.x,15)]
+		for x in [207,337,452,569,674,782,901,1024]:
+			rails.append(Rect2(x,394,10,576))
+		for y in [647,826]: rails.append(Rect2(pane_source.position.x,y,pane_source.size.x,10))
+		var glass := _paperboard_cutout(opening, texture, pane_source, rails, -2.395, prefix + "Glass")
+		_clarity_metadata(glass, opening, pane_source)
+		glass.set_meta("wall_z", -2.34)
+		glass.set_meta("original_window", opening)
+		_layered_window_reveal(opening, -2.365, prefix)
+		for rail in rails:
+			var clipped: Rect2 = rail.intersection(pane_source)
+			var rail_rect := Rect2(origin + clipped.position * scale, clipped.size * scale)
+			var frame := _paperboard_cutout(rail_rect, texture, clipped, [], -2.32, prefix + "Frame%d" % rails.find(rail))
+			_clarity_metadata(frame, rail_rect, clipped)
+		# The original facade is slightly wider than five production tiles.
+		# Fill only its two outer masonry margins using the same authored pier.
+		for margin in [Rect2(left,rect.position.y,rect.position.x-left,rect.size.y), Rect2(rect.end.x,rect.position.y,right-rect.end.x,rect.size.y)]:
+			if margin.size.x <= 0: continue
+			var edge_crop := Rect2(8,0,margin.size.x / scale,margin.size.y / scale)
+			var edge := _paperboard_cutout(margin, texture, edge_crop, [], -2.34, prefix + "Edge")
+			_clarity_metadata(edge, margin, edge_crop)
 
 func _gallery() -> void:
 	for module in stage.game.environment.modules:

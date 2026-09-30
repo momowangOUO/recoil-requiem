@@ -19,6 +19,30 @@ func _ready() -> void:
 	sounds["reload"] = _synthesize(0.08, 960.0, 0.4, 6)
 	sounds["lever"] = _synthesize(0.25, 155.0, 0.32, 7)
 	sounds["bell"] = _bell()
+	sounds["paper"] = _synthesize(0.16, 1100.0, 0.96, 11)
+	sounds["case"] = _synthesize(0.22, 82.0, 0.38, 12)
+	sounds["latch"] = _synthesize(0.10, 540.0, 0.55, 13)
+	sounds["step"] = _synthesize(0.12, 115.0, 0.72, 14)
+
+func chapter_bed() -> AudioStreamWAV:
+	# Original, quiet four-second organ phrase; only created when the chapter starts.
+	var rate := 22050
+	var count := rate * 4
+	var data := PackedByteArray()
+	data.resize(count * 2)
+	for i in count:
+		var t := float(i) / rate
+		var swell := 0.55 + 0.25 * sin(TAU * t / 4.0)
+		var pulse := pow(maxf(0.0, sin(TAU * t)), 8.0)
+		var chord := sin(TAU * 110 * t) * 0.50 + sin(TAU * 131 * t) * 0.22 + sin(TAU * 165 * t) * 0.16
+		data.encode_s16(i * 2, roundi((chord * swell + sin(TAU * 55 * t) * pulse * 0.12) * 12000))
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = rate
+	stream.data = data
+	stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	stream.loop_end = count
+	return stream
 
 func _bell() -> AudioStreamWAV:
 	var data := PackedByteArray()
