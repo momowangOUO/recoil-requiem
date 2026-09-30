@@ -174,6 +174,7 @@ func _ready() -> void:
 	panel.add_theme_stylebox_override("panel", _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
 	add_child(panel)
 	panel.hide()
+	panel.minimum_size_changed.connect(func(): _align_dialogue_art.call_deferred())
 	content = VBoxContainer.new()
 	content.add_theme_constant_override("separation", 14)
 	panel.add_child(content)
@@ -254,7 +255,7 @@ func _style(name: String, left: float, top: float, right: float, bottom: float, 
 func _adapt_type() -> void:
 	_font_multiplier = maxf(1.0, 1280.0 / maxf(get_window().size.x, 1))
 	theme.default_font_size = roundi(24 * _font_multiplier)
-	theme.set_font_size("font_size", "DialogueChoice", roundi(22 * _font_multiplier))
+	theme.set_font_size("font_size", "DialogueChoice", roundi(26 * _font_multiplier))
 	for label in find_children("*", "Label", true, false):
 		if label.has_meta("base_font_size"):
 			label.add_theme_font_size_override("font_size", roundi(float(label.get_meta("base_font_size")) * _font_multiplier))
@@ -532,30 +533,35 @@ func _draw_dialogue_page() -> void:
 	_dialogue_portrait = null
 	_dialogue_nameplate = null
 	var is_spoken := not str(page.speaker).is_empty()
-	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 150 if is_spoken else 96, 64, 74, 40))
+	var has_choices := _dialogue_index + 1 >= _dialogue_pages.size() and not _dialogue_choices.is_empty()
+	var panel_height := 348.0 if has_choices else 300.0
+	panel.position = Vector2(292, 692 - panel_height)
+	panel.size = Vector2(956, panel_height)
+	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 108 if is_spoken else 64, 64, 52, 32))
+	_dialogue_close.position = Vector2(1184, panel.position.y + 50)
 	if is_spoken:
 		_dialogue_portrait = _illustration("portraits", str(page.speaker), Vector2.ZERO)
 		_dialogue_portrait.name = "DialoguePortrait_" + str(page.speaker)
 		var source_size := _dialogue_portrait.texture.get_size() if _dialogue_portrait.texture != null else Vector2.ONE
-		var fitted := source_size * minf(420.0 / source_size.x, 420.0 / source_size.y)
+		var fitted := source_size * minf(352.0 / source_size.x, 420.0 / source_size.y)
 		_dialogue_portrait.custom_minimum_size = fitted
 		_dialogue_portrait.size = fitted
-		_dialogue_portrait.position = Vector2(8 + (420 - fitted.x) * 0.5, 692 - fitted.y)
+		_dialogue_portrait.position = Vector2(360 - fitted.x, 692 - fitted.y)
 		add_child(_dialogue_portrait)
 		_dialogue_nameplate = PanelContainer.new()
 		_dialogue_nameplate.name = "DialogueNameplate"
-		_dialogue_nameplate.position = Vector2(448, 368)
-		_dialogue_nameplate.custom_minimum_size = Vector2(184, 72)
+		_dialogue_nameplate.position = Vector2(368, panel.position.y - 24)
+		_dialogue_nameplate.custom_minimum_size = Vector2(212, 72)
 		_dialogue_nameplate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_dialogue_nameplate.add_theme_stylebox_override("panel", _style("button_normal", 24, 22, 24, 22, 32, 18, 32, 18))
-		var name_label := _label(str(CampaignData.NAMES.get(page.speaker, "")), 24, Color("d8b77c"))
+		var name_label := _label(str(CampaignData.NAMES.get(page.speaker, "")), 28, Color("d8b77c"))
 		name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_dialogue_nameplate.add_child(name_label)
 		add_child(_dialogue_nameplate)
 	_dialogue_illustration = _illustration("quests", str(page.quest), Vector2(176, 130) if is_spoken else Vector2(230, 250))
-	_dialogue_illustration.position = Vector2(1068, 242) if is_spoken else Vector2(42, 370)
+	_dialogue_illustration.position = Vector2(1068, panel.position.y - 146) if is_spoken else Vector2(42, panel.position.y + 10)
 	add_child(_dialogue_illustration)
 	var text_column := VBoxContainer.new()
 	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -564,11 +570,11 @@ func _draw_dialogue_page() -> void:
 	text_column.add_theme_constant_override("separation", 10)
 	text_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_row.add_child(text_column)
-	var spoken := _label(str(page.text), 26)
+	var spoken := _label(str(page.text), 42)
 	spoken.add_theme_constant_override("line_spacing", 6)
 	spoken.name = "CurrentUtterance"
 	text_column.add_child(spoken)
-	if _dialogue_index + 1 >= _dialogue_pages.size() and not _dialogue_choices.is_empty():
+	if has_choices:
 		for choice in _dialogue_choices:
 			var button := Button.new()
 			button.theme_type_variation = "DialogueChoice"
@@ -596,6 +602,19 @@ func _draw_dialogue_page() -> void:
 		next.custom_minimum_size.y = 60
 		next.pressed.connect(advance_dialogue)
 		_dialogue_actions.add_child(next)
+	_align_dialogue_art.call_deferred()
+
+func _align_dialogue_art() -> void:
+	if panel_kind != "dialogue": return
+	# Measure after container layout; transient zero-width labels must not leave
+	# the panel permanently enlarged. Real multi-line content grows upward.
+	var base_height := 348.0 if _dialogue_index + 1 >= _dialogue_pages.size() and not _dialogue_choices.is_empty() else 300.0
+	panel.size = Vector2(956, maxf(base_height, panel.get_combined_minimum_size().y))
+	panel.position.y = 692 - panel.size.y
+	if is_instance_valid(_dialogue_close): _dialogue_close.position.y = panel.position.y + 50
+	if is_instance_valid(_dialogue_nameplate): _dialogue_nameplate.position.y = panel.position.y - 24
+	if is_instance_valid(_dialogue_illustration):
+		_dialogue_illustration.position.y = panel.position.y - 146 if is_instance_valid(_dialogue_portrait) else panel.position.y + 10
 
 func _confirmation_held() -> bool:
 	return Input.is_physical_key_pressed(KEY_E) or Input.is_physical_key_pressed(KEY_SPACE) or Input.is_physical_key_pressed(KEY_ENTER) or Input.is_action_pressed("ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)

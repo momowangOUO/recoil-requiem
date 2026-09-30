@@ -115,6 +115,8 @@ func run() -> void:
 		check(ui._dialogue_portrait.get_parent() == ui and ui._dialogue_portrait.position.y + 100 < ui.panel.position.y, "Portrait is independent and protrudes above frame at %s" % dimensions)
 		check(ui._dialogue_portrait.get_rect().intersects(ui.panel.get_rect()), "Portrait overlaps the frame at %s" % dimensions)
 		var utterance: Label = ui.find_child("CurrentUtterance", true, false)
+		check(utterance.get_meta("base_font_size") == 42 and ui.panel.position.x == 292, "Large type and panel placement match generated concept at %s" % dimensions)
+		check(is_equal_approx(ui._dialogue_portrait.get_rect().end.x, 360) and is_equal_approx(utterance.global_position.x, ui.global_position.x + 400 * ui.scale.x), "Portrait and text retain the concept's compact left gap at %s" % dimensions)
 		var plate: PanelContainer = ui._dialogue_nameplate
 		check(plate.get_parent() == ui and plate.position.y < ui.panel.position.y, "Speaker has a separate frame above the dialogue at %s" % dimensions)
 		check(not plate.get_global_rect().intersects(ui._dialogue_portrait.get_global_rect()) and plate.get_global_rect().end.y <= utterance.get_global_rect().position.y, "Nameplate clears portrait and body text at %s" % dimensions)
@@ -133,6 +135,21 @@ func run() -> void:
 		await capture("dialogue_tools_choices_%dx%d" % [dimensions.x, dimensions.y])
 		for portrait in ui.find_children("Quest_*", "TextureRect", true, false):
 			check(portrait.texture != null, "Quest illustration resolves at %s" % dimensions)
+		for long_case in ["mon.ruka.records", "mon.records.note"]:
+			var options: Array = [["later", "mon.tools.later.choice"], ["tools_ina", "mon.tools.return.choice"], ["tools_mara", "mon.tools.keep.choice"]] if long_case == "mon.records.note" else []
+			session.dialogue("ruka", [long_case], options)
+			await settle()
+			var long_text: Label = ui.find_child("CurrentUtterance", true, false)
+			check(ui.panel.get_rect().end.y <= 692.1, "Long sentence keeps bottom safe edge at %s/%s" % [dimensions, long_case])
+			check(long_text.get_global_rect().end.y < ui._dialogue_actions.global_position.y, "Large multi-line sentence clears choices at %s/%s" % [dimensions, long_case])
+			await capture("dialogue_large_%s_%dx%d" % [long_case, dimensions.x, dimensions.y])
+			if not options.is_empty():
+				while ui._dialogue_index + 1 < ui._dialogue_pages.size():
+					ui.advance_dialogue()
+					await settle()
+				check(ui._dialogue_actions.get_child_count() == 3 and ui.panel.get_rect().end.y <= 692.1, "Long final sentence and three choices fit at %s" % dimensions)
+				check(ui.find_child("CurrentUtterance", true, false).get_global_rect().end.y < ui._dialogue_actions.global_position.y, "Final sentence leaves safe choice spacing at %s" % dimensions)
+				await capture("dialogue_large_choices_%dx%d" % [dimensions.x, dimensions.y])
 	session.close()
 	presentation.free()
 	paused = false

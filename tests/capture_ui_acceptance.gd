@@ -8,7 +8,9 @@ var selected := ""
 func _initialize() -> void: run.call_deferred()
 func check(ok: bool, label: String) -> void:
 	checks += 1
-	assert(ok, label)
+	if not ok:
+		push_error(label)
+		quit(1)
 func settle(count := 4) -> void:
 	for i in count: await process_frame
 func capture(label: String) -> void:
