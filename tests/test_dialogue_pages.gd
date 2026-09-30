@@ -120,6 +120,8 @@ func run() -> void:
 		check(not plate.get_global_rect().intersects(ui._dialogue_portrait.get_global_rect()) and plate.get_global_rect().end.y <= utterance.get_global_rect().position.y, "Nameplate clears portrait and body text at %s" % dimensions)
 		var name_label: Label = plate.get_child(0)
 		check(plate.get_global_rect().encloses(name_label.get_global_rect()), "Name stays inside its frame at %s" % dimensions)
+		check(is_equal_approx(name_label.global_position.x, utterance.global_position.x) and name_label.horizontal_alignment == HORIZONTAL_ALIGNMENT_LEFT, "Name and body share a left-aligned reading edge at %s" % dimensions)
+		check(ui._dialogue_actions.get_child(0).horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT, "Page number is grouped with right-hand advance action at %s" % dimensions)
 		check(utterance.get_global_rect().end.y < ui._dialogue_actions.get_global_rect().position.y, "Text does not overlap actions at %s" % dimensions)
 		await capture("dialogue_mara_%dx%d" % [dimensions.x, dimensions.y])
 		session.dialogue("", ["mon.tools.inspect"], [["tools_ina", "mon.tools.return.choice"], ["tools_mara", "mon.tools.keep.choice"], ["later", "mon.tools.later.choice"]])

@@ -83,6 +83,7 @@ func _ready() -> void:
 	size = Vector2(1280, 720)
 	theme = Theme.new()
 	theme.default_font_size = 24
+	theme.set_type_variation("DialogueChoice", "Button")
 	theme.set_color("font_color", "Label", INK)
 	theme.set_color("font_color", "Button", INK)
 	for state in ["normal", "hover", "pressed", "disabled"]:
@@ -253,6 +254,7 @@ func _style(name: String, left: float, top: float, right: float, bottom: float, 
 func _adapt_type() -> void:
 	_font_multiplier = maxf(1.0, 1280.0 / maxf(get_window().size.x, 1))
 	theme.default_font_size = roundi(24 * _font_multiplier)
+	theme.set_font_size("font_size", "DialogueChoice", roundi(22 * _font_multiplier))
 	for label in find_children("*", "Label", true, false):
 		if label.has_meta("base_font_size"):
 			label.add_theme_font_size_override("font_size", roundi(float(label.get_meta("base_font_size")) * _font_multiplier))
@@ -393,7 +395,8 @@ func _open(kind: String, title: String) -> void:
 		child.queue_free()
 	panel.position = Vector2(120, 38) if kind != "dialogue" else Vector2(330, 388)
 	panel.size = Vector2(1040, 644) if kind != "dialogue" else Vector2(918, 304)
-	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 118, 40, 74, 40) if kind == "dialogue" else _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
+	if kind != "dialogue":
+		panel.add_theme_stylebox_override("panel", _style("journal_frame", 120, 120, 120, 120, 112, 72, 112, 68))
 	if kind == "dialogue":
 		_dialogue_close = Button.new()
 		_dialogue_close.text = "×"
@@ -472,7 +475,7 @@ func show_dialogue(speaker: String, lines: Array, choices: Array, ids: Array = [
 			_dialogue_row.accept_event())
 	content.add_child(_dialogue_row)
 	_dialogue_actions = HBoxContainer.new()
-	_dialogue_actions.add_theme_constant_override("separation", 10)
+	_dialogue_actions.add_theme_constant_override("separation", 20)
 	content.add_child(_dialogue_actions)
 	_draw_dialogue_page()
 
@@ -529,6 +532,7 @@ func _draw_dialogue_page() -> void:
 	_dialogue_portrait = null
 	_dialogue_nameplate = null
 	var is_spoken := not str(page.speaker).is_empty()
+	panel.add_theme_stylebox_override("panel", _style("dialogue_frame", 96, 90, 96, 90, 150 if is_spoken else 96, 64, 74, 40))
 	if is_spoken:
 		_dialogue_portrait = _illustration("portraits", str(page.speaker), Vector2.ZERO)
 		_dialogue_portrait.name = "DialoguePortrait_" + str(page.speaker)
@@ -540,13 +544,13 @@ func _draw_dialogue_page() -> void:
 		add_child(_dialogue_portrait)
 		_dialogue_nameplate = PanelContainer.new()
 		_dialogue_nameplate.name = "DialogueNameplate"
-		_dialogue_nameplate.position = Vector2(448, 352)
-		_dialogue_nameplate.custom_minimum_size = Vector2(200, 72)
+		_dialogue_nameplate.position = Vector2(448, 368)
+		_dialogue_nameplate.custom_minimum_size = Vector2(184, 72)
 		_dialogue_nameplate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_dialogue_nameplate.add_theme_stylebox_override("panel", _style("button_normal", 24, 22, 24, 22, 32, 18, 32, 18))
-		var name_label := _label(str(CampaignData.NAMES.get(page.speaker, "")), 22, Color("d8b77c"))
+		var name_label := _label(str(CampaignData.NAMES.get(page.speaker, "")), 24, Color("d8b77c"))
 		name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_dialogue_nameplate.add_child(name_label)
 		add_child(_dialogue_nameplate)
@@ -555,15 +559,19 @@ func _draw_dialogue_page() -> void:
 	add_child(_dialogue_illustration)
 	var text_column := VBoxContainer.new()
 	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	text_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	text_column.add_theme_constant_override("separation", 10)
 	text_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_row.add_child(text_column)
-	var spoken := _label(str(page.text), 25)
+	var spoken := _label(str(page.text), 26)
+	spoken.add_theme_constant_override("line_spacing", 6)
 	spoken.name = "CurrentUtterance"
 	text_column.add_child(spoken)
 	if _dialogue_index + 1 >= _dialogue_pages.size() and not _dialogue_choices.is_empty():
 		for choice in _dialogue_choices:
 			var button := Button.new()
+			button.theme_type_variation = "DialogueChoice"
 			button.text = str(choice.get("text", ""))
 			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -577,13 +585,15 @@ func _draw_dialogue_page() -> void:
 			_dialogue_actions.add_child(button)
 		_dialogue_actions.get_child(0).grab_focus()
 	else:
-		var counter := _label("%d / %d" % [_dialogue_index + 1, maxi(1, _dialogue_pages.size())], 20, SILVER)
+		var counter := _label("%d / %d" % [_dialogue_index + 1, maxi(1, _dialogue_pages.size())], 18, SILVER)
 		counter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_dialogue_actions.add_child(counter)
 		var next := Button.new()
 		next.text = "下一句 · E" if _dialogue_index + 1 < _dialogue_pages.size() else COPY.close
 		next.tooltip_text = "E / Space / Enter"
-		next.custom_minimum_size.y = 72
+		next.custom_minimum_size.y = 60
 		next.pressed.connect(advance_dialogue)
 		_dialogue_actions.add_child(next)
 
