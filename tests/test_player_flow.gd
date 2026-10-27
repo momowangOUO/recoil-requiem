@@ -100,6 +100,14 @@ func run() -> void:
 	check("arrival" in opening_cues and session.has("stage_arrival"), "Start presents and acknowledges the actual arrival cue")
 	check(not paused and not presentation.flow.visible and game.reticle.visible, "Start restores play and reticle")
 	check(session.ui.visible and game.overlay.visible, "Resuming restores the campaign UI and HUD host")
+	get_root().focus_exited.emit()
+	await settle()
+	check(not paused and not game.overlay._panel.visible, "The hosted game does not open a hidden lab panel on focus loss")
+	presentation._on_focus_exited()
+	check(paused and presentation.flow.page == "pause" and not game.overlay._panel.visible, "The production host presents its own visible focus pause")
+	presentation.chapter_staging.window_focused = true
+	presentation.handle_flow_action("continue")
+	await settle()
 	await key(KEY_ESCAPE)
 	await settle()
 	check(paused and presentation.flow.page == "pause" and not game.overlay._panel.visible, "Esc opens player pause without leaking into the lab input")
@@ -214,6 +222,7 @@ func run() -> void:
 	run_copy_review(presentation.flow.COPY)
 	paused = false
 	presentation.free()
+	await create_timer(0.1).timeout
 	finish()
 
 func run_copy_review(copy: Dictionary) -> void:

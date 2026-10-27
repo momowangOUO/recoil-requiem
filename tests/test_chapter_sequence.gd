@@ -31,7 +31,7 @@ func drain() -> Array[String]:
 	var played: Array[String] = []
 	for i in 100:
 		if session.ui.is_panel_open(): session.close()
-		floor_at(Vector2(1260,1120))
+		floor_at(session.lab.environment.spawn)
 		cue._process(0.5)
 		if cue.active():
 			played.append(str(cue.current.id))
@@ -45,7 +45,7 @@ func reset_pending_duel(archetype: String, id: String) -> void:
 	session.lab.player.manual_control = true
 	session.lab.player.invulnerability = 10000
 	check(cue.pending.is_empty() and not cue.active(),"Reset cancels old duel continuation: " + id)
-	floor_at(Vector2(1260,1120))
+	floor_at(session.lab.environment.spawn)
 	session.step(0.1)
 	check(cue.pending.is_empty(),"Restored duel waits until approached: " + id)
 	session.lab.player.position = session.story_position(archetype)

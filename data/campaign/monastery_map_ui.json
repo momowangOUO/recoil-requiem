@@ -1,1 +1,955 @@
-{"world_bounds":[0,-2080,16384,4120],"segments":[{"id":"F01","kind":"floor","start":[0.0,1120.0],"end":[240.0,1120.0],"one_way":false},{"id":"F01_east","kind":"floor","start":[896.0,1120.0],"end":[3104.0,1120.0],"one_way":false},{"id":"F02_west","kind":"floor","start":[3680.0,1408.0],"end":[4384.0,1408.0],"one_way":false},{"id":"F02_Hatch","kind":"floor","start":[4384.0,1408.0],"end":[4640.0,1408.0],"one_way":true},{"id":"F02_middle","kind":"floor","start":[4640.0,1408.0],"end":[5400.0,1408.0],"one_way":false},{"id":"F02_east","kind":"floor","start":[6400.0,1408.0],"end":[6448.0,1408.0],"one_way":false},{"id":"F03","kind":"floor","start":[7024.0,1696.0],"end":[7472.0,1696.0],"one_way":false},{"id":"F04","kind":"floor","start":[10088.0,1424.0],"end":[10616.0,1424.0],"one_way":false},{"id":"F05_west0","kind":"floor","start":[11760.0,1424.0],"end":[13472.0,1424.0],"one_way":false},{"id":"F05_Hatch0","kind":"floor","start":[13472.0,1424.0],"end":[13760.0,1424.0],"one_way":true},{"id":"F05","kind":"floor","start":[13760.0,1424.0],"end":[16160.0,1424.0],"one_way":false},{"id":"F06","kind":"floor","start":[2688.0,0.0],"end":[3328.0,0.0],"one_way":false},{"id":"F07_Hatch0","kind":"floor","start":[4448.0,688.0],"end":[4816.0,688.0],"one_way":true},{"id":"F07","kind":"floor","start":[4816.0,688.0],"end":[6272.0,688.0],"one_way":false},{"id":"F08","kind":"floor","start":[3360.0,2280.0],"end":[6160.0,2280.0],"one_way":false},{"id":"F09","kind":"floor","start":[6864.0,2632.0],"end":[7984.0,2632.0],"one_way":false},{"id":"F10","kind":"floor","start":[8624.0,2312.0],"end":[9024.0,2312.0],"one_way":false},{"id":"F11","kind":"floor","start":[12240.0,2720.0],"end":[16160.0,2720.0],"one_way":false},{"id":"S01","kind":"stair","start":[3104.0,1120.0],"end":[3680.0,1408.0],"one_way":false},{"id":"S02","kind":"stair","start":[1664.0,512.0],"end":[2688.0,0.0],"one_way":false},{"id":"S03","kind":"stair","start":[6448.0,1408.0],"end":[7024.0,1696.0],"one_way":false},{"id":"S04","kind":"stair","start":[9280.0,1696.0],"end":[9600.0,1540.0],"one_way":false},{"id":"S05","kind":"stair","start":[4448.0,688.0],"end":[5920.0,1408.0],"one_way":false},{"id":"S06","kind":"stair","start":[6160.0,2280.0],"end":[6864.0,2632.0],"one_way":false},{"id":"S07","kind":"stair","start":[7984.0,2632.0],"end":[8624.0,2312.0],"one_way":false},{"id":"S08","kind":"stair","start":[480.0,1120.0],"end":[1664.0,512.0],"one_way":false},{"id":"S09","kind":"stair","start":[4560.0,1480.0],"end":[6160.0,2280.0],"one_way":true},{"id":"S10","kind":"stair","start":[13472.0,1424.0],"end":[16064.0,2720.0],"one_way":false},{"id":"S11","kind":"stair","start":[9760.0,1408.0],"end":[9280.0,1120.0],"one_way":true},{"id":"S12","kind":"stair","start":[9280.0,1120.0],"end":[9760.0,832.0],"one_way":true},{"id":"S13","kind":"stair","start":[9760.0,832.0],"end":[9280.0,544.0],"one_way":true},{"id":"S14","kind":"stair","start":[9280.0,544.0],"end":[9760.0,256.0],"one_way":true},{"id":"S15","kind":"stair","start":[9760.0,256.0],"end":[9280.0,-32.0],"one_way":true},{"id":"S16","kind":"stair","start":[9280.0,-32.0],"end":[9760.0,-320.0],"one_way":true},{"id":"J02","kind":"stair","start":[4416.0,1408.0],"end":[4560.0,1480.0],"one_way":false},{"id":"J04","kind":"stair","start":[9760.0,1408.0],"end":[9824.0,1424.0],"one_way":false},{"id":"C01","kind":"stair","start":[3328.0,0.0],"end":[4448.0,688.0],"one_way":false},{"id":"C02","kind":"stair","start":[6272.0,688.0],"end":[6656.0,880.0],"one_way":false},{"id":"D01","kind":"stair","start":[5400.0,1408.0],"end":[5664.0,1540.0],"one_way":false},{"id":"D02","kind":"stair","start":[6144.0,1540.0],"end":[6400.0,1408.0],"one_way":false},{"id":"D03","kind":"stair","start":[9856.0,1540.0],"end":[10088.0,1424.0],"one_way":false},{"id":"F12_Archive","kind":"floor","start":[6656.0,880.0],"end":[7072.0,880.0],"one_way":false},{"id":"F13_BellLanding","kind":"floor","start":[9760.0,-320.0],"end":[9984.0,-320.0],"one_way":false},{"id":"F14_Underpass","kind":"floor","start":[5664.0,1540.0],"end":[6144.0,1540.0],"one_way":false},{"id":"F15_MetalLandingBridge","kind":"floor","start":[5920.0,1408.0],"end":[6400.0,1408.0],"one_way":true},{"id":"F16_BellUnderpass","kind":"floor","start":[9600.0,1540.0],"end":[9856.0,1540.0],"one_way":false},{"id":"F17_TowerMetalLanding","kind":"floor","start":[9760.0,1424.0],"end":[10088.0,1424.0],"one_way":true},{"id":"D04","kind":"stair","start":[240.0,1120.0],"end":[480.0,1248.0],"one_way":false},{"id":"D05","kind":"stair","start":[640.0,1248.0],"end":[896.0,1120.0],"one_way":false},{"id":"F18_GateUnderpass","kind":"floor","start":[480.0,1248.0],"end":[640.0,1248.0],"one_way":false},{"id":"F19_GateEntryBridge","kind":"floor","start":[240.0,1120.0],"end":[480.0,1120.0],"one_way":true},{"id":"F20_TowerLanding1","kind":"floor","start":[9088.0,1120.0],"end":[9280.0,1120.0],"one_way":true},{"id":"F20_TowerLanding2","kind":"floor","start":[9760.0,832.0],"end":[9952.0,832.0],"one_way":true},{"id":"F20_TowerLanding3","kind":"floor","start":[9088.0,544.0],"end":[9280.0,544.0],"one_way":true},{"id":"F20_TowerLanding4","kind":"floor","start":[9760.0,256.0],"end":[9952.0,256.0],"one_way":true},{"id":"F20_TowerLanding5","kind":"floor","start":[9088.0,-32.0],"end":[9280.0,-32.0],"one_way":true},{"id":"ArrivalUp","kind":"stair","start":[1440.0,1120.0],"end":[1632.0,1024.0],"one_way":false},{"id":"ArrivalLanding","kind":"floor","start":[1632.0,1024.0],"end":[1824.0,1024.0],"one_way":false},{"id":"ArrivalDown","kind":"stair","start":[1824.0,1024.0],"end":[2016.0,1120.0],"one_way":false},{"id":"GuardBypassUp","kind":"stair","start":[2360.0,1120.0],"end":[2648.0,976.0],"one_way":false},{"id":"GuardBypassBridge","kind":"floor","start":[2648.0,976.0],"end":[2952.0,976.0],"one_way":false},{"id":"GuardBypassDown","kind":"stair","start":[2952.0,976.0],"end":[3304.0,1220.0],"one_way":false},{"id":"F03_PumpHatch","kind":"floor","start":[7472.0,1696.0],"end":[7728.0,1696.0],"one_way":true},{"id":"F03_East","kind":"floor","start":[7728.0,1696.0],"end":[9280.0,1696.0],"one_way":false},{"id":"PumpEntryUpper","kind":"stair","start":[7600.0,1696.0],"end":[6864.0,2064.0],"one_way":true},{"id":"PumpEntryLanding","kind":"floor","start":[6672.0,2064.0],"end":[6864.0,2064.0],"one_way":true},{"id":"PumpEntryLower","kind":"stair","start":[6864.0,2064.0],"end":[8000.0,2632.0],"one_way":true},{"id":"MaintenanceAscent","kind":"stair","start":[9024.0,2312.0],"end":[10816.0,1424.0],"one_way":false},{"id":"MaintenanceExitHatch","kind":"floor","start":[10616.0,1424.0],"end":[10816.0,1424.0],"one_way":true},{"id":"F04_East","kind":"floor","start":[10816.0,1424.0],"end":[11760.0,1424.0],"one_way":false},{"id":"RecoveryAscent","kind":"stair","start":[240.0,3840.0],"end":[3360.0,2280.0],"one_way":false},{"id":"LiftRoof","kind":"floor","start":[6140.0,1200.0],"end":[6348.0,1200.0],"one_way":false},{"id":"MaintenanceRoof","kind":"floor","start":[8816.0,2104.0],"end":[9024.0,2104.0],"one_way":false}],"landmarks":[{"art":"map_gatehouse","position":[2000,1120],"space_id":"mon_02"},{"art":"map_crane","position":[4080,1408],"space_id":"mon_03"},{"art":"map_archive","position":[5780,688],"space_id":"mon_06"},{"art":"map_bell","position":[8380,1040],"space_id":"mon_08"},{"art":"map_pump","position":[7400,2632],"space_id":"mon_11"},{"art":"map_garden","position":[10800,1424],"space_id":"mon_14"},{"art":"map_chapel","position":[14500,1424],"space_id":"mon_15"}],"label_anchors":{"mon_01":[960,1120],"mon_02":[2200,1120],"mon_03":[4080,1408],"mon_04":[2960,0],"mon_05":[4880,1408],"mon_06":[5300,688],"mon_07":[6080,1408],"mon_08":[8000,1696],"mon_09":[9760,256],"mon_10":[4000,2280],"mon_11":[7440,2632],"mon_12":[8840,2312],"mon_13":[10320,1424],"mon_14":[10800,1424],"mon_15":[12400,1424],"mon_16":[14800,1424]},"transition_visibility":{"S04":["mon_08","mon_14"],"S08":["mon_01","mon_04"],"F16_BellUnderpass":["mon_08","mon_14"],"F20_TowerLanding3":["mon_09"],"F20_TowerLanding5":["mon_09"],"RecoveryAscent":["mon_01","mon_10"]}}
+{
+  "world_bounds": [
+    0.0,
+    -416.0,
+    4096.0,
+    1120.0
+  ],
+  "segments": [
+    {
+      "id": "F01",
+      "kind": "floor",
+      "start": [
+        0.0,
+        512.0
+      ],
+      "end": [
+        384.0,
+        512.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F01_east",
+      "kind": "floor",
+      "start": [
+        384.0,
+        512.0
+      ],
+      "end": [
+        776.0,
+        512.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F02_west",
+      "kind": "floor",
+      "start": [
+        920.0,
+        584.0
+      ],
+      "end": [
+        1088.0,
+        584.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F02_Hatch",
+      "kind": "floor",
+      "start": [
+        1088.0,
+        584.0
+      ],
+      "end": [
+        1280.0,
+        584.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F14_Underpass",
+      "kind": "floor",
+      "start": [
+        1424.0,
+        656.0
+      ],
+      "end": [
+        1488.0,
+        656.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F03",
+      "kind": "floor",
+      "start": [
+        1756.0,
+        656.0
+      ],
+      "end": [
+        2208.0,
+        656.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F03_PumpHatch",
+      "kind": "floor",
+      "start": [
+        2208.0,
+        656.0
+      ],
+      "end": [
+        2320.0,
+        656.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F04_Hatch",
+      "kind": "floor",
+      "start": [
+        2456.0,
+        588.0
+      ],
+      "end": [
+        2640.0,
+        588.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F04",
+      "kind": "floor",
+      "start": [
+        2640.0,
+        588.0
+      ],
+      "end": [
+        2940.0,
+        588.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F05_west",
+      "kind": "floor",
+      "start": [
+        2940.0,
+        588.0
+      ],
+      "end": [
+        3464.0,
+        588.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F05",
+      "kind": "floor",
+      "start": [
+        3464.0,
+        588.0
+      ],
+      "end": [
+        3880.0,
+        588.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F05_EastHatch",
+      "kind": "floor",
+      "start": [
+        3880.0,
+        588.0
+      ],
+      "end": [
+        4000.0,
+        588.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F05_East",
+      "kind": "floor",
+      "start": [
+        4000.0,
+        588.0
+      ],
+      "end": [
+        4096.0,
+        588.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S01",
+      "kind": "stair",
+      "start": [
+        776.0,
+        512.0
+      ],
+      "end": [
+        920.0,
+        584.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S03",
+      "kind": "stair",
+      "start": [
+        1612.0,
+        584.0
+      ],
+      "end": [
+        1756.0,
+        656.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S04",
+      "kind": "stair",
+      "start": [
+        2320.0,
+        656.0
+      ],
+      "end": [
+        2440.0,
+        588.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "CargoUnderpassDown",
+      "kind": "stair",
+      "start": [
+        1280.0,
+        584.0
+      ],
+      "end": [
+        1424.0,
+        656.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "CargoUnderpassUp",
+      "kind": "stair",
+      "start": [
+        1488.0,
+        656.0
+      ],
+      "end": [
+        1612.0,
+        584.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F07",
+      "kind": "floor",
+      "start": [
+        1112.0,
+        404.0
+      ],
+      "end": [
+        1568.0,
+        404.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F12_Archive",
+      "kind": "floor",
+      "start": [
+        1664.0,
+        452.0
+      ],
+      "end": [
+        1792.0,
+        452.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F06",
+      "kind": "floor",
+      "start": [
+        672.0,
+        280.0
+      ],
+      "end": [
+        832.0,
+        280.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "GateLowerLanding",
+      "kind": "floor",
+      "start": [
+        144.0,
+        360.0
+      ],
+      "end": [
+        416.0,
+        360.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S05",
+      "kind": "stair",
+      "start": [
+        1112.0,
+        404.0
+      ],
+      "end": [
+        1480.0,
+        584.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "ArchiveEntry",
+      "kind": "stair",
+      "start": [
+        1568.0,
+        404.0
+      ],
+      "end": [
+        1664.0,
+        452.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S02",
+      "kind": "stair",
+      "start": [
+        416.0,
+        360.0
+      ],
+      "end": [
+        672.0,
+        280.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "GateBalconyUp",
+      "kind": "stair",
+      "start": [
+        448.0,
+        512.0
+      ],
+      "end": [
+        144.0,
+        360.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "GalleryApproach",
+      "kind": "floor",
+      "start": [
+        1480.0,
+        584.0
+      ],
+      "end": [
+        1612.0,
+        584.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F08",
+      "kind": "floor",
+      "start": [
+        772.0,
+        802.0
+      ],
+      "end": [
+        1540.0,
+        802.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F09",
+      "kind": "floor",
+      "start": [
+        1716.0,
+        890.0
+      ],
+      "end": [
+        1996.0,
+        890.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F10",
+      "kind": "floor",
+      "start": [
+        2156.0,
+        810.0
+      ],
+      "end": [
+        2256.0,
+        810.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "MaintenanceLanding",
+      "kind": "floor",
+      "start": [
+        2464.0,
+        656.0
+      ],
+      "end": [
+        2496.0,
+        656.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "PumpEntryUpper",
+      "kind": "stair",
+      "start": [
+        1240.0,
+        584.0
+      ],
+      "end": [
+        804.0,
+        802.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S06",
+      "kind": "stair",
+      "start": [
+        1540.0,
+        802.0
+      ],
+      "end": [
+        1716.0,
+        890.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S07",
+      "kind": "stair",
+      "start": [
+        1996.0,
+        890.0
+      ],
+      "end": [
+        2156.0,
+        810.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "MaintenanceAscent",
+      "kind": "stair",
+      "start": [
+        2156.0,
+        810.0
+      ],
+      "end": [
+        2464.0,
+        656.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "MaintenanceExit",
+      "kind": "stair",
+      "start": [
+        2496.0,
+        656.0
+      ],
+      "end": [
+        2632.0,
+        588.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "MaintenanceCatch",
+      "kind": "floor",
+      "start": [
+        2400.0,
+        832.0
+      ],
+      "end": [
+        2640.0,
+        832.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "MaintenanceCatchReturn",
+      "kind": "stair",
+      "start": [
+        2256.0,
+        810.0
+      ],
+      "end": [
+        2400.0,
+        832.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "TowerApproach",
+      "kind": "floor",
+      "start": [
+        2440.0,
+        588.0
+      ],
+      "end": [
+        2456.0,
+        588.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S11",
+      "kind": "stair",
+      "start": [
+        2440.0,
+        588.0
+      ],
+      "end": [
+        2320.0,
+        516.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding1",
+      "kind": "floor",
+      "start": [
+        2288.0,
+        516.0
+      ],
+      "end": [
+        2320.0,
+        516.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S12",
+      "kind": "stair",
+      "start": [
+        2320.0,
+        516.0
+      ],
+      "end": [
+        2440.0,
+        444.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding2",
+      "kind": "floor",
+      "start": [
+        2440.0,
+        444.0
+      ],
+      "end": [
+        2496.0,
+        444.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S13",
+      "kind": "stair",
+      "start": [
+        2440.0,
+        444.0
+      ],
+      "end": [
+        2320.0,
+        372.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding3",
+      "kind": "floor",
+      "start": [
+        2288.0,
+        372.0
+      ],
+      "end": [
+        2320.0,
+        372.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S14",
+      "kind": "stair",
+      "start": [
+        2320.0,
+        372.0
+      ],
+      "end": [
+        2440.0,
+        300.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding4",
+      "kind": "floor",
+      "start": [
+        2440.0,
+        300.0
+      ],
+      "end": [
+        2496.0,
+        300.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S15",
+      "kind": "stair",
+      "start": [
+        2440.0,
+        300.0
+      ],
+      "end": [
+        2320.0,
+        228.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding5",
+      "kind": "floor",
+      "start": [
+        2288.0,
+        228.0
+      ],
+      "end": [
+        2320.0,
+        228.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S16",
+      "kind": "stair",
+      "start": [
+        2320.0,
+        228.0
+      ],
+      "end": [
+        2440.0,
+        156.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding6",
+      "kind": "floor",
+      "start": [
+        2440.0,
+        156.0
+      ],
+      "end": [
+        2496.0,
+        156.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F13_BellLanding",
+      "kind": "floor",
+      "start": [
+        2288.0,
+        156.0
+      ],
+      "end": [
+        2496.0,
+        156.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "HallAltar",
+      "kind": "floor",
+      "start": [
+        3440.0,
+        488.0
+      ],
+      "end": [
+        3676.0,
+        488.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "HallAltarWest",
+      "kind": "stair",
+      "start": [
+        3240.0,
+        588.0
+      ],
+      "end": [
+        3440.0,
+        488.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "HallAltarEast",
+      "kind": "stair",
+      "start": [
+        3676.0,
+        488.0
+      ],
+      "end": [
+        3876.0,
+        588.0
+      ],
+      "one_way": false
+    },
+    {
+      "id": "HallEastDescent",
+      "kind": "stair",
+      "start": [
+        3980.0,
+        588.0
+      ],
+      "end": [
+        3692.0,
+        750.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "HallLanding",
+      "kind": "floor",
+      "start": [
+        3692.0,
+        750.0
+      ],
+      "end": [
+        3788.0,
+        750.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "HallLower",
+      "kind": "stair",
+      "start": [
+        3692.0,
+        750.0
+      ],
+      "end": [
+        3368.0,
+        912.0
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F11",
+      "kind": "floor",
+      "start": [
+        2940.0,
+        912.0
+      ],
+      "end": [
+        4096.0,
+        912.0
+      ],
+      "one_way": false
+    }
+  ],
+  "landmarks": [
+    {
+      "art": "map_gatehouse",
+      "position": [
+        728.0,
+        512.0
+      ],
+      "space_id": "mon_02"
+    },
+    {
+      "art": "map_crane",
+      "position": [
+        1040.0,
+        584.0
+      ],
+      "space_id": "mon_03"
+    },
+    {
+      "art": "map_archive",
+      "position": [
+        1640.0,
+        440.0
+      ],
+      "space_id": "mon_13"
+    },
+    {
+      "art": "map_bell",
+      "position": [
+        1888.0,
+        656.0
+      ],
+      "space_id": "mon_08"
+    },
+    {
+      "art": "map_pump",
+      "position": [
+        1784.0,
+        890.0
+      ],
+      "space_id": "mon_11"
+    },
+    {
+      "art": "map_garden",
+      "position": [
+        2912.0,
+        588.0
+      ],
+      "space_id": "mon_14"
+    },
+    {
+      "art": "map_chapel",
+      "position": [
+        2944.0,
+        588.0
+      ],
+      "space_id": "mon_15"
+    }
+  ],
+  "label_anchors": {
+    "mon_04": [
+      744.0,
+      280.0
+    ],
+    "mon_06": [
+      1144.0,
+      404.0
+    ],
+    "mon_13": [
+      1640.0,
+      440.0
+    ],
+    "mon_09": [
+      2320.0,
+      156.0
+    ],
+    "mon_01": [
+      160.0,
+      512.0
+    ],
+    "mon_02": [
+      728.0,
+      512.0
+    ],
+    "mon_03": [
+      1040.0,
+      584.0
+    ],
+    "mon_05": [
+      1208.0,
+      584.0
+    ],
+    "mon_07": [
+      1584.0,
+      584.0
+    ],
+    "mon_08": [
+      1888.0,
+      656.0
+    ],
+    "mon_10": [
+      1000.0,
+      802.0
+    ],
+    "mon_12": [
+      1312.0,
+      802.0
+    ],
+    "mon_11": [
+      1784.0,
+      890.0
+    ],
+    "mon_14": [
+      2912.0,
+      588.0
+    ],
+    "mon_15": [
+      2944.0,
+      588.0
+    ],
+    "mon_16": [
+      3232.0,
+      588.0
+    ]
+  },
+  "transition_visibility": {
+    "S05": [
+      "mon_06",
+      "mon_07"
+    ],
+    "GateBalconyUp": [
+      "mon_01",
+      "mon_04"
+    ],
+    "GalleryApproach": [
+      "mon_06",
+      "mon_07"
+    ],
+    "F08": [
+      "mon_10",
+      "mon_12"
+    ],
+    "F10": [
+      "mon_11",
+      "mon_08"
+    ],
+    "MaintenanceLanding": [
+      "mon_11",
+      "mon_08"
+    ],
+    "PumpEntryUpper": [
+      "mon_07",
+      "mon_10"
+    ],
+    "MaintenanceAscent": [
+      "mon_11",
+      "mon_08"
+    ],
+    "MaintenanceExit": [
+      "mon_11",
+      "mon_08"
+    ],
+    "MaintenanceCatch": [
+      "mon_11",
+      "mon_08"
+    ],
+    "MaintenanceCatchReturn": [
+      "mon_11",
+      "mon_08"
+    ],
+    "HallLower": [
+      "mon_15",
+      "mon_16"
+    ],
+    "F11": [
+      "mon_15",
+      "mon_16"
+    ]
+  }
+}

@@ -31,6 +31,7 @@ func run(plugin: EditorPlugin) -> void:
 	plugin.stair_rise_input.value = -192
 	plugin._stair()
 	var stair := gameplay.get_child(-1) as PaperStair
+	check(stair.get_meta("route_surface",false),"new stair participates in scene-owned map export")
 	check(stair != null and stair.owner == room and stair.end_offset == Vector2(384, -192), "add stair uses chosen dimensions and saved scene ownership")
 	plugin.stair_run_input.value = -480
 	plugin.stair_rise_input.value = -240

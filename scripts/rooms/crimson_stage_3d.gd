@@ -225,7 +225,8 @@ func _rose_support_height(x: float) -> float:
 
 func _build_room() -> void:
 	if game.environment.get("image_led"):
-		preload("res://scripts/rooms/image_monastery_visual.gd").new().build(self)
+		var builder = preload("res://scripts/rooms/compact_monastery_visual.gd") if game.environment.get_meta("layout_revision", 1) == 2 else preload("res://scripts/rooms/image_monastery_visual.gd")
+		builder.new().build(self)
 		_build_room_finish(_material(Rect2(), Color("706977")), _material(Rect2(), Color("b8a58b"), "brass"))
 		return
 	# Plain masonry for structural faces; the arch motif belongs to architecture only.
@@ -447,6 +448,7 @@ func _build_room_identity(dark: Material, gold: Material, stone: Material, secti
 
 func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 	var at := to_stage(action.position, -0.18)
+	var compact: bool = game.environment.get_meta("layout_revision",1) == 2
 	var quest_regions := {
 		"tools": Rect2(49, 118, 627, 526),
 		"records": Rect2(760, 183, 652, 461),
@@ -462,7 +464,7 @@ func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 		if action.action_id == "luggage" and game.environment.has_method("set_luggage_home"):
 			prop.pixel_size = 0.56 / prop.region_rect.size.x
 			at.y -= 0.36
-			at.z = -0.02
+			at.z = 0.28 if compact else -0.02
 		prop.position = at + Vector3(0, prop.region_rect.size.y * prop.pixel_size * 0.5, 0)
 		prop.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 		prop.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
@@ -472,7 +474,7 @@ func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 		scenery.add_child(prop)
 		action_visuals[action] = {"piece": prop, "quest": action.action_id}
 		return
-	if action.has_meta("shortcut_gate"):
+	if action.has_meta("shortcut_gate") and not compact:
 		# Freight mouths are actual framed openings behind the play plane.
 		for side in [-1.0, 1.0]:
 			_box(at + Vector3(side * 0.42, 0.5, -1.12), Vector3(0.12, 1.0, 0.18), dark, "FreightDoorJamb")
@@ -486,8 +488,8 @@ func _build_action(action: RoomAction, dark: Material, gold: Material) -> void:
 	var piece: MeshInstance3D
 	match action.kind:
 		RoomAction.Kind.SWITCH:
-			_box(at + Vector3(0, 0.12, 0), Vector3(0.19, 0.24, 0.18), dark, "SwitchBase")
-			piece = _box(at + Vector3(0, 0.29, 0), Vector3(0.035, 0.25, 0.035), indicator, "SwitchHandle")
+			_box(at + Vector3(0, 0.12, -0.22 if compact else 0.0), Vector3(0.10,0.16,0.04) if compact else Vector3(0.19,0.24,0.18), dark, "SwitchBase")
+			piece = _box(at + Vector3(0, 0.20 if compact else 0.29, -0.18 if compact else 0.0), Vector3(0.018,0.12,0.018) if compact else Vector3(0.035,0.25,0.035), indicator, "SwitchHandle")
 			piece.rotation.z = -0.5
 		RoomAction.Kind.NOTE:
 			_box(at + Vector3(0, 0.15, 0), Vector3(0.24, 0.3, 0.18), dark, "ReadingStand")
@@ -593,7 +595,8 @@ func _physics_process(delta: float) -> void:
 			visual.piece.visible = not taken
 			if visual.quest == "luggage" and game.environment.has_method("set_luggage_home"):
 				visual.piece.pixel_size = 0.56 / visual.piece.region_rect.size.x
-				visual.piece.position = to_stage(action.position + Vector2(0, 36), -0.02) + Vector3(0, visual.piece.region_rect.size.y * visual.piece.pixel_size * 0.5, 0)
+				var face_z := 0.28 if game.environment.get_meta("layout_revision",1) == 2 else -0.02
+				visual.piece.position = to_stage(action.position + Vector2(0, 36), face_z) + Vector3(0, visual.piece.region_rect.size.y * visual.piece.pixel_size * 0.5, 0)
 			visual.piece.modulate = Color("aba8a1") if visual.quest == "records" and session.has("records") else Color.WHITE
 			continue
 		visual.material.albedo_color = Color("5b938a") if action.activated else Color("d8b96f")

@@ -1,143 +1,150 @@
 {
-  "texture": "res://assets/ui/v2/runtime/map_elevations_v2.png",
-  "columns": 4,
-  "rows": 2,
+  "texture": "res://assets/environments/crimson/monastery_architecture_v2.png",
+  "columns": 1,
+  "rows": 1,
   "layers": [
+    {
+      "id": "station",
+      "space_id": "mon_01",
+      "source_rect": [
+        0,
+        270,
+        192,
+        440
+      ],
+      "world_rect": [
+        0,
+        192,
+        384,
+        880
+      ]
+    },
     {
       "id": "gatehouse",
       "space_id": "mon_02",
-      "cell": 0,
       "source_rect": [
-        28,
-        38,
-        350,
-        488
+        192,
+        0,
+        220,
+        710
       ],
       "world_rect": [
-        1440,
-        -480,
-        1840,
-        1600
+        384,
+        -348,
+        440,
+        1420
       ]
     },
     {
       "id": "cargo",
       "space_id": "mon_03",
-      "cell": 1,
       "source_rect": [
-        397,
-        95,
-        434,
-        432
+        412,
+        100,
+        190,
+        610
       ],
       "world_rect": [
-        3280,
-        448,
-        2200,
-        960
+        824,
+        -148,
+        380,
+        1220
+      ]
+    },
+    {
+      "id": "workshop",
+      "space_id": "mon_05",
+      "source_rect": [
+        602,
+        220,
+        200,
+        490
+      ],
+      "world_rect": [
+        1204,
+        92,
+        400,
+        980
       ]
     },
     {
       "id": "archive",
-      "space_id": "mon_06",
-      "cell": 2,
+      "space_id": "mon_13",
       "source_rect": [
-        843,
-        218,
-        449,
-        309
+        802,
+        180,
+        96,
+        530
       ],
       "world_rect": [
-        3800,
-        -160,
-        2600,
-        848
+        1604,
+        12,
+        192,
+        1060
       ]
     },
     {
       "id": "bell",
-      "space_id": "mon_09",
-      "cell": 3,
+      "space_id": "mon_08",
       "source_rect": [
-        1311,
-        10,
-        331,
-        516
+        898,
+        0,
+        352,
+        712
       ],
       "world_rect": [
-        9104,
-        -800,
-        896,
-        2224
+        1796,
+        -348,
+        704,
+        1424
       ]
     },
     {
       "id": "pump",
       "space_id": "mon_11",
-      "cell": 4,
       "source_rect": [
-        27,
-        628,
-        410,
-        289
+        850,
+        520,
+        340,
+        192
       ],
       "world_rect": [
-        6440,
-        1888,
-        2664,
-        744
+        1700,
+        692,
+        680,
+        384
       ]
     },
     {
       "id": "garden",
       "space_id": "mon_14",
-      "cell": 5,
       "source_rect": [
-        447,
-        677,
-        458,
-        240
+        1250,
+        260,
+        230,
+        450
       ],
       "world_rect": [
-        9840,
-        640,
-        1920,
-        784
+        2500,
+        172,
+        460,
+        900
       ]
     },
     {
       "id": "chapel",
       "space_id": "mon_15",
-      "cell": 6,
       "source_rect": [
-        920,
-        526,
-        373,
-        391
+        1480,
+        0,
+        568,
+        712
       ],
       "world_rect": [
-        13280,
-        -1280,
-        3104,
-        2704
-      ]
-    },
-    {
-      "id": "station",
-      "space_id": "mon_01",
-      "cell": 0,
-      "texture": "res://assets/ui/v2/runtime/map_station_v2.png",
-      "source_rect": [
-        0,
-        0,
-        1942,
-        809
-      ],
-      "world_rect": [
-        0,
-        640,
-        1536,
-        480
+        2960,
+        -348,
+        1136,
+        1424
       ]
     }
   ]

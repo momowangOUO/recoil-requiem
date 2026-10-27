@@ -2,3 +2,5 @@
 *.png binary
 *.wav binary
 *.ogg binary
+# Keep the original evidence bytes and recorded hashes.
+dev-design/levels/rebuild/evidence-20261027/** -text whitespace=cr-at-eol,-blank-at-eof

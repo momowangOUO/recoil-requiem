@@ -24,7 +24,7 @@ Use the active skill catalog to locate each SKILL.md. If it was actually read in
    - Quests, dialogue, environmental information: `references/agency-agents/narrative-designer.md`.
    - Institutions and social arrangements: `references/agency-agents/anthropologist.md`, only when relevant.
 3. Chinese game-design explanation: read **game-design-natural-writing-zh** before writing that explanation.
-4. After facts and causal structure are settled, read **humanizer-zh** for final Chinese narrative/dialogue wording. For a Chinese wording-only edit, read it immediately. Use the game-design writing skill too when editing design prose.
+4. After facts and causal structure are settled, read **clear-natural-writing** for final narrative/dialogue wording. For a wording-only edit, read it immediately and preserve the original language and character voice. Use **game-design-natural-writing-zh** for Chinese design explanations; do not apply its expository tone to every character. Removed humanizer skills are not called.
 
 Read only required references and relevant project sources. Do not read every specialist by default. If long output is truncated, read the missing relevant section before claiming it was inspected. No theoretical citations are necessary unless they materially support an actual claim; do not invent research claims.
 

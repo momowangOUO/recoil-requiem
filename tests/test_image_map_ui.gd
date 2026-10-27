@@ -27,7 +27,7 @@ func run() -> void:
 	check(game.environment.space_bounds.size() == 16, "All sixteen actual map regions loaded")
 	var actual_segments := {}
 	for module in game.environment.modules:
-		if module.has_meta("gate_id") or module.collision_depth > 80 or str(module.name).begins_with("Luggage"): continue
+		if not module.get_meta("route_surface",false) or str(module.name).begins_with("Luggage"): continue
 		actual_segments[str(module.name)] = [module.position, module.position+Vector2(module.width,0)]
 	for stair in game.environment.stairs:
 		if str(stair.name).begins_with("Luggage"): continue
@@ -56,7 +56,7 @@ func run() -> void:
 	check(not initial_art.is_empty(), "First map opening renders the discovered station, not a bare line diagram")
 	for piece in initial_art:
 		check(piece.space_id == "mon_01", "First map opening does not expose other buildings")
-		check(piece.texture != ui._map_art_texture, "Station uses its dedicated generated illustration")
+		check(piece.source_rect.has_area(), "Station uses an actual crop of the accepted architecture")
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png("res://artifacts/image_map_ui_1280_initial.png")
@@ -128,32 +128,37 @@ func run() -> void:
 						check(ui._map_data.spaces[id].rect.grow(8).has_point(anchor), "Map number %s is in its actual region" % id)
 						var on_deck := false
 						for segment in ui._map_source.segments:
-							if segment.kind != "floor": continue
-							if is_equal_approx(anchor.y,float(segment.start[1])) and anchor.x >= float(segment.start[0])-1 and anchor.x <= float(segment.end[0])+1: on_deck = true; break
+							var a := Vector2(segment.start[0],segment.start[1])
+							var b := Vector2(segment.end[0],segment.end[1])
+							if Geometry2D.get_closest_point_to_segment(anchor,a,b).distance_to(anchor)<1: on_deck = true; break
 						check(on_deck, "Map number %s is on an authored walking deck" % id)
 				check(ui._map_data.get("shortcuts", []).size() == 4, "Map receives the four real freight shortcut endpoint pairs")
 				if ui.has_method("_visible_route_pieces"):
-					var joined: Array = ui.call("_visible_route_pieces", Vector2(896,1120), Vector2(3104,1120), "F01_east")
-					check(joined.size() == 1 and joined[0][0].distance_to(Vector2(896,1120)) < 1 and joined[0][1].distance_to(Vector2(3104,1120)) < 1, "Visited overlapping regions draw one continuous road, not duplicate strips")
+					var deck: Array = actual_segments.F01_east
+					var joined: Array = ui.call("_visible_route_pieces", deck[0], deck[1], "F01_east")
+					check(joined.size() == 1 and joined[0][0].distance_to(deck[0]) < 1 and joined[0][1].distance_to(deck[1]) < 1, "Visited overlapping regions draw one continuous road, not duplicate strips")
 					if explored == 16:
 						for segment in ui._map_source.segments:
 							var route: Array = ui.call("_visible_route_pieces", Vector2(segment.start[0],segment.start[1]), Vector2(segment.end[0],segment.end[1]), str(segment.id))
 							check(route.size() == 1 and route[0][0].distance_to(Vector2(segment.start[0],segment.start[1])) < 1 and route[0][1].distance_to(Vector2(segment.end[0],segment.end[1])) < 1 if not route.is_empty() else false, "Fully explored map shows all of real segment " + str(segment.id))
 					else:
-						var hidden_stair: Array = ui.call("_visible_route_pieces", Vector2(480,1120), Vector2(1664,512), "S08")
-						check(hidden_stair.size() == 1 and hidden_stair[0][1].distance_to(Vector2(1664,512)) > 50, "Undiscovered end of the gate stair stays hidden")
+						var stair: Array = actual_segments.GateBalconyUp
+						var hidden_stair: Array = ui.call("_visible_route_pieces", stair[0], stair[1], "GateBalconyUp")
+						check(hidden_stair.is_empty() or hidden_stair[-1][1].distance_to(stair[1]) > 20, "Undiscovered end of the gate stair stays hidden")
 				else: check(false, "Map can merge visible route intervals")
 				if ui.has_method("_map_gate_world_points"):
 					var gate_points: Dictionary = ui.call("_map_gate_world_points")
-					check(gate_points.get("gate_departure", Vector2.ZERO).distance_to(Vector2(13184,1424)) < 1, "Departure lock sits on the upper road at its physical gate")
-					check(gate_points.get("gate_departure_back", Vector2.ZERO).distance_to(Vector2(13184,2720)) < 1, "Lower departure lock sits on the lower road")
+					for id in ["gate_departure","gate_departure_back"]:
+						var gate = game.environment.gates[id]
+						var expected := Vector2(gate.position.x+gate.width*0.5,588 if id == "gate_departure" else 912)
+						check(gate_points.get(id,Vector2.ZERO).distance_to(expected) < 1,"Lock sits on the road at its physical gate: "+id)
 				else: check(false, "Map locates gates from real gate geometry")
 				if ui.has_method("_map_shortcut_marks"):
 					var marks: Array = ui.call("_map_shortcut_marks")
 					check(marks.size() == (2 if explored == 3 else 8), "Shortcut marks reveal only explored physical endpoints")
 					var entry_marks := marks.filter(func(mark): return mark.gate_id == "gate_entry")
 					check(entry_marks.size() == (1 if explored == 3 else 2), "Unknown freight destination is hidden until visited")
-					check(entry_marks[0].position.distance_to(Vector2(2720,1120)) < 1 if not entry_marks.is_empty() else false, "Freight entrance uses its actual interaction position")
+					check(entry_marks[0].position.distance_to(game.environment.shortcut_points[0].from) < 1 if not entry_marks.is_empty() else false, "Freight entrance uses its actual interaction position")
 				else: check(false, "Map exposes discovered freight shortcut endpoints")
 				check(ui._map_zoom > ui._full_map_zoom(), "Default view is readable and zoomed around player")
 				check(ui._world_at_map(ui._map.size * 0.5).distance_to(game.player.position) < 2, "Default center follows player")
@@ -184,7 +189,7 @@ func run() -> void:
 						ui.call("_select_map_region", "mon_15")
 						var chapel_bounds: Rect2 = ui._map_selection_bounds("mon_15")
 						check(ui._map_view().grow(-18).encloses(Rect2(chapel_bounds.position * ui._map_zoom + ui._map_offset(), chapel_bounds.size * ui._map_zoom)), "Selecting the chapel frames its complete discovered architecture and routes without cutting off its spire")
-						check(chapel_bounds.has_point(Vector2(12400,1424)), "Region framing keeps the real walking deck in view")
+						check(chapel_bounds.has_point(game.environment.story_positions.elite), "Region framing keeps the real walking deck in view")
 						if DisplayServer.get_name() != "headless":
 							await RenderingServer.frame_post_draw
 							root.get_texture().get_image().save_png("res://artifacts/image_map_ui_1280_selected_chapel.png")

@@ -106,6 +106,7 @@ static func validate(room: Node) -> PackedStringArray:
 		for surface in initial_surfaces:
 			if gate_rect.grow(0.1).intersects(surface): anchored = true
 		if not anchored: errors.append("%s: gate must meet an authored floor or support." % gate.name)
+	initial_surfaces.sort_custom(func(a: Rect2, b: Rect2) -> bool: return a.position.x < b.position.x)
 	for marker in markers:
 		if expanded:
 			if not bounds.has_point(marker.position): errors.append("%s: marker is outside world bounds." % marker.name)
@@ -114,8 +115,14 @@ static func validate(room: Node) -> PackedStringArray:
 				if not spaces.has(id): errors.append("%s: unknown space ID %s." % [marker.name,id])
 		var supported := false
 		var supporting_stair: PaperStair
+		var covered_to := marker.position.x - 12
 		for surface in initial_surfaces:
-			if absf(surface.position.y - marker.position.y) <= 2 and marker.position.x >= surface.position.x + 12 and marker.position.x <= surface.end.x - 12: supported = true
+			if absf(surface.position.y - marker.position.y) > 2: continue
+			if surface.position.x <= covered_to and surface.end.x > covered_to:
+				covered_to = surface.end.x
+			if covered_to >= marker.position.x + 12:
+				supported = true
+				break
 		for stair in stairs:
 			var local_x: float = marker.position.x - stair.position.x
 			if local_x >= minf(0, stair.end_offset.x) + 12 and local_x <= maxf(0, stair.end_offset.x) - 12 and absf(marker.position.y - stair.position.y - stair.surface_y(local_x)) <= 2:

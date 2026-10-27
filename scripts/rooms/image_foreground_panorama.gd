@@ -39,7 +39,7 @@ func _ready() -> void:
 		card.name = "PaintedNearWall%d" % index
 		card.texture = TEXTURE
 		card.pixel_size = pixel_size
-		card.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
+		card.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 		card.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
 		card.shaded = false
 		card.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

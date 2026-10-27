@@ -20,8 +20,8 @@ func run() -> void:
 	var session = game.campaign_session
 	session.autosave = false
 	var authored := {
-		"elite": Vector2(12400,1424), "boss": Vector2(14800,1424),
-		"celine_after": Vector2(12320,1424), "celine_return": Vector2(3920,1408)
+		"elite": Vector2(3016,588), "boss": Vector2(3968,588),
+		"celine_after": Vector2(2984,588), "celine_return": Vector2(1080,584)
 	}
 	check(game.environment.get("image_led") == true, "Main campaign selects image-led authored world")
 	for id in authored:

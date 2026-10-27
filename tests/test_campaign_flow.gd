@@ -27,13 +27,13 @@ func run() -> void:
 	game.player.manual_control = true
 	var s = game.campaign_session
 	s.autosave = false
-	game.player.position = Vector2(2600,1120)
+	game.player.position = Vector2(656,512)
 	s.step(0.01)
 	check(s.groups.clear_01[0].target == game.player, "First guard wakes inside its authored patrol")
-	game.player.position = Vector2(3920,1408)
+	game.player.position = Vector2(1000,584)
 	s.step(0.01)
 	check(s.groups.clear_01[0].target == null, "First guard cannot pursue the player into Mara's safe meeting")
-	game.player.position = Vector2(8300,1696)
+	game.player.position = Vector2(2096,656)
 	s.step(0.01)
 	check(s.groups.clear_05[0].target == game.player and s.groups.clear_05[1].target == null, "Cooperation guards wake separately along the route")
 	s.interact("maintenance_isolate")
@@ -83,7 +83,7 @@ func run() -> void:
 	check(s.save_now() == OK, "Prepare durable route snapshot")
 	s.last_region = ""
 	DirAccess.make_dir_absolute(path + ".tmp")
-	game.player.position = Vector2(11000,1424)
+	game.player.position = Vector2(2896,588)
 	s.step(0.2)
 	check(s.last_region.is_empty() and not s.has("inner_reached"), "Failed region save cannot cache arrival or unlock departure")
 	DirAccess.remove_absolute(path + ".tmp")

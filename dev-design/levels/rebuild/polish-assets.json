@@ -1,0 +1,182 @@
+[
+  {
+    "name": "rebuild_stained_glass_v1",
+    "file": "assets/environments/crimson/rebuild_stained_glass_v1.png",
+    "size": [
+      1099,
+      1431
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      164,
+      12,
+      935,
+      1409
+    ],
+    "sha256": "a078f7aeadeaa3378645b99ef65fc1f163eca413a6e5c7ac492281ebb1b09756",
+    "generation_id": "7df97185-5d3a-4b0b-9e87-53ec0e554128",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-7df97185-5d3a-4b0b-9e87-53ec0e554128.png"
+  },
+  {
+    "name": "rebuild_saint_v1",
+    "file": "assets/environments/crimson/rebuild_saint_v1.png",
+    "size": [
+      753,
+      2089
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      97,
+      106,
+      649,
+      1983
+    ],
+    "sha256": "200f8d3cff27e458d852b76ca8484b5b18bc91d5446634a1494bf578977fe67f",
+    "generation_id": "b36d67d4-6b11-4d40-a53e-3d8b36cf313c",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-b36d67d4-6b11-4d40-a53e-3d8b36cf313c.png"
+  },
+  {
+    "name": "rebuild_reredos_v1",
+    "file": "assets/environments/crimson/rebuild_reredos_v1.png",
+    "size": [
+      841,
+      1870
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      111,
+      72,
+      730,
+      1780
+    ],
+    "sha256": "02ec9eb0f1c8ac64ad20ee63dde69a4eb8acd65a6634159b9b285b37a8791b29",
+    "generation_id": "2a46b8f0-3bdc-41b4-a4bf-31114a9b94c6",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-2a46b8f0-3bdc-41b4-a4bf-31114a9b94c6.png"
+  },
+  {
+    "name": "rebuild_red_crown_v1",
+    "file": "assets/environments/crimson/rebuild_red_crown_v1.png",
+    "size": [
+      1649,
+      954
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      34,
+      129,
+      1610,
+      809
+    ],
+    "sha256": "3a037e1d71d6107a9d8aa81ecb1e071ce74785dbe8635e391dc954781056317d",
+    "generation_id": "22bc56cf-c41d-4ee9-8645-5688368c1226",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-22bc56cf-c41d-4ee9-8645-5688368c1226.png"
+  },
+  {
+    "name": "rebuild_tree_branches_v1",
+    "file": "assets/environments/crimson/rebuild_tree_branches_v1.png",
+    "size": [
+      1138,
+      1382
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      41,
+      111,
+      1118,
+      1270
+    ],
+    "sha256": "14590a2a5adc642276e978d2bab8980e020ecfac19b4330a354ad37d8f950e71",
+    "generation_id": "7cd61d16-dd2d-42bf-ba77-507f495ab923",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-7cd61d16-dd2d-42bf-ba77-507f495ab923.png"
+  },
+  {
+    "name": "rebuild_ivy_v1",
+    "file": "assets/environments/crimson/rebuild_ivy_v1.png",
+    "size": [
+      868,
+      1811
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      221,
+      50,
+      666,
+      1741
+    ],
+    "sha256": "937d5413e973d63f0bf9196660c93dac7c3feab3d63f501f9e8eeecac7f2c55a",
+    "generation_id": "83d1f733-d633-4b49-9667-45b226f82688",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-83d1f733-d633-4b49-9667-45b226f82688.png"
+  },
+  {
+    "name": "rebuild_service_door_v1",
+    "file": "assets/environments/crimson/rebuild_service_door_v1.png",
+    "size": [
+      914,
+      1721
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      69,
+      69,
+      845,
+      1667
+    ],
+    "sha256": "778876a8d5093afcf5a80d0098743769b6f80f1d9eb090bf46ca7562ed0c5b39",
+    "generation_id": "435d0eb1-bd45-453a-8263-f4d2dd8ef6e6",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-435d0eb1-bd45-453a-8263-f4d2dd8ef6e6.png"
+  },
+  {
+    "name": "rebuild_crate_face_v1",
+    "file": "assets/environments/crimson/rebuild_crate_face_v1.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      141,
+      83,
+      1307,
+      1001
+    ],
+    "sha256": "441ba10ee4313473239f13ffd49ad80bdf29e2e87ea6b8f0bb0b3cdccb1967b0",
+    "generation_id": "f70b62aa-55f1-49f6-869e-8864511b001c",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-f70b62aa-55f1-49f6-869e-8864511b001c.png"
+  },
+  {
+    "name": "rebuild_rose_shrub_v1",
+    "file": "assets/environments/crimson/rebuild_rose_shrub_v1.png",
+    "size": [
+      1484,
+      1060
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      43,
+      71,
+      1451,
+      980
+    ],
+    "sha256": "4d3db4443ac89ad5dae408a1d5aecc866d27008984eb9c3594d774b8db65b22a",
+    "generation_id": "982854a5-6e9c-45c8-aa80-806f142c8715",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-982854a5-6e9c-45c8-aa80-806f142c8715.png"
+  },
+  {
+    "name": "rebuild_lantern_v1",
+    "file": "assets/environments/crimson/rebuild_lantern_v1.png",
+    "size": [
+      887,
+      1774
+    ],
+    "mode": "RGBA",
+    "opaque_bounds": [
+      202,
+      187,
+      685,
+      1537
+    ],
+    "sha256": "d456bc64e68137a7cd621e24d9d132bb92ebe5069c7d0077f94af673185fb118",
+    "generation_id": "d18f0b3b-1439-4150-a98e-bc14c8a7831d",
+    "original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-d18f0b3b-1439-4150-a98e-bc14c8a7831d.png"
+  }
+]

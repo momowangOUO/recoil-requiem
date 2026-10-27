@@ -1,0 +1,794 @@
+{
+	"@Sprite3D@415": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			837.0,
+			182.0,
+			70.0,
+			118.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_gate_near.png",
+		"world_rect": [
+			495.061920166016,
+			159.654022216797,
+			41.4030265808105,
+			69.7936706542969
+		],
+		"z": -1.25
+	},
+	"@Sprite3D@416": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			598.0,
+			345.0,
+			55.0,
+			134.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_cargo_near.png",
+		"world_rect": [
+			1247.27001953125,
+			310.187164306641,
+			41.1368751525879,
+			100.224388122559
+		],
+		"z": -1.25
+	},
+	"@Sprite3D@417": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			726.0,
+			345.0,
+			56.0,
+			134.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_cargo_near.png",
+		"world_rect": [
+			1343.00671386719,
+			310.187164306641,
+			41.8848190307617,
+			100.224388122559
+		],
+		"z": -1.25
+	},
+	"@Sprite3D@418": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			854.0,
+			345.0,
+			55.0,
+			134.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_cargo_near.png",
+		"world_rect": [
+			1438.74340820313,
+			310.187164306641,
+			41.1368751525879,
+			100.224388122559
+		],
+		"z": -1.25
+	},
+	"@Sprite3D@419": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			975.0,
+			345.0,
+			54.0,
+			134.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_cargo_near.png",
+		"world_rect": [
+			1529.24462890625,
+			310.187164306641,
+			40.3889312744141,
+			100.224388122559
+		],
+		"z": -1.25
+	},
+	"ArchiveBooks": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			0.0,
+			0.0,
+			1024.0,
+			1536.0
+		],
+		"texture": "res://assets/environments/crimson/archive_bookshelf_v1.png",
+		"world_rect": [
+			1665.33349609375,
+			312.0,
+			93.3333358764648,
+			140.0
+		],
+		"z": -0.689999997615814
+	},
+	"AuthoredHangingBell": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			981.0,
+			130.0,
+			91.0,
+			104.0
+		],
+		"texture": "res://assets/environments/crimson/monastery_architecture_v2.png",
+		"world_rect": [
+			1962.0,
+			-88.0,
+			182.0,
+			208.0
+		],
+		"z": -0.469999998807907
+	},
+	"BellNearEasternStatueFigure": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			97.0,
+			106.0,
+			552.0,
+			1877.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_saint_v1.png",
+		"world_rect": [
+			2250.87939453125,
+			285.4375,
+			28.9491214752197,
+			98.4375
+		],
+		"z": -0.540000021457672
+	},
+	"BellNearMovingDoor": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			72.0,
+			640.0,
+			185.0,
+			184.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_bell_near.png",
+		"world_rect": [
+			1616.24084472656,
+			512.01171875,
+			144.507751464844,
+			143.726623535156
+		],
+		"z": -0.379999995231628
+	},
+	"BellNearWesternStatueFigure": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			97.0,
+			106.0,
+			552.0,
+			1877.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_saint_v1.png",
+		"world_rect": [
+			1824.77697753906,
+			285.4375,
+			28.9491214752197,
+			98.4375
+		],
+		"z": -0.540000021457672
+	},
+	"CargoCraneSkyline": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			410.0,
+			110.0,
+			300.0,
+			160.0
+		],
+		"texture": "res://assets/environments/crimson/monastery_architecture_v2.png",
+		"world_rect": [
+			820.0,
+			-128.0,
+			600.0,
+			320.0
+		],
+		"z": -0.800000011920929
+	},
+	"CargoCrateFace0": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			141.0,
+			83.0,
+			1166.0,
+			918.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_crate_face_v1.png",
+		"world_rect": [
+			1147.13720703125,
+			548.0,
+			45.7254905700684,
+			36.0
+		],
+		"z": -0.514999985694885
+	},
+	"CargoCrateFace1": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			141.0,
+			83.0,
+			1166.0,
+			918.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_crate_face_v1.png",
+		"world_rect": [
+			1190.056640625,
+			540.0,
+			55.8867111206055,
+			43.9999961853027
+		],
+		"z": -0.514999985694885
+	},
+	"CargoCrateFace2": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			141.0,
+			83.0,
+			1166.0,
+			918.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_crate_face_v1.png",
+		"world_rect": [
+			1150.94775390625,
+			518.0,
+			38.1045761108398,
+			30.0000019073486
+		],
+		"z": -0.514999985694885
+	},
+	"CargoNearRecessedGlass": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			475.0,
+			345.0,
+			52.0,
+			134.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_cargo_near.png",
+		"world_rect": [
+			1155.27307128906,
+			310.187164306641,
+			38.8930435180664,
+			100.224388122559
+		],
+		"z": -1.25
+	},
+	"CargoServiceDoor": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			69.0,
+			69.0,
+			776.0,
+			1598.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_service_door_v1.png",
+		"world_rect": [
+			912.921142578125,
+			456.0,
+			62.1576995849609,
+			128.0
+		],
+		"z": -0.649999976158142
+	},
+	"FreightRepairConsole": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			1102.0,
+			166.0,
+			440.0,
+			370.0
+		],
+		"texture": "res://assets/environments/crimson/flow_props_v1.png",
+		"world_rect": [
+			1643.0,
+			565.227294921875,
+			58.0,
+			48.7727279663086
+		],
+		"z": -0.119999997317791
+	},
+	"GardenIvyEast": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			221.0,
+			50.0,
+			445.0,
+			1691.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_ivy_v1.png",
+		"world_rect": [
+			2802.68432617188,
+			404.0,
+			42.6315841674805,
+			162.000015258789
+		],
+		"z": -0.479999989271164
+	},
+	"GardenIvyWest": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			221.0,
+			50.0,
+			445.0,
+			1691.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_ivy_v1.png",
+		"world_rect": [
+			2474.68432617188,
+			404.0,
+			42.6315841674805,
+			162.000015258789
+		],
+		"z": -0.610000014305115
+	},
+	"GardenLantern": {
+		"cast_shadow": 1,
+		"lit": false,
+		"source": [
+			202.0,
+			187.0,
+			483.0,
+			1350.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_lantern_v1.png",
+		"world_rect": [
+			2545.91772460938,
+			478.0,
+			12.1644439697266,
+			34.0
+		],
+		"z": -0.579999983310699
+	},
+	"GardenNearRecessedGlass": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			535.0,
+			439.0,
+			84.0,
+			249.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_garden_near.png",
+		"world_rect": [
+			2742.93237304688,
+			420.466766357422,
+			47.5631980895996,
+			140.990905761719
+		],
+		"z": -1.25
+	},
+	"GardenRearIvyLeft": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			221.0,
+			50.0,
+			445.0,
+			1691.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_ivy_v1.png",
+		"world_rect": [
+			2533.0,
+			346.0,
+			50.0,
+			190.0
+		],
+		"z": -1.21000003814697
+	},
+	"GardenRearIvyRight": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			221.0,
+			50.0,
+			445.0,
+			1691.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_ivy_v1.png",
+		"world_rect": [
+			2714.84204101563,
+			360.0,
+			46.315788269043,
+			175.999984741211
+		],
+		"z": -1.21000003814697
+	},
+	"GardenRoseLeft": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			43.0,
+			71.0,
+			1408.0,
+			909.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_rose_shrub_v1.png",
+		"world_rect": [
+			2501.53125,
+			504.0,
+			92.9373016357422,
+			60.0000038146973
+		],
+		"z": -0.569999992847443
+	},
+	"GardenRoseLeftPlanterPaintedFront": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			277.0,
+			674.0,
+			174.0,
+			56.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_garden_near.png",
+		"world_rect": [
+			2516.0,
+			567.402282714844,
+			64.0,
+			20.5977020263672
+		],
+		"z": -0.514999985694885
+	},
+	"GardenRoseRight": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			43.0,
+			71.0,
+			1408.0,
+			909.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_rose_shrub_v1.png",
+		"world_rect": [
+			2677.78662109375,
+			490.0,
+			108.426849365234,
+			70.0000076293945
+		],
+		"z": -0.490000009536743
+	},
+	"GardenRoseRightPlanterPaintedFront": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			277.0,
+			674.0,
+			174.0,
+			56.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_garden_near.png",
+		"world_rect": [
+			2698.0,
+			566.114990234375,
+			68.0,
+			21.8850593566895
+		],
+		"z": -0.514999985694885
+	},
+	"GardenTreeBranches": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			41.0,
+			111.0,
+			1077.0,
+			1159.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_tree_branches_v1.png",
+		"world_rect": [
+			2565.23559570313,
+			412.000030517578,
+			137.528900146484,
+			148.0
+		],
+		"z": -0.75
+	},
+	"GardenTreeCrown": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			34.0,
+			129.0,
+			1576.0,
+			680.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_red_crown_v1.png",
+		"world_rect": [
+			2520.43530273438,
+			406.000030517578,
+			227.129409790039,
+			98.0000076293945
+		],
+		"z": -0.379999995231628
+	},
+	"GardenTreePlanterPaintedFront": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			277.0,
+			674.0,
+			174.0,
+			56.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_garden_near.png",
+		"world_rect": [
+			2590.0,
+			559.67822265625,
+			88.0,
+			28.3218383789063
+		],
+		"z": -0.514999985694885
+	},
+	"GateGalleryPixelArch": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			127.0,
+			80.0,
+			871.0,
+			1233.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_gate_arch_v1.png",
+		"world_rect": [
+			696.0,
+			144.101058959961,
+			96.0,
+			135.898956298828
+		],
+		"z": -0.319999992847443
+	},
+	"GatePassageInteriorArt": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			1180.0,
+			510.0,
+			130.0,
+			270.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_gate_near.png",
+		"world_rect": [
+			692.000061035156,
+			345.846160888672,
+			80.0,
+			166.153854370117
+		],
+		"z": -1.44000005722046
+	},
+	"GatePassagePixelArch": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			127.0,
+			80.0,
+			871.0,
+			1233.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_gate_arch_v1.png",
+		"world_rect": [
+			652.000061035156,
+			285.501708984375,
+			160.0,
+			226.498306274414
+		],
+		"z": -0.319999992847443
+	},
+	"HallNearEasternStatueFigure": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			97.0,
+			106.0,
+			552.0,
+			1877.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_saint_v1.png",
+		"world_rect": [
+			3704.32080078125,
+			322.955200195313,
+			34.3960609436035,
+			116.959075927734
+		],
+		"z": -0.540000021457672
+	},
+	"HallNearMovingDoor": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			152.0,
+			120.0,
+			185.0,
+			286.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_hall_near.png",
+		"world_rect": [
+			3018.58569335938,
+			345.504028320313,
+			144.331359863281,
+			223.128494262695
+		],
+		"z": -0.379999995231628
+	},
+	"HallNearWesternStatueFigure": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			97.0,
+			106.0,
+			552.0,
+			1877.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_saint_v1.png",
+		"world_rect": [
+			3382.89086914063,
+			322.955200195313,
+			34.3960609436035,
+			116.959075927734
+		],
+		"z": -0.540000021457672
+	},
+	"HallRecessedTriptych": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			164.0,
+			12.0,
+			771.0,
+			1397.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_stained_glass_v1.png",
+		"world_rect": [
+			3463.21044921875,
+			28.0,
+			197.5791015625,
+			358.0
+		],
+		"z": -1.26999998092651
+	},
+	"HallReredos": {
+		"cast_shadow": 1,
+		"lit": true,
+		"source": [
+			111.0,
+			72.0,
+			619.0,
+			1708.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_reredos_v1.png",
+		"world_rect": [
+			3529.3828125,
+			308.0,
+			65.2341918945313,
+			180.0
+		],
+		"z": -0.569999992847443
+	},
+	"QuestProp_luggage": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			1493.0,
+			252.0,
+			634.0,
+			399.0
+		],
+		"texture": "res://assets/environments/crimson/quest_props_v1.png",
+		"world_rect": [
+			2740.0,
+			552.757080078125,
+			56.0,
+			35.2429046630859
+		],
+		"z": 0.280000001192093
+	},
+	"QuestProp_records": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			760.0,
+			183.0,
+			652.0,
+			461.0
+		],
+		"texture": "res://assets/environments/crimson/quest_props_v1.png",
+		"world_rect": [
+			1690.00012207031,
+			432.202484130859,
+			28.0,
+			19.7975463867188
+		],
+		"z": -0.180000007152557
+	},
+	"QuestProp_tools": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			49.0,
+			118.0,
+			627.0,
+			526.0
+		],
+		"texture": "res://assets/environments/crimson/quest_props_v1.png",
+		"world_rect": [
+			1442.00012207031,
+			632.510375976563,
+			28.0,
+			23.4896335601807
+		],
+		"z": -0.180000007152557
+	},
+	"StationCarriagePainted": {
+		"cast_shadow": 0,
+		"lit": true,
+		"source": [
+			8.0,
+			275.0,
+			565.0,
+			385.0
+		],
+		"texture": "res://assets/environments/crimson/flow_props_v1.png",
+		"world_rect": [
+			48.0,
+			446.584106445313,
+			96.0,
+			65.4159317016602
+		],
+		"z": -0.239999994635582
+	},
+	"StationGateRecessedGlass": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			209.0,
+			147.0,
+			18.0,
+			34.0
+		],
+		"texture": "res://assets/environments/crimson/monastery_architecture_v2.png",
+		"world_rect": [
+			418.000030517578,
+			-54.0,
+			36.0,
+			68.0
+		],
+		"z": -0.920000016689301
+	},
+	"StationNearRecessedGlass": {
+		"cast_shadow": 0,
+		"lit": false,
+		"source": [
+			711.0,
+			185.0,
+			76.0,
+			114.0
+		],
+		"texture": "res://assets/environments/crimson/rebuild_gate_near.png",
+		"world_rect": [
+			420.536468505859,
+			161.428436279297,
+			44.9518585205078,
+			67.4277877807617
+		],
+		"z": -1.25
+	}
+}

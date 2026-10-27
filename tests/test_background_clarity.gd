@@ -1,69 +1,52 @@
 extends SceneTree
-## Authored density and six-camera sweep; never changes gameplay geometry.
-const SLICES := {
-	"Tower": Vector2(9592,932.8), "Gate": Vector2(2100,294),
-	"Hall": Vector2(13800,1424), "Archive": Vector2(6800,880),
-	"Garden": Vector2(10800,1424)
-}
+## Texture registration checks; perceived clarity still requires actual-camera review.
+const SLICES := {"Tower":Vector2(2376,156),"Gate":Vector2(704,512),"Hall":Vector2(3560,488),"Archive":Vector2(1688,452),"Garden":Vector2(2648,588)}
 var checks := 0
 var failures := 0
 func _initialize() -> void: run.call_deferred()
-func check(ok: bool, label: String) -> void:
+func check(ok: bool,label: String) -> void:
 	checks += 1
-	if not ok:
-		failures += 1
-		push_error(label)
+	if not ok: failures += 1; push_error(label)
 func run() -> void:
-	if not "--campaign-test" in OS.get_cmdline_user_args(): quit(2); return
+	if "--campaign-test" not in OS.get_cmdline_user_args(): quit(2); return
 	var app = load("res://scenes/game.tscn").instantiate()
 	root.add_child(app)
 	var stage: CrimsonStage3D = app.stage
 	stage.frozen_camera = true
 	stage.residency_enabled = false
 	stage.residency.clear()
+	stage.game.set_physics_process(false)
 	stage.game.player.manual_control = true
 	stage.game.player.set_physics_process(false)
-	for enemy in stage.game.enemies: enemy.set_physics_process(false)
-	for id in stage.game.campaign_session.npc_actors:
-		stage.game.campaign_session.npc_actors[id].set_process(false)
-	for id in SLICES:
-		var cards := stage.scenery.find_children("Clarity%s*" % id, "MeshInstance3D", true, false)
-		var covered := false
-		check(not cards.is_empty(), "Authored near building detail exists: " + id)
-		for card in cards:
-			if not card.has_meta("clarity_world_rect"): continue
-			var rect: Rect2 = card.get_meta("clarity_world_rect")
-			var source: Rect2 = card.get_meta("clarity_source_rect")
-			var density := source.size / rect.size
-			var probe: Vector2 = SLICES[id] - Vector2(220 if id == "Hall" else 0,120)
-			covered = covered or rect.has_point(probe)
-			check(density.x >= 1.99 and density.y >= 1.99, "Near detail has at least two source texels per logical pixel: " + str(card.name))
-			if str(card.name).begins_with("ClarityGarden") and str(card.name).ends_with("Glass"):
-				check(card.get_aabb().size.x <= rect.size.x*0.01 + 0.0001 and card.get_aabb().size.y <= rect.size.y*0.01 + 0.0001, "Glass with removed frame strips stays within original window")
-			else:
-				check(card.get_aabb().size.distance_to(Vector3(rect.size.x*0.01,rect.size.y*0.01,0)) < 0.0001, "Actual mesh matches declared density bounds")
-			check(card.material_override.texture_filter == BaseMaterial3D.TEXTURE_FILTER_NEAREST, "Paper detail remains nearest sampled")
-			check(card.get_aabb().end.z <= -1.0, "Paper detail stays behind the actor and rear rail")
-			check(card.find_children("*", "CollisionObject3D", true, false).is_empty(), "Detail has no new collision")
-		check(covered, "Existing rear building is detailed beside the slice's player position: " + id)
-	var garden_glass := stage.scenery.find_children("ClarityGarden*Glass", "MeshInstance3D", true, false)
-	check(garden_glass.size() == 5, "Near greenhouse preserves exactly five broad window bays")
-	var old_glass := stage.scenery.find_children("GardenLayeredWindow*Glass", "Sprite3D", true, false)
-	for index in garden_glass.size():
-		var card: MeshInstance3D = garden_glass[index]
-		var original: Sprite3D = old_glass[index]
-		var opening: Rect2 = card.get_meta("original_window")
-		check((Vector2(original.position.x,-original.position.y)*100).distance_to(opening.get_center()) < 0.01, "Close glass keeps the original window centre")
-		check((original.region_rect.size*original.pixel_size*100).distance_to(opening.size) < 0.01, "Close glass keeps the original window size")
-		check(card.get_aabb().end.z < card.get_meta("wall_z"), "Close glass is recessed behind wall")
-		check(stage.scenery.find_children("ClarityGarden%dFrame*" % index, "MeshInstance3D", true, false).size() == 12, "Authored metal rails occupy an independent front layer")
-	for stair in stage.game.environment.stairs:
-		if stair.one_way:
-			check(stage.scenery.find_children(str(stair.get_meta("structural_id", stair.name))+"ContinuousRearFoundation", "MeshInstance3D", true, false).is_empty(), "Open stairs retain open undersides")
-	if DisplayServer.get_name() != "headless" and "--capture" in OS.get_cmdline_user_args():
-		await capture(app)
+	app.chapter_staging.enabled = false
+	for spec in preload("res://scripts/rooms/compact_monastery_visual.gd").PANELS:
+		var walls := stage.scenery.find_children(spec.id+"RearMasonryFace","MeshInstance3D",true,false)
+		check(walls.size()==1,"Exactly one registered rear face: "+spec.id)
+		if walls.is_empty(): continue
+		var wall: MeshInstance3D = walls[0]
+		var rect: Rect2 = wall.get_meta("world_rect")
+		var expected: Rect2 = wall.get_meta("reference_source")
+		check(rect.position.distance_to(ImageMonastery.source_to_world(expected.position))<0.01 and rect.size.distance_to(expected.size*2)<0.01,"Facade follows accepted source registration: "+spec.id)
+		check(wall.material_override.texture_filter==BaseMaterial3D.TEXTURE_FILTER_NEAREST,"No linear filtering on near architecture")
+		check(wall.get_aabb().size.distance_to(Vector3(rect.size.x*.01,rect.size.y*.01,0))<0.001,"Declared density agrees with actual mesh")
+		check(float(wall.get_meta("logical_per_texel"))<=1.0,"Near texture has at least one authored source texel per logical pixel")
+		var parts := stage.scenery.find_children(spec.id+"*","MeshInstance3D",true,false).filter(func(n): return n.has_meta("architectural_part"))
+		check(parts.size()>=2,"Building uses detached architectural parts: "+spec.id)
+		for part in parts:
+			check(part.get_aabb().end.z>wall.get_aabb().end.z+0.25,"Architectural part projects from rear masonry")
+			check(part.find_children("*","CollisionObject3D",true,false).is_empty(),"Painted detail cannot invent walkable surfaces")
+	check(stage.scenery.find_children("GatePassageSideWall*","MeshInstance3D",true,false).size()==2,"Gate passage has two real side walls")
+	check(stage.scenery.find_children("GreenhouseSlopedGlass","MeshInstance3D",true,false).size()==1,"Glass roof is a separate real sloping surface")
+	for id in ["gate_lift","gate_departure"]:
+		var gate = stage.game.environment.gates[id]
+		var pieces: Array = stage.platform_visuals[gate]
+		check(pieces.any(func(n):return str(n.name).ends_with("MovingDoor")),"Illustrated door leaf belongs to its actual collision gate: "+id)
+		stage.game.environment.set_gate_state(id,true)
+		stage._physics_process(0)
+		check(pieces.all(func(n):return not n.visible),"Opening a gate removes both 3D barrier and painted closed leaf")
+	if DisplayServer.get_name()!="headless" and "--capture" in OS.get_cmdline_user_args(): await capture(app)
 	app.free()
-	print("BACKGROUND CLARITY STAGE RESULT: %d checks, %d failures" % [checks,failures])
+	print("BACKGROUND CLARITY STAGE RESULT: %d registration checks, %d failures; visual approval is separate" % [checks,failures])
 	quit(1 if failures else 0)
 func capture(app) -> void:
 	var stage: CrimsonStage3D = app.stage

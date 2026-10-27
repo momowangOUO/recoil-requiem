@@ -19,7 +19,7 @@ foreach ($renderFps in @(30, 60, 144)) {
     if ($LASTEXITCODE -ne 0 -or -not $feelResult -or ($feelOutput | Select-String 'SCRIPT ERROR:')) { $feelOutput | Write-Output; exit 1 }
     Write-Output "Responsive movement at $renderFps FPS: $feelResult"
 }
-foreach ($fixture in @('test_dialogue_stability', 'test_chapter_staging', 'test_chapter_sequence', 'test_background_clarity', 'replay_background_clarity', 'test_npc_story_actions')) {
+foreach ($fixture in @('test_monastery_navigation', 'test_monastery_copy', 'test_monastery_rebuild', 'test_monastery_rebuild_saves', 'test_monastery_polish', 'replay_monastery_rebuild', 'replay_monastery_maintenance', 'test_dialogue_stability', 'test_chapter_staging', 'test_chapter_sequence', 'test_background_clarity', 'replay_background_clarity', 'test_npc_story_actions')) {
     $newOutput = & $Godot --headless --path $projectDirectory --log-file (Join-Path $artifactDirectory "$fixture.log") --fixed-fps 60 --script "res://tests/$fixture.gd" -- --campaign-test 2>&1
     $newResult = $newOutput | Select-String 'STAGE RESULT:'
     if ($LASTEXITCODE -ne 0 -or -not $newResult -or ($newOutput | Select-String 'SCRIPT ERROR:')) { $newOutput | Write-Output; exit 1 }

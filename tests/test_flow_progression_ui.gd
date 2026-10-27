@@ -95,6 +95,19 @@ func run() -> void:
 	check(session.has("tutorial_map"), "Opening the actual map completes its lesson")
 	session.close()
 
+	actor.position = Vector2(1256,584)
+	actor.velocity = Vector2.ZERO
+	for tick in 18:
+		await physics_frame
+		actor.step(InputFrame.new(),1.0/60)
+	presentation._update_tutorial()
+	check(ui.tutorial_action == "drop" and ui._controls.text.begins_with("S"),"An unexplored grate teaches the actual downward input")
+	frame = InputFrame.new()
+	frame.drop_pressed = true
+	actor.step(frame,1.0/60)
+	presentation._physics_process(0.0)
+	check(session.has("tutorial_drop"),"Only an actual drop completes the contextual instruction")
+
 	ui.choice_selected.connect(func(id): selected = id)
 	session.pause()
 	var held := InputEventKey.new()

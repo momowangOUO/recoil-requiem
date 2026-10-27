@@ -25,7 +25,8 @@ func _alpha_at(card: Sprite3D, point: Vector3, pixels: Image) -> float:
 	var material := card.material_override as ShaderMaterial
 	var extension: float = material.get_shader_parameter("base_extension")
 	if y >= pixels.get_height() and local.y >= -half.y - extension:
-		y = pixels.get_height() - 1
+		return 1.0 if x >= 0 and x < pixels.get_width() else 0.0
+	if (half.y-local.y)/(card.pixel_size*card.scale.y)>=pixels.get_height()*0.72 and y<pixels.get_height() and x>=0 and x<pixels.get_width(): return 1.0
 	if x < 0 or y < 0 or x >= pixels.get_width() or y >= pixels.get_height():
 		return 0.0
 	return pixels.get_pixel(x, y).a
@@ -63,8 +64,8 @@ func run() -> void:
 	for card: Sprite3D in cards:
 		check(card.texture.resource_path.ends_with("foreground_panorama_v4.png") and card.texture.get_image().detect_alpha() != Image.ALPHA_NONE,
 			"Foreground uses transparent generated artwork")
-		check(card.texture_filter == BaseMaterial3D.TEXTURE_FILTER_LINEAR and not card.shaded,
-			"Only the near painted layer has a gently softened contour")
+		check(card.texture_filter == BaseMaterial3D.TEXTURE_FILTER_NEAREST and not card.shaded,
+			"Near silhouette retains nearest-sampled authored contours")
 		check(is_equal_approx(card.scale.x, card.scale.y), "Foreground preserves the authored panorama proportions")
 		check(card.material_override is ShaderMaterial and card.material_override.get_shader_parameter("silhouette_color").v < 0.15,
 			"Foreground uses the authored alpha as a near-black silhouette mask")
@@ -104,8 +105,8 @@ func run() -> void:
 		"Sustained ground contact smoothly resolves a different-height landing")
 	check(is_equal_approx(front.call("advance_ground_anchor", landing_start, landing_target, false, true), landing_target),
 		"A genuine teleport snaps the terrain anchor instead of visibly chasing it")
-	for location in [Vector2(700, 1120), Vector2(5200, 688), Vector2(9592, 932),
-		Vector2(10500, 1424), Vector2(13800, 1424), Vector2(13000, 2720)]:
+	for location in [Vector2(704,512),Vector2(1232,404),Vector2(2376,156),
+		Vector2(2896,588),Vector2(3720,588),Vector2(1824,890)]:
 		for profile in CrimsonStage3D.WEAPON_CAMERA.values():
 			for distance in [profile.near, profile.far]:
 				stage.game.player.position = location
@@ -124,7 +125,7 @@ func run() -> void:
 				check(_alpha_at_any(cards, action_center) < 0.1,
 					"Foreground leaves the central action readable at %s / %s" % [location, distance])
 	# Preserve the near-view anchor through zoom: resetting at every pose hid the floating base.
-	stage.game.player.position = Vector2(700, 1120)
+	stage.game.player.position = Vector2(704,512)
 	for weapon in CrimsonStage3D.WEAPON_CAMERA:
 		var profile: Dictionary = CrimsonStage3D.WEAPON_CAMERA[weapon]
 		front.call("reset_ground_anchor")
@@ -151,66 +152,17 @@ func run() -> void:
 				await process_frame
 				await RenderingServer.frame_post_draw
 				root.get_texture().get_image().save_png("res://artifacts/foreground_zoom_%s_%d.png" % [weapon, step])
-	var landmarks := {"B01PaintedGatehouse": Vector2(2200, 1120),
-		"B02PaintedCargoHouse": Vector2(3900, 1408),
-		"B04PaintedTowerPier": Vector2(7300, 1120),
-		"B05PaintedTowerPier": Vector2(9200, 1120),
-		"B12PaintedGreatHall": Vector2(14300, 1424),
-		"B12PaintedLowerWing": Vector2(14300, 1424),
-		"ArchivePaintedSideHouse": Vector2(6700, 1120),
-		"BellStairwellPaintedFacade": Vector2(9500, 1120),
-		"GalleryPaintedFrontage": Vector2(5200, 688),
-		"F08PaintedServiceFrontage": Vector2(4200, 2280),
-		"F11PaintedServiceFrontage": Vector2(13800, 2720)}
-	for name in landmarks:
-		stage.camera_target = CrimsonStage3D.to_stage(landmarks[name])
-		stage.residency.update_at(landmarks[name])
-		var landmark_cards: Array = stage.scenery.find_children(name, "GeometryInstance3D", true, false)
-		check(landmark_cards.size() == 1, name + " needs exactly one authored elevation")
-		if landmark_cards.size() == 1:
-			var landmark: GeometryInstance3D = landmark_cards[0]
-			var crisp: bool = landmark.texture_filter == BaseMaterial3D.TEXTURE_FILTER_NEAREST if landmark is Sprite3D else landmark.material_override.texture_filter == BaseMaterial3D.TEXTURE_FILTER_NEAREST
-			check(crisp and landmark.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF,
-				name + " retains crisp art without fake structural shadows")
-		var layer_prefix: String = {
-			"B01PaintedGatehouse": "B01LayeredWindow",
-			"B02PaintedCargoHouse": "B02LayeredWindow",
-			"B12PaintedGreatHall": "B12LayeredWindow",
-			"GalleryPaintedFrontage": "GalleryLayeredWindow",
-			"F11PaintedServiceFrontage": "F11LayeredWindow",
-		}.get(name, "")
-		if not layer_prefix.is_empty():
-			var glass_cards := stage.scenery.find_children(layer_prefix + "*Glass", "Sprite3D", true, false)
-			var recesses := stage.scenery.find_children(layer_prefix + "*Recess", "MeshInstance3D", true, false)
-			var frames := stage.scenery.find_children(layer_prefix + "*Frame*", "MeshInstance3D", true, false)
-			check(glass_cards.size() >= 2, name + " separates at least two authored windows from the wall card")
-			check(recesses.size() == glass_cards.size(), name + " gives every detached window a dark inner recess")
-			check(frames.size() >= glass_cards.size() * 2, name + " gives detached windows projecting frame geometry")
-			check(landmark_cards[0] is MeshInstance3D, name + " wall elevation has real openings rather than covered painted windows")
-			for glass_card: Sprite3D in glass_cards:
-				check(glass_card.position.z < glass_card.get_meta("wall_z", glass_card.position.z),
-					name + " glass sits behind the wall plane and its projecting sill")
-			if name == "F11PaintedServiceFrontage" and not glass_cards.is_empty():
-				var backing: MeshInstance3D = stage.scenery.find_child("F11InteriorBackwall", true, false)
-				var backing_front: float = backing.position.z + backing.mesh.get_aabb().end.z
-				check(backing_front < glass_cards[0].position.z,
-					"Lower-room structural backing stays behind the recessed glass")
-	for old_name in ["B02WindowFrame*", "GalleryOpenGothicBay*", "HallLowerBlindArcade*", "S10TunnelBackwall*"]:
-		check(stage.scenery.find_children(old_name, "MeshInstance3D", true, false).is_empty(), old_name + " should not cover painted architecture")
-	stage.camera_target = CrimsonStage3D.to_stage(Vector2(9200, 1120))
-	stage.residency.update_at(Vector2(9200, 1120))
-	check(not stage.scenery.find_children("B05TowerPier", "MeshInstance3D", true, false).is_empty(), "Tower landing keeps a physical support")
-	stage.camera_target = CrimsonStage3D.to_stage(Vector2(14300, 1424))
-	stage.residency.update_at(Vector2(14300, 1424))
-	check(not stage.scenery.find_children("B12ContinuedFoundation", "MeshInstance3D", true, false).is_empty(), "Hall drawing keeps a closed lower foundation")
-	stage.camera_target = CrimsonStage3D.to_stage(Vector2(900, 1120))
-	stage.residency.update_at(Vector2(900, 1120))
-	check(stage.scenery.find_children("StationRearWall", "MeshInstance3D", true, false).is_empty(),
-		"Arrival station does not restore the giant flat timber backwall")
-	check(stage.scenery.find_children("StationPaintedDepot", "MeshInstance3D", true, false).size() == 1,
-		"Arrival station uses one authored cut-paper depot elevation")
-	check(stage.scenery.find_children("StationPaintedDepotGlass", "Sprite3D", true, false).size() == 1,
-		"Arrival depot separates its authored narrow glass from wall and projecting sill")
+	stage.residency.clear()
+	for id in ["StationNear","CargoNear","BellNear","GardenNear","HallNear"]:
+		var walls := stage.scenery.find_children(id+"RearMasonryFace","MeshInstance3D",true,false)
+		check(walls.size()==1,"Building owns one cut rear face: "+id)
+		var parts := stage.scenery.find_children(id+"*","MeshInstance3D",true,false).filter(func(n):return n.has_meta("architectural_part"))
+		check(parts.size()>=2,"Building has semantic front layers: "+id)
+	for pane: Sprite3D in stage.scenery.find_children("*NearRecessedGlass*","Sprite3D",true,false):
+		check(pane.position.z<float(pane.get_meta("wall_z")),"Glass stays behind wall and projecting sill")
+		check(pane.texture_filter==BaseMaterial3D.TEXTURE_FILTER_NEAREST,"Window glass stays crisp")
+	check(stage.scenery.find_children("GatePassageInterior","MeshInstance3D",true,false).size()==1,"Gate cutaway has an independent interior")
+	check(stage.scenery.find_children("GreenhouseSlopedGlass","MeshInstance3D",true,false).size()==1,"Greenhouse glazing occupies its own roof plane")
 	stage.game.reset_trial(3)
 	await process_frame
 	check(stage.scenery.find_children("ImageMonasteryForeground", "Node3D", true, false).size() == 1,

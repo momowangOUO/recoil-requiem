@@ -28,8 +28,8 @@ func _enter_tree() -> void:
 	_button("打开警钟塔", _open.bind("res://scenes/rooms/bell_tower.tscn"))
 	_button("打开禁书室", _open.bind("res://scenes/rooms/forbidden_archive.tscn"))
 	_button("打开血蔷薇庭院", _open.bind("res://scenes/rooms/rose_court.tscn"))
-	x_input = _number("放置 X", 0, 4800, 16, 320)
-	y_input = _number("脚底 Y", -128, 400, 16, 288)
+	x_input = _number("放置 X", 0, 4800, 1, 320)
+	y_input = _number("脚底 Y", -128, 400, 1, 288)
 	width_input = _number("平台宽度", 16, 960, 16, 128)
 	stair_run_input = _number("楼梯水平长度（向左为负）", -16384, 16384, 1, 384)
 	stair_rise_input = _number("楼梯高差（向上为负）", -2400, 2400, 1, -192)
@@ -169,6 +169,7 @@ func _insert(node: Node2D) -> void:
 		return
 	node.position = Vector2(x_input.value, y_input.value)
 	if room.has_meta("world_bounds"):
+		if node is PaperPlatform or node is PaperStair: node.set_meta("route_surface",true)
 		var space_id := ""
 		for section in room.get_node("Sections").get_children():
 			var region: Rect2 = section.get_meta("space_bounds", Rect2())

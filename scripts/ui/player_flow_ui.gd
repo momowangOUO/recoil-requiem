@@ -20,7 +20,7 @@ const COPY := {
 	"settings_load_failed":"设置文件无法读取，暂时使用默认设置。",
 	"quit_unsaved_title":"退出前的进度尚未保存", "quit_unsaved_body":"退出后，尚未保存的进度将丢失。要直接退出吗？",
 	"quit_unsaved":"不保存，退出游戏", "on":"开启", "off":"关闭",
-	"help_body":"A / D　移动\nSpace　跳跃　　W　空中修正\n鼠标瞄准　左键射击　R 换弹\n1—6　选择枪槽　滚轮切枪\n短按 Q 切枪，按住 Q 查看枪槽\nV　爪击　　E　交谈或调查\nS　选择下方开放式楼梯或下穿格栅\nM　地图　　J　日志　　Esc　暂停"
+	"help_body":"A / D　移动\nSpace　跳跃　　W　空中修正\n鼠标瞄准　左键射击　R 换弹\n1—6　选择枪槽　滚轮切枪\n短按 Q 切枪，按住 Q 查看枪槽\nV　爪击　　E　交谈或调查\nS　向下穿过格栅或开放式楼梯\nM　地图　　J　日志　　Esc　暂停"
 }
 
 var page := ""

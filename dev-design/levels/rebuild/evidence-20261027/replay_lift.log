@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 572.42 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3070
+
+Movie Maker mode enabled, recording movie in 1280×720 @ 60 FPS...
+TRIAL 4 RESET weapon_slot=1 gravity=2100.0
+REBUILD REPLAY lift phase 0 mara at (1045.176, 583.9252) health 5
+REBUILD REPLAY lift phase 1 ina at (1124.012, 583.9252) health 5
+REBUILD REPLAY lift phase 2 tools at (1413.644, 646.2484) health 5
+REBUILD REPLAY lift phase 3 vira at (1727.646, 637.2488) health 5
+REBUILD REPLAY lift phase 4 lift_repair at (1714.912, 630.8813) health 5
+REBUILD REPLAY lift phase 5 departure at (2900.18, 587.9252) health 4
+REBUILD REPLAY lift phase 6 celine at (2838.1, 568.4752) health 2
+TRIAL 4 RESET weapon_slot=3 gravity=2100.0
+REBUILD REPLAY lift phase 7 boss at (3848.01, 569.4308) health 4
+REBUILD REPLAY lift phase 8 return at (1008.781, 583.9252) health 4
+REBUILD REPLAY lift phase 9 mara_after at (1003.948, 583.9252) health 4
+REBUILD CONTINUOUS REPLAY STAGE RESULT: route=lift complete=true frames=6382 shots=86 deaths=1 resets=1 phase=10 position=(1003.948, 583.9252)
+--------------------------------------------------------------------------------
+Done recording movie at path: D:\recoil-requiem\artifacts\navigation-20261027\package/replay_lift.avi
+6406 frames at 60 FPS (movie length: 00:01:46:46), recorded in 00:01:53 (93% of real-time speed).
+CPU render time: 1.25 seconds (average: 0.20 ms/frame)
+GPU render time: 3.49 seconds (average: 0.54 ms/frame)
+Encoding time: 45.01 seconds (average: 7.03 ms/frame)
+--------------------------------------------------------------------------------

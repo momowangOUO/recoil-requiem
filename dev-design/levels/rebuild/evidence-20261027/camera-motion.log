@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 572.42 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3070
+
+Movie Maker mode enabled, recording movie in 1280×720 @ 60 FPS...
+TRIAL 4 RESET weapon_slot=1 gravity=2100.0
+BACKGROUND CLARITY MOTION STAGE RESULT: 1440 continuous input frames, 48 checks, 0 failures
+--------------------------------------------------------------------------------
+Done recording movie at path: D:/recoil-requiem/artifacts/navigation-20261027/package/camera-motion.avi
+1622 frames at 60 FPS (movie length: 00:00:27:02), recorded in 00:00:34 (79% of real-time speed).
+CPU render time: 0.28 seconds (average: 0.17 ms/frame)
+GPU render time: 0.79 seconds (average: 0.49 ms/frame)
+Encoding time: 11.17 seconds (average: 6.89 ms/frame)
+--------------------------------------------------------------------------------

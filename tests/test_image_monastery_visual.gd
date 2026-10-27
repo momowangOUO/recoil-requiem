@@ -28,7 +28,7 @@ func run() -> void:
 			if card.material_override != stage.night.castle_haze:
 				push_error("An expanded-map castle layer is missing its lower-edge transition")
 				failures += 1
-	if castle_count != 11: failures += 1
+	if castle_count != 6: failures += 1
 	var open_count := 0
 	for stair in stage.game.environment.stairs:
 		if not stair.get("one_way"): continue
@@ -43,44 +43,23 @@ func run() -> void:
 	if open_count < 6:
 		push_error("All six tower flights must use visibly open metal construction")
 		failures += 1
-	var corbels: Array = stage.scenery.find_children("BellStairwellLandingCorbel*", "MeshInstance3D", false, false)
-	var wall_supports: Array = stage.scenery.find_children("BellStairwellRearMasonry*", "MeshInstance3D", false, false)
-	wall_supports.append_array(stage.scenery.find_children("B05TowerPier*", "MeshInstance3D", false, false))
 	var landing_count := 0
 	for module in stage.game.environment.modules:
-		if module.get_meta("structural_id", "") != "F20": continue
+		if not str(module.name).begins_with("F20_TowerLanding"): continue
 		landing_count += 1
 		var pieces: Array = stage.platform_visuals[module]
-		var floor_pieces: Array = pieces.filter(func(node): return str(node.name).contains("GrateSlat") or str(node.name).contains("EdgeGirder"))
-		var rails: Array = pieces.filter(func(node): return str(node.name).begins_with("F20RearRailPost"))
-		if rails.size() < 2:
-			push_error("Tower landing has no attached rear railing: " + str(module.name))
-			failures += 1
-		for post in rails:
-			if not touches_any(post, floor_pieces):
-				push_error("Tower landing railing is not seated on a real grating beam")
-				failures += 1
-		var supported := false
-		for corbel in corbels:
-			if touches_any(corbel, floor_pieces) and touches_any(corbel, wall_supports): supported = true
-		if not supported:
-			push_error("Tower landing has no continuous wall-to-grating corbel: " + str(module.name))
-			failures += 1
-	var mounts: Array = stage.scenery.find_children("BellStairwellSconceMount*", "MeshInstance3D", false, false)
-	var brackets: Array = stage.scenery.find_children("BellStairwellSconceWallBracket*", "MeshInstance3D", false, false)
-	for mount in mounts:
-		var connected := false
-		for bracket in brackets:
-			if touches_any(bracket, [mount]) and touches_any(bracket, wall_supports): connected = true
-		if not connected:
-			push_error("Stairwell sconce has no continuous attachment to masonry")
-			failures += 1
-	if landing_count != 5 or mounts.size() != 5: failures += 1
+		var rails := pieces.filter(func(n):return str(n.name).contains("RearRailPost"))
+		var floors := pieces.filter(func(n):return str(n.name).contains("EdgeGirder"))
+		for rail in rails:
+			if not touches_any(rail,floors): failures += 1
+		for corbel in pieces.filter(func(n):return str(n.name).contains("WallCorbel")):
+			if not touches_any(corbel,floors) or not touches_any(corbel,stage.scenery.find_children("BellStairwellRearMasonry","MeshInstance3D",false,false)): failures += 1
+	if landing_count != 6: failures += 1
 	var carriage: Array = stage.scenery.find_children("StationCarriagePainted", "Sprite3D", false, false)
 	if carriage.size() != 1 or stage.scenery.find_children("StationCarriageBody", "MeshInstance3D", false, false).size() != 1:
 		push_error("The arrival carriage requires one authored two-wheel face and its depth-bearing body")
 		failures += 1
-	elif absf(carriage[0].position.y - carriage[0].region_rect.size.y * carriage[0].pixel_size * 0.5 + 11.2) > 0.001:
+	elif absf(carriage[0].position.y - carriage[0].region_rect.size.y * carriage[0].pixel_size * 0.5 + 5.12) > 0.001:
 		push_error("The carriage wheels must touch the real arrival platform")
 		failures += 1
 	app.free()

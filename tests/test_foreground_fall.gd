@@ -77,7 +77,7 @@ func run() -> void:
 					for fraction in [0.0, 0.5, 1.0]:
 						check(_base_reaches(cards, _plane_hit(stage.camera, size * Vector2(fraction, 0.995))), "High drop never exposes a detached bottom")
 						if tick == 190:
-							check(_alpha_at_any(cards, _plane_hit(stage.camera, size * Vector2(fraction, 0.995))) > 0.5, "Settled landing restores full-width lower-edge coverage")
+							check(_alpha_at_any(cards, _plane_hit(stage.camera, size * Vector2(fraction, 0.995))) > 0.5, "Settled lower edge: gun=%d far=%s width=%d x=%s base=%s camera=%s" % [weapon_index,far_view,viewport_width,fraction,cards[3].position,stage.camera.position])
 					if tick == 190: settled_y = cards[3].position.y
 					if tick == 219:
 						check(absf(cards[3].position.y - settled_y) < 0.005, "Foreground does not keep catching up after the camera settles")

@@ -5,6 +5,8 @@ extends Node3D
 var sky: Sprite3D
 var moon: Sprite3D
 var castle_haze: ShaderMaterial
+var moon_origin_x := 8.1
+var moon_camera_anchor_x := 4.8
 
 func _ready() -> void:
 	sky = layer("Sky", preload("res://assets/environments/crimson/sky_v3.png"), Vector3(4.8, -7, -28), 0.05)
@@ -34,7 +36,7 @@ func layer(label: String, texture: Texture2D, at: Vector3, pixel_size: float) ->
 func follow_camera(camera_position: Vector3, camera: Camera3D = null) -> void:
 	# Infinite sky; a very distant moon travels slowly relative to the skyline.
 	sky.position.x = camera_position.x
-	moon.position.x = 8.1 + (camera_position.x - 4.8) * 0.98
+	moon.position.x = moon_origin_x + (camera_position.x - moon_camera_anchor_x) * 0.98
 	if camera == null:
 		return
 	# Intersect the actual tilted frustum with the sky plane. Fixed world-height

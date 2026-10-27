@@ -43,9 +43,9 @@ func run() -> void:
 		frame.move.x = 1
 		frame.aim_world = player.aim_origin() + Vector2.RIGHT * 100
 		player.step(frame, 1.0 / 60.0)
-		if player.position.x >= 3880: break
-	check(start.distance_to(Vector2(1260,1120)) < 4, "Fresh campaign starts with carriage behind and the entrance stair in view")
-	check(player.position.x >= 3880 and absf(player.position.y - 1408) < 4, "First NPC reached by continuous walking without jump, fire or teleport")
+		if player.position.x >= 976: break
+	check(start.distance_to(game.environment.spawn) < 4, "Fresh campaign starts with carriage behind and the entrance stair in view")
+	check(player.position.x >= 976 and absf(player.position.y - 584) < 4, "First NPC reached by continuous walking without jump, fire or teleport")
 	check(player.health == health, "Walking to the first conversation does not take unavoidable entry damage")
 	check(session.nearest().get("id", "") == "mara", "Walking arrival selects the actual first NPC")
 	player.velocity = Vector2.ZERO

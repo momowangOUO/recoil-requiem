@@ -24,13 +24,14 @@ func run() -> void:
 	root.size = Vector2i(1280,720)
 	app = load("res://scenes/game.tscn").instantiate()
 	root.add_child(app)
+	app.chapter_staging.enabled = false
 	var game = app.stage.game
 	var front = app.stage.foreground
 	for tick in 10: await physics_frame
 	for tick in 420:
 		app.mouse_screen = Vector2(200,90)
 		if tick == 0: key(KEY_D,true)
-		if tick == 90: key(KEY_D,false)
+		if tick == 30: key(KEY_D,false)
 		if tick == 140: idle_wall_x = front.get_child(3).global_position.x
 		if tick == 149:
 			if not is_equal_approx(idle_wall_x, front.get_child(3).global_position.x):

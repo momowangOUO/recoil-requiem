@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "executable_sha256": "8014144cbd27ec402e776f4a816ab6141d774ddefbdca8959387e7891589be6e",
+  "html_images": 56,
+  "comparison_runtime_halves_pixel_identical": 6,
+  "regression_result_lines": 71,
+  "routes": [
+    {
+      "route": "lift",
+      "exit": 0,
+      "result": [
+        "REBUILD CONTINUOUS REPLAY STAGE RESULT: route=lift complete=true frames=6382 shots=86 deaths=1 resets=1 phase=10 position=(1003.948, 583.9252)"
+      ],
+      "driver_frames": 6382,
+      "shots": 86,
+      "deaths": 1,
+      "resets": 1,
+      "movie_bytes": 872026988
+    },
+    {
+      "route": "maintenance",
+      "exit": 0,
+      "result": [
+        "REBUILD CONTINUOUS REPLAY STAGE RESULT: route=maintenance complete=true frames=6562 shots=76 deaths=0 resets=0 phase=15 position=(1035.488, 583.9252)"
+      ],
+      "driver_frames": 6562,
+      "shots": 76,
+      "deaths": 0,
+      "resets": 0,
+      "movie_bytes": 880144860
+    }
+  ],
+  "normal_views_source": "Exact EXE embedded pack",
+  "direct_exe": "Normal production startup, fresh isolated APPDATA, 60 frames",
+  "human_playtest": false,
+  "untested": [
+    "Other GPUs and displays",
+    "Natural-language implicit skill invocation",
+    "Human full playthrough and user approval of prose"
+  ],
+  "references_parsed": 75,
+  "remote_release_assets": "To be verified after upload; local HTML references already validated"
+}

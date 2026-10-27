@@ -47,7 +47,8 @@ func run() -> void:
 		stage._physics_process(1.0 / 60.0)
 		check(prop.visible == (id != "tools"), "Tools leave the scene; records and relocated luggage remain inspectable: " + id)
 		if id == "luggage":
-			check(absf(prop.position.x - 104.8) < 0.01, "Returned luggage artwork moves with its collision and interaction")
+			check(prop.position.z>0.26,"Authored luggage face sits in front of its 3D box body")
+			check(absf(prop.position.x - session.story_position("luggage_home").x*0.01) < 0.01, "Returned luggage artwork moves with its collision and interaction")
 			var active_ramps := 0
 			for module in stage.platform_visuals:
 				if str(module.name).begins_with("Luggage"):

@@ -8,6 +8,9 @@ var campaign_session: Node
 var connected_map := true
 var checkpoint_position := Vector2.ZERO
 var checkpoint_index := 0
+var fall_anchor := Vector2.ZERO
+var fall_surface: Node2D
+var fall_recoveries := 0
 signal trial_reset
 var presentation_host: Node
 var projected_aim: Callable
@@ -69,7 +72,9 @@ func _ready() -> void:
 	overlay.responsive_requested.connect(restore_responsive)
 	overlay.preset_requested.connect(reset_trial)
 	overlay.reset_requested.connect(func(): reset_trial(preset))
-	get_window().focus_exited.connect(func(): pause_trial())
+	# The player-facing host owns focus pause; its hidden lab must not pause again.
+	if presentation_host == null or not presentation_host.has_method("handle_flow_action"):
+		get_window().focus_exited.connect(func(): pause_trial())
 	if campaign_enabled and visual_slice and editor_room_path.is_empty():
 		campaign_session = preload("res://scripts/campaign/campaign_session.gd").new()
 		add_child(campaign_session)
@@ -204,6 +209,9 @@ func reset_trial(index: int) -> void:
 			for guard in enemies:
 				environment.stage.add_actor(guard)
 		environment.set_greybox(greybox)
+	fall_anchor = player.position
+	fall_surface = null
+	fall_recoveries = 0
 	camera_center = player.position + Vector2(0, -50)
 	_update_camera(1.0)
 	elapsed = 0
@@ -259,6 +267,32 @@ func _respawn() -> void:
 		if effect is HurtFX or effect is ImpactFX: effect.free()
 	input_adapter.suppress()
 	shake_time = 0
+
+func _recover_campaign_fall() -> bool:
+	if not environment is ImageMonastery or reset_pending or player.health <= 0: return false
+	var space := player.get_world_2d().direct_space_state
+	var foot := space.intersect_ray(PhysicsRayQueryParameters2D.create(player.position-Vector2(0,2),player.position+Vector2(0,10),1|1024))
+	if player.is_on_floor() and not foot.is_empty():
+		var surface: Node = foot.collider.get_parent()
+		if surface.get_meta("route_surface",false) and not str(surface.name).begins_with("Luggage"):
+			var ends := Vector2(surface.position.x, surface.position.x + (surface.width if surface is PaperPlatform else surface.end_offset.x))
+			if player.position.x >= minf(ends.x,ends.y)+12 and player.position.x <= maxf(ends.x,ends.y)-12:
+				fall_anchor = player.position
+				fall_surface = surface
+	if player.velocity.y <= 0 or player.position.y < fall_anchor.y+96: return false
+	var below := space.intersect_ray(PhysicsRayQueryParameters2D.create(player.position-Vector2(0,2),Vector2(player.position.x,environment.bounds.end.y+24),1|1024))
+	if not below.is_empty(): return false
+	if not is_instance_valid(fall_surface): return false
+	# A missed local landing preserves combat, ammunition and quest progress.
+	player.position = fall_anchor
+	player.velocity = Vector2.ZERO
+	player.drop_time = 0
+	player.set_collision_mask_value(11,true)
+	player.clear_jump_buffer()
+	player.coyote_time = 0
+	player.melee.cancel()
+	fall_recoveries += 1
+	return true
 
 func pause_trial() -> void:
 	if paused or not is_instance_valid(player):
@@ -337,6 +371,7 @@ func _physics_process(delta: float) -> void:
 	hit_display_time = maxf(0, hit_display_time - delta)
 	if hit_display_time == 0: last_hit = ""
 	shake_time = maxf(0, shake_time - delta)
+	_recover_campaign_fall()
 	_update_camera(delta)
 	if player.position.y > environment.bounds.end.y + 96:
 		_request_respawn()
@@ -506,7 +541,6 @@ func _fire(context: ShotContext, data: WeaponData) -> void:
 
 func _player_hurt() -> void:
 	combat_timer = 3.0
-	overlay.show_notice("HIT / %d HP" % player.health)
 	_hurt_effect(player.aim_origin(), player.last_hit_direction, false)
 	shake_time = 0.07
 

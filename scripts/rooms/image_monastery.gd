@@ -8,7 +8,7 @@ var story_positions: Dictionary = {}
 var _luggage_home: Variant = null
 
 static func source_to_world(point: Vector2) -> Vector2:
-	return Vector2(point.x*8.0,1120+(point.y-430)*8.0)
+	return Vector2(point.x * 2.0, point.y * 2.0 - 348.0)
 
 func build(index: int) -> void:
 	super.build(index)
@@ -18,6 +18,17 @@ func build(index: int) -> void:
 		var record: Dictionary = node.get_meta("record").duplicate(true)
 		record.position = [node.position.x,node.position.y]
 		structure_records.append(record)
+		if record.get("kind","") == "roof":
+			var body := StaticBody2D.new()
+			body.name = str(record.id) + "Collision"
+			body.collision_layer = 1
+			body.collision_mask = 0
+			var shape := CollisionPolygon2D.new()
+			var points := PackedVector2Array()
+			for p in record.polygon: points.append(Vector2(p[0],p[1]))
+			shape.polygon = points
+			body.add_child(shape)
+			add_child(body)
 	for node in get_node("StoryPositions").get_children():
 		story_positions[str(node.name)] = node.position
 

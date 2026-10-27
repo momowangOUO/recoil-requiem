@@ -10,3 +10,4 @@ export_credentials.cfg
 docs/screenshots/*.png.import
 docs/references/*.png.import
 dev-design/**/*.import
+__pycache__/

@@ -1,5 +1,11 @@
 # 开发设定入口
 
+2026-10-27最新：[动线、人物、文本与运行包验收](levels/rebuild/NAVIGATION_REVIEW_2026-10-27.md)、[原图与本轮实际画面对照](levels/rebuild/review.html)。技能已升级至clear-natural-writing 4.4.0，已用其复核当前游戏文字；历史截图不替代本轮证据。
+
+2026-10-16最新：[场景精修与融合验收](levels/rebuild/POLISH_RECORD.md)、[原图/最新实景及前后对照](levels/rebuild/review.html)。当前场景以本轮运行包证据为准；本项目已按用户要求关闭默认参考选稿网站。
+
+2026-10-15 当前入口：[修道院重做记录](levels/rebuild/REBUILD.md)、[完整施工图](levels/rebuild/construction.svg)、[逐区实机对照](levels/rebuild/review.html)。旧8倍地图及旧截图仅作历史，不能替代本轮验收。
+
 更新：2026-09-30。
 
 本目录用于整合《反冲挽歌》的开发规则、人物、故事、任务和关卡。请先读 [开发规则](DEVELOPMENT_RULES.md) 和 [执行记录](IMPLEMENTATION.md)，再读取与当前任务有关的资料，不要扫描全部文档。叙事技能、新地图、任务和战斗已接入，验收和交付状态见执行记录。
@@ -18,7 +24,7 @@
 
 用户最新确认高于旧文档。此处明确确认的内容用于约束新设计；未迁移的旧故事只是历史参考，不自动成为新设定。主入口已运行修道院新版本；其他城区仍为设计提案，不能把待审续篇描述成已开放。
 
-故事工作先读项目 tools/skills/game-story-workflow/SKILL.md，再读取其要求的 game-narrative 和对应角色模板、game-design-natural-writing-zh 与 humanizer-zh。技能调用测试和安装状态见 [验证记录](SKILL_VALIDATION.md)。
+故事工作先读项目 tools/skills/game-story-workflow/SKILL.md，再读取其要求的 game-narrative 和对应角色模板、game-design-natural-writing-zh 与 clear-natural-writing。技能调用测试和安装状态见 [验证记录](SKILL_VALIDATION.md)。
 
 ## 当前可读资料
 

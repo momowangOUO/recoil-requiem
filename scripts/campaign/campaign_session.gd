@@ -86,8 +86,9 @@ func select_route(id: String) -> void:
 func current_main_title_id() -> String:
 	var title := Data.main_title_id(state.snapshot().facts)
 	if title != "mon.main03.title": return title
+	if not has("lift_repaired") and (has("tools_ina") or has("tools_mara")): return "mon.flow.service.safe" if has("maintenance_open") else "mon.flow.route.service"
 	if selected_route() == "lift": return "mon.flow.route.upper" if has("lift_repaired") else "mon.flow.route.lift"
-	if selected_route() == "maintenance": return "mon.flow.route.service"
+	if selected_route() == "maintenance": return "mon.flow.service.safe" if has("maintenance_open") else "mon.flow.route.service"
 	return title
 
 func pending_departure_tasks() -> Array[String]:
@@ -389,7 +390,8 @@ func step(delta: float) -> void:
 	if _resume_restored_duel(): return
 	if staging != null and staging.enabled:
 		if has("inner_reached") and has("met_mara") and has("met_vira") and not has("departed"): staging.request("departure")
-		if has("tutorial_move") and not has("met_mara") and lab.player.position.x > 1450: staging.request("stairs")
+		var stair_x: float = story_position("arrival_stairs").x if lab.environment.get_meta("layout_revision",1) == 2 else 1450.0
+		if has("tutorial_move") and not has("met_mara") and lab.player.position.x > stair_x: staging.request("stairs")
 		if not has("met_mara") and groups.has("clear_01") and not groups.clear_01.is_empty() and lab.player.position.distance_to(groups.clear_01[0].position) < 300: staging.request("first_guard")
 	for encounter in ["elite", "boss"]:
 		if groups.has(encounter) and not has("celine_defeated" if encounter == "elite" else "vira_dead"):
@@ -490,20 +492,22 @@ func text(id: String) -> String:
 
 func nearest() -> Dictionary:
 	var best: Dictionary = {}
-	var distance := 48.0
+	var distance := INF
 	for p in points:
 		if p.id == "tools" and has("tools"): continue
 		if p.id.ends_with("_travel") and not lab.environment.gate_states.get(str(p.id).trim_suffix("_travel"), false): continue
 		if p.id == "departure" and has("departed"): continue
 		if p.get("npc",false) and p.id == "vira" and has("departed"): continue
 		if p.get("npc",false) and p.id == "celine" and has("departed") and not has("celine_defeated"): continue
+		var across_freight: bool = p.id == "vira" and p.get("npc",false) and not has("met_vira") and lab.environment is ImageMonastery
 		var d: float = lab.player.position.distance_to(p.position)
-		if d >= distance: continue
+		if d >= distance or d >= (80.0 if across_freight else 48.0): continue
 		var ray := PhysicsRayQueryParameters2D.create(lab.player.position + Vector2(0,-18), p.position + Vector2(0,-18), 1)
 		var obstruction: Dictionary = lab.player.get_world_2d().direct_space_state.intersect_ray(ray)
 		if not obstruction.is_empty():
 			var target_cover: bool = p.id == "luggage" and str(obstruction.collider.get_parent().name).begins_with("Luggage")
-			if not target_cover: continue
+			var freight_door: bool = across_freight and obstruction.collider.get_parent() == lab.environment.gates.get("gate_lift")
+			if not target_cover and not freight_door: continue
 		best = p
 		distance = d
 	return best
@@ -583,7 +587,7 @@ func close() -> void:
 		if npc_actors.has("vira"):
 			var path: Array[Vector2] = [story_position("vira_departure_mid"), story_position("vira_departure_end")]
 			var authored = lab.environment.get("story_positions")
-			for index in range(1,6):
+			for index in range(1,9):
 				var key := "vira_path_%02d" % index
 				if authored is Dictionary and authored.has(key): path.append(authored[key])
 			path.append(story_position("vira_after"))
@@ -602,8 +606,7 @@ func _show_dialogue(speaker: String, ids: Array, choices: Array = []) -> void:
 	current_npc = speaker
 	var lines: Array = []
 	for id in ids:
-		var parts: PackedStringArray = str(id).split(".")
-		var who: String = parts[1] if parts.size() > 2 and Data.NAMES.has(parts[1]) else ""
+		var who: String = Data.text_speaker(str(id))
 		lines.append((str(Data.NAMES[who]) + "：" if not who.is_empty() else "") + text(id))
 		if not who.is_empty() and who != "player":
 			observed_people[who] = text(id)
@@ -615,7 +618,7 @@ func _show_dialogue(speaker: String, ids: Array, choices: Array = []) -> void:
 		modal_actions[choice[0]] = true
 	var has_spoken_line := false
 	for id in ids:
-		if str(id).begins_with("mon." + speaker + ".") and Data.NAMES.has(speaker): has_spoken_line = true
+		if Data.text_speaker(str(id)) == speaker and Data.NAMES.has(speaker): has_spoken_line = true
 	ui.show_dialogue(Data.NAMES.get(speaker,"") if has_spoken_line else "",lines,options,ids)
 
 func interact(id: String, npc: bool = false) -> void:
@@ -672,7 +675,7 @@ func interact(id: String, npc: bool = false) -> void:
 
 func tool_choices() -> Array:
 	if not has("tools") or has("departed") or has("tools_ina") or has("tools_mara"): return []
-	return [["tools_ina","mon.tools.return.choice"],["tools_mara","mon.tools.keep.choice"],["later","mon.tools.later.choice"]]
+	return [["tools_ina","mon.tools.return.choice" if has("lift_repaired") else "mon.tools.return.unused.choice"],["tools_mara","mon.tools.keep.choice" if has("lift_repaired") else "mon.tools.keep.unused.choice"],["later","mon.tools.later.choice"]]
 
 func record_choices() -> Array:
 	if not has("records") or has("departed") or has("records_ruka") or has("records_mara"): return []
@@ -735,11 +738,11 @@ func talk(id: String) -> void:
 				if event("met_mara") != OK: return
 				dialogue(id,["mon.mara.hello","mon.player.entry","mon.mara.ask","mon.player.target","mon.mara.target"])
 			else:
-				var lines := ["mon.mara.repeat"]
+				var lines := ["mon.mara.waiting" if has("met_vira") else "mon.mara.repeat"]
 				var choices: Array = []
 				if not tool_choices().is_empty():
 					lines.append("mon.tools.inspect")
-					choices.append(["tools_mara","mon.tools.keep.choice"])
+					choices.append(tool_choices()[1])
 				if not record_choices().is_empty():
 					lines.append("mon.records.note")
 					choices.append(["records_mara","mon.records.mara.choice"])
@@ -767,12 +770,13 @@ func talk(id: String) -> void:
 			elif has("departed"): dialogue("",["mon.closed.side.notice"])
 			elif has("tools"):
 				var lines := ["mon.ina.hello","mon.player.tools","mon.ina.tools","mon.tools.inspect"] if first else ["mon.tools.inspect"]
-				dialogue(id,lines,[["tools_ina","mon.tools.return.choice"],["later","mon.tools.later.choice"]])
+				dialogue(id,lines,[tool_choices()[0],["later","mon.tools.later.choice"]])
 			else: dialogue(id,["mon.ina.hello","mon.player.tools","mon.ina.tools"] if first else ["mon.ina.repeat"])
 		"ruka":
 			var first := not has("met_ruka")
 			if event("met_ruka") != OK: return
-			var lines := ["mon.ruka.hello","mon.player.route","mon.ruka.route"] if first else ["mon.ruka.route"]
+			var directions := "mon.ruka.ready" if has("maintenance_open") else "mon.ruka.route"
+			var lines := ["mon.ruka.hello","mon.player.route",directions] if first else [directions]
 			if has("departed") and not has("records_ruka") and not has("records_mara"): lines.append("mon.closed.side.notice")
 			elif has("records"): lines.append("mon.records.note")
 			dialogue(id,lines,[["records_ruka","mon.records.ruka.choice"],["later","mon.records.keep.choice"]] if not record_choices().is_empty() else [])
@@ -782,7 +786,7 @@ func talk(id: String) -> void:
 				return
 			if has("departed"): return
 			if event("met_celine") != OK: return
-			dialogue(id,["mon.celine.hello","mon.flow.celine.job","mon.celine.cover"])
+			dialogue(id,["mon.celine.hello","mon.player.cover","mon.flow.celine.job","mon.celine.cover"])
 
 func side_known(id: String) -> bool:
 	return has({"tools":"met_ina", "records":"met_ruka", "luggage":"luggage_request"}.get(id,""))
@@ -814,7 +818,7 @@ func ally_cover(delta: float) -> void:
 	var candidates: Array = lab.enemies.duplicate()
 	candidates.sort_custom(func(a,b): return a.position.distance_squared_to(ally.position) < b.position.distance_squared_to(ally.position))
 	for guard in candidates:
-		if guard.state == ShieldEnemy.State.DEAD or guard.position.distance_to(ally.position) > 360: continue
+		if guard.state == ShieldEnemy.State.DEAD or guard.target != lab.player or guard.position.distance_to(ally.position) > 360: continue
 		var origin := ally.position + Vector2(0,-24)
 		var end: Vector2 = guard.position + Vector2(0,-24)
 		var ray := PhysicsRayQueryParameters2D.create(origin,end,1)
@@ -842,6 +846,7 @@ func journal_entries() -> Array:
 	var entries: Array = []
 	if has("met_vira") and not has("departed"):
 		for route in ["lift", "maintenance"]:
+			if route == "lift" and not has("lift_repaired") and (has("tools_ina") or has("tools_mara")): continue
 			entries.append({"title":text("mon.flow.route.lift.choice" if route == "lift" else "mon.flow.route.service.choice"),"body":text("mon.flow.route.other"),"category":"tasks","track_id":"route_"+route,"tracked":selected_route() == route})
 	for index in range(1,8):
 		var id := "mon_main_%02d" % index

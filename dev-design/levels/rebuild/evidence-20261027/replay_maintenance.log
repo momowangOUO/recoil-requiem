@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 572.42 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3070
+
+Movie Maker mode enabled, recording movie in 1280×720 @ 60 FPS...
+TRIAL 4 RESET weapon_slot=1 gravity=2100.0
+REBUILD REPLAY maintenance phase 0 mara at (1045.176, 583.9252) health 5
+REBUILD REPLAY maintenance phase 1 vira at (1725.655, 636.3177) health 5
+REBUILD REPLAY maintenance phase 2 cargo_drop at (1573.625, 601.05) health 5
+REBUILD REPLAY maintenance phase 3 hatch at (1208.045, 583.9252) health 5
+REBUILD REPLAY maintenance phase 4 drop at (1185.878, 742.5919) health 5
+REBUILD REPLAY maintenance phase 5 maintenance_isolate at (2133.196, 816.8275) health 5
+REBUILD REPLAY maintenance phase 6 departure at (2915.182, 587.9252) health 5
+REBUILD REPLAY maintenance phase 7 celine at (2879.022, 587.9252) health 5
+REBUILD REPLAY maintenance phase 8 boss at (3783.5, 537.1757) health 3
+REBUILD REPLAY maintenance phase 9 return_hatch at (2599.543, 587.9252) health 3
+REBUILD REPLAY maintenance phase 10 return_drop at (2582.071, 643.8419) health 3
+REBUILD REPLAY maintenance phase 11 return_pump at (2127.916, 819.5376) health 3
+REBUILD REPLAY maintenance phase 12 return_west at (794.8861, 801.3304) health 3
+REBUILD REPLAY maintenance phase 13 return_up at (1235.163, 583.9241) health 3
+REBUILD REPLAY maintenance phase 14 mara_after at (1035.488, 583.9252) health 3
+REBUILD CONTINUOUS REPLAY STAGE RESULT: route=maintenance complete=true frames=6562 shots=76 deaths=0 resets=0 phase=15 position=(1035.488, 583.9252)
+--------------------------------------------------------------------------------
+Done recording movie at path: D:/recoil-requiem/artifacts/navigation-20261027/package/replay_maintenance.avi
+6586 frames at 60 FPS (movie length: 00:01:49:46), recorded in 00:01:57 (93% of real-time speed).
+CPU render time: 1.24 seconds (average: 0.19 ms/frame)
+GPU render time: 3.64 seconds (average: 0.55 ms/frame)
+Encoding time: 45.72 seconds (average: 6.94 ms/frame)
+--------------------------------------------------------------------------------

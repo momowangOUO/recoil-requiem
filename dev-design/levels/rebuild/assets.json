@@ -1,0 +1,86 @@
+[
+  {
+    "file": "assets/environments/crimson/monastery_architecture_v2.png",
+    "size": [
+      2048,
+      768
+    ],
+    "mode": "RGBA",
+    "sha256": "a7f49a40c41f8ad827be7e6431cca51e2e6f4252ca28618024e7fb9a54c23c83",
+    "tool": "built-in image_gen",
+    "generated_original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-85b4f4b1-3273-4c0d-b203-7889b33599ef.png",
+    "generation_id": "85b4f4b1-3273-4c0d-b203-7889b33599ef"
+  },
+  {
+    "file": "assets/environments/crimson/rebuild_gate_near.png",
+    "size": [
+      1454,
+      1082
+    ],
+    "mode": "RGBA",
+    "sha256": "a8b74836edecd86dc42eba692b977aa2e11f008128e7ff2484f1aa4fa5039132",
+    "tool": "built-in image_gen",
+    "generated_original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-c5989dd0-93e0-4812-b3ce-8d5e45ca8dd0.png",
+    "generation_id": "c5989dd0-93e0-4812-b3ce-8d5e45ca8dd0"
+  },
+  {
+    "file": "assets/environments/crimson/rebuild_cargo_near.png",
+    "size": [
+      1337,
+      1176
+    ],
+    "mode": "RGBA",
+    "sha256": "8ada3c3909b7d9d557b64c58bcd9eb64a26973cb30c5b49b8af40c9766e40156",
+    "tool": "built-in image_gen",
+    "generated_original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-1065ee1f-336e-42a1-b7f5-fc27815de82c.png",
+    "generation_id": "1065ee1f-336e-42a1-b7f5-fc27815de82c"
+  },
+  {
+    "file": "assets/environments/crimson/rebuild_bell_near.png",
+    "size": [
+      1229,
+      1280
+    ],
+    "mode": "RGBA",
+    "sha256": "882c855e57d76d6d5a4c5657ae9e7f71a0d67a46e8f1b8b0f4638550590366c7",
+    "tool": "built-in image_gen",
+    "generated_original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-393b010c-81f2-4557-a1d3-3efe4cea2550.png",
+    "generation_id": "393b010c-81f2-4557-a1d3-3efe4cea2550"
+  },
+  {
+    "file": "assets/environments/crimson/rebuild_garden_near.png",
+    "size": [
+      989,
+      1590
+    ],
+    "mode": "RGBA",
+    "sha256": "eac3457d3652ae2c3eb0b5f5ff2b5a870f97ab359f8b49aeccf34adb0746f0f1",
+    "tool": "built-in image_gen",
+    "generated_original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-64e3c7cf-e297-4ed0-be33-9ee0df92f0bc.png",
+    "generation_id": "64e3c7cf-e297-4ed0-be33-9ee0df92f0bc"
+  },
+  {
+    "file": "assets/environments/crimson/rebuild_hall_near.png",
+    "size": [
+      1533,
+      1026
+    ],
+    "mode": "RGBA",
+    "sha256": "a24826204c2bed641ce35ca427cb05682e822acffab8b2d47167abefc3f6db53",
+    "tool": "built-in image_gen",
+    "generated_original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-06761427-b8d4-4ea0-a6f6-65efd9d78a16.png",
+    "generation_id": "06761427-b8d4-4ea0-a6f6-65efd9d78a16"
+  },
+  {
+    "file": "assets/environments/crimson/rebuild_gate_arch_v1.png",
+    "size": [
+      1126,
+      1397
+    ],
+    "mode": "RGBA",
+    "sha256": "038dd1181e5257715a721afa39d0e1bc9dd846ea49a9f4c8104375c6d5eb6230",
+    "tool": "built-in image_gen",
+    "generated_original": "C:\\Users\\liyian.andy\\.codex\\generated_images\\01a13e2c-725f-7a30-9313-53791f8261aa\\exec-f48f1534-8bd6-404f-9a54-b6fa5a392db4.png",
+    "generation_id": "f48f1534-8bd6-404f-9a54-b6fa5a392db4"
+  }
+]

@@ -24,7 +24,7 @@
 ~~~~
 ## toggle
 ~~~~text
-Q 按次开关查看
+按 Q 开关枪槽查看
 ~~~~
 ## reverse
 ~~~~text

@@ -166,6 +166,7 @@ func _physics_process(_delta: float) -> void:
 		_tutorial_jump_requested = false
 	if not Input.is_action_pressed("jump") and actor.jump_buffer_time <= 0: _tutorial_jump_requested = false
 	if actor.melee.active(): _learn_tutorial("claw")
+	if actor.drop_time > 0 and actor.velocity.y > 0 and not actor.is_on_floor(): _learn_tutorial("drop")
 	var runtime: WeaponRuntime = actor.weapons.current()
 	if runtime == _tutorial_runtime and _tutorial_was_reloading and runtime.ammo > _tutorial_ammo:
 		_learn_tutorial("reload")
@@ -181,10 +182,14 @@ func _update_tutorial() -> void:
 	var action := ""
 	var region: String = game.environment.space_at(game.player.position + Vector2(0, -2))
 	var runtime: WeaponRuntime = game.player.weapons.current()
-	if session.loaded_from_disk and session.has("met_mara") and not session.has("tutorial_move"):
-		session.ui.set_tutorial("") # Old saves do not restart an opening lesson.
-		return
-	if not session.has("tutorial_move"):
+	var legacy_controls: bool = session.loaded_from_disk and session.has("met_mara") and not session.has("tutorial_move")
+	var on_grate := false
+	if game.player.is_on_floor():
+		for index in game.player.get_slide_collision_count():
+			var collision: KinematicCollision2D = game.player.get_slide_collision(index)
+			var body := collision.get_collider() as CollisionObject2D
+			if body != null and body.get_collision_layer_value(11) and collision.get_normal().y < -0.65: on_grate = true
+	if not session.has("tutorial_move") and not legacy_controls:
 		action = "move"
 	elif session.has("tutorial_shoot") and not session.has("tutorial_reload") and runtime.ammo <= maxi(1, runtime.data.magazine_size / 3):
 		action = "reload"
@@ -192,6 +197,8 @@ func _update_tutorial() -> void:
 		action = "claw"
 	elif not _tutorial_weapon_tip.is_empty():
 		action = _tutorial_weapon_tip
+	elif on_grate and not session.has("tutorial_drop"):
+		action = "drop"
 	elif not session.has("tutorial_jump") and _near_tutorial_marker("tutorial_jump", 110):
 		action = "jump"
 	elif not session.has("tutorial_shoot") and _near_tutorial_marker("tutorial_shoot", 140):

@@ -33,7 +33,7 @@ func run() -> void:
 		baseline = app.stage_viewport.get_texture().get_image()
 		baseline.save_png("res://artifacts/residency-full.png")
 	residency.setup(stage)
-	residency.update_at(Vector2(120,1120))
+	residency.update_at(Vector2(160,512))
 	if render_test:
 		await process_frame
 		await RenderingServer.frame_post_draw
@@ -43,11 +43,11 @@ func run() -> void:
 	var detached := 0
 	for node in original:
 		if not node.is_inside_tree(): detached += 1
-	check(detached > original.size() / 2, "Far geometry really leaves scene tree")
+	check(detached > 0 and stage.platform_visuals[stage.game.environment.get_node("Gameplay/F05")].all(func(piece): return not piece.is_inside_tree()), "Far chapel floor really leaves scene tree")
 	print("RESIDENCY original=%d detached=%d mounted=%d" % [original.size(), detached, original.size()-detached])
 	for shadow in stage.shadow_cards: check(shadow.is_inside_tree(), "Dynamic shadow stays mounted")
 	check(stage.muzzle_light.is_inside_tree(), "Muzzle remains mounted")
-	for at in [Vector2(11500,400),Vector2(6000,1840),Vector2(120,1120)]:
+	for at in [Vector2(3840,588),Vector2(1824,890),Vector2(160,512)]:
 		stage.game.player.position = at
 		residency.update_at(at)
 		stage._physics_process(0.016)
@@ -60,7 +60,7 @@ func run() -> void:
 	stage.game.reset_trial(3)
 	for node in original: check(not is_instance_valid(node), "Reset frees old mounted and detached nodes")
 	residency.setup(stage)
-	residency.update_at(Vector2(120,1120))
+	residency.update_at(Vector2(160,512))
 	residency.clear()
 	app.free()
 	print("CAMPAIGN RESIDENCY STAGE RESULT: %d checks, %d failures" % [checks, failures])

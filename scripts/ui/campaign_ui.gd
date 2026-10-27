@@ -9,7 +9,7 @@ signal side_selected(id: String)
 
 const STATUS_COPY := {"track":"追踪", "tracked":"正在追踪", "complete":"已完成", "active":"进行中"}
 
-const COPY := {"main":"当前目标", "side":"支线", "journal":"日志", "map":"地图", "tasks":"任务", "clues":"线索", "people":"人物", "consequences":"后果", "empty":"暂无记录。", "close":"关闭 · Esc", "keys":"J 日志　M 地图", "map_legend":"当前位置　检查点　锁闭　已开通　未探索入口", "unknown":"未探索入口"}
+const COPY := {"main":"当前目标", "side":"支线", "journal":"日志", "map":"地图", "tasks":"任务", "clues":"线索", "people":"人物", "consequences":"后果", "empty":"暂无记录。", "close":"关闭 · Esc", "keys":"J 日志　M 地图", "map_legend":"当前位置　检查点　锁闭　已开通　未探索入口", "unknown":"未探索入口", "map_shortcuts":"同一字母标出捷径两端\n虚线表示已开通", "next":"继续 · E"}
 const INK := Color("eee4d2")
 const SILVER := Color("b4b1b8")
 const ART_DIR := "res://assets/ui/v2/runtime/"
@@ -324,7 +324,7 @@ func restart_opening() -> void:
 
 func set_tutorial(action: String, completed: Array = []) -> void:
 	tutorial_action = "" if action in completed else action
-	var input_action: String = {"move":"move_left", "shoot":"fire", "shotgun":"fire", "smg":"fire", "claw":"melee", "switch":"switch_weapon"}.get(action, action)
+	var input_action: String = {"move":"move_left", "shoot":"fire", "shotgun":"fire", "smg":"fire", "claw":"melee", "switch":"switch_weapon", "drop":"move_down"}.get(action, action)
 	_controls.text = str(_ui_copy.get("tutorial_" + tutorial_action, "")).replace("{key}", _binding(input_action)).replace("{key2}", _binding("move_right"))
 	_onboarding_active = not _controls.text.is_empty()
 	_refresh_tutorial()
@@ -464,8 +464,6 @@ func show_dialogue(speaker: String, lines: Array, choices: Array, ids: Array = [
 	var speaker_id := str(CampaignData.NAMES.find_key(speaker)) if speaker in CampaignData.NAMES.values() else ""
 	var speaker_quest := str({"ina":"tools", "ruka":"records", "mara":"entry"}.get(speaker_id, speaker_id))
 	if _dialogue_art.get("quests", {}).has(speaker_quest): _dialogue_quest = speaker_quest
-	var sentence_pattern := RegEx.new()
-	sentence_pattern.compile("[^。！？]+[。！？]*[”’」』]*")
 	for index in lines.size():
 		var value := str(lines[index])
 		var separator := value.find("：")
@@ -476,8 +474,8 @@ func show_dialogue(speaker: String, lines: Array, choices: Array, ids: Array = [
 		var quest := str(_dialogue_art.get("events", {}).get(id, ""))
 		if not quest.is_empty(): _dialogue_quest = quest
 		var spoken := value.substr(separator + 1).strip_edges() if not who.is_empty() else value
-		for sentence in sentence_pattern.search_all(spoken):
-			_dialogue_pages.append({"speaker":who, "text":sentence.get_string().strip_edges(), "quest":_dialogue_quest})
+		if not spoken.strip_edges().is_empty():
+			_dialogue_pages.append({"speaker":who, "text":spoken.strip_edges(), "quest":_dialogue_quest})
 	_dialogue_row = Control.new()
 	_dialogue_row.mouse_filter = Control.MOUSE_FILTER_STOP
 	_dialogue_row.gui_input.connect(func(event):
@@ -592,7 +590,7 @@ func _draw_dialogue_page() -> void:
 	_dialogue_illustration.texture = _dialogue_texture("quests", str(page.quest))
 	_dialogue_illustration.name = "Quest_" + str(page.quest)
 	_dialogue_reading.get_child(0).text = "%d / %d" % [_dialogue_index + 1, maxi(1, _dialogue_pages.size())]
-	_dialogue_reading.get_child(1).text = "下一句 · E" if _dialogue_index + 1 < _dialogue_pages.size() else COPY.close
+	_dialogue_reading.get_child(1).text = COPY.next if _dialogue_index + 1 < _dialogue_pages.size() else COPY.close
 	_dialogue_reading.visible = not has_choices
 	_dialogue_choice_row.visible = has_choices
 	_dialogue_actions = _dialogue_choice_row if has_choices else _dialogue_reading
@@ -652,7 +650,7 @@ func _layout_dialogue() -> void:
 	var button_font := next.get_theme_font("font")
 	var button_font_size := next.get_theme_font_size("font_size")
 	var margin := next.get_theme_stylebox("normal").get_minimum_size()
-	var next_width := ceilf(maxf(button_font.get_string_size("下一句 · E", HORIZONTAL_ALIGNMENT_LEFT, -1, button_font_size).x, button_font.get_string_size(COPY.close, HORIZONTAL_ALIGNMENT_LEFT, -1, button_font_size).x) + margin.x)
+	var next_width := ceilf(maxf(button_font.get_string_size(COPY.next, HORIZONTAL_ALIGNMENT_LEFT, -1, button_font_size).x, button_font.get_string_size(COPY.close, HORIZONTAL_ALIGNMENT_LEFT, -1, button_font_size).x) + margin.x)
 	var next_height := maxf(60, button_font.get_height(button_font_size) + margin.y)
 	next.position = Vector2(_dialogue_action_rect.size.x - next_width, _dialogue_action_rect.size.y - next_height)
 	next.size = Vector2(next_width, next_height)
@@ -804,7 +802,7 @@ func show_map(spaces: Dictionary, connections: Array, visited: Array, gate_state
 	_map_preview_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	preview.add_child(_map_preview_title)
 	_update_map_preview()
-	sidebar.add_child(_label("同字母＝捷径两端\n点线＝已开通", 15, SILVER))
+	sidebar.add_child(_label(COPY.map_shortcuts, 15, SILVER))
 	var legend_scroll := ScrollContainer.new()
 	legend_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	legend_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1019,7 +1017,8 @@ func _reset_map_view() -> void:
 	_map.queue_redraw()
 
 func _local_map_zoom() -> float:
-	return minf(0.18, minf((_map.size.x - 36) / 4500.0, (_map.size.y - 36) / 3000.0))
+	var bounds := _map_bounds().size
+	return minf((_map.size.x - 36) / minf(4500.0,bounds.x * 0.55), (_map.size.y - 36) / minf(3000.0,bounds.y * 0.7))
 
 func _map_action(action: String) -> void:
 	match action:
@@ -1035,7 +1034,7 @@ func _map_action(action: String) -> void:
 
 func _zoom_map(amount: float, anchor: Vector2) -> void:
 	var before := _world_at_map(anchor)
-	_map_zoom = clampf(_map_zoom * amount, _full_map_zoom(), 0.35)
+	_map_zoom = clampf(_map_zoom * amount, _full_map_zoom(), maxf(1.2,_local_map_zoom()*3.0))
 	_map_pan += anchor - (before * _map_zoom + _map_offset())
 	_map_full = false
 

@@ -1,0 +1,1676 @@
+{
+  "world_bounds": [
+    0,
+    -416,
+    4096,
+    1536
+  ],
+  "reference": "../image-led/monastery-concept.png",
+  "reference_transform": {
+    "scale": 2,
+    "offset": [
+      0,
+      -348
+    ]
+  },
+  "player_height": 42,
+  "geometry": [
+    {
+      "id": "F01",
+      "kind": "floor",
+      "start": [
+        0,
+        512
+      ],
+      "end": [
+        384,
+        512
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F01_east",
+      "kind": "floor",
+      "start": [
+        384,
+        512
+      ],
+      "end": [
+        776,
+        512
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F02_west",
+      "kind": "floor",
+      "start": [
+        920,
+        584
+      ],
+      "end": [
+        1088,
+        584
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F02_Hatch",
+      "kind": "floor",
+      "start": [
+        1088,
+        584
+      ],
+      "end": [
+        1280,
+        584
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F14_Underpass",
+      "kind": "floor",
+      "start": [
+        1424,
+        656
+      ],
+      "end": [
+        1488,
+        656
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F03",
+      "kind": "floor",
+      "start": [
+        1756,
+        656
+      ],
+      "end": [
+        2208,
+        656
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F03_PumpHatch",
+      "kind": "floor",
+      "start": [
+        2208,
+        656
+      ],
+      "end": [
+        2320,
+        656
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F04_Hatch",
+      "kind": "floor",
+      "start": [
+        2456,
+        588
+      ],
+      "end": [
+        2640,
+        588
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F04",
+      "kind": "floor",
+      "start": [
+        2640,
+        588
+      ],
+      "end": [
+        2940,
+        588
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F05_west",
+      "kind": "floor",
+      "start": [
+        2940,
+        588
+      ],
+      "end": [
+        3464,
+        588
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F05",
+      "kind": "floor",
+      "start": [
+        3464,
+        588
+      ],
+      "end": [
+        3880,
+        588
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F05_EastHatch",
+      "kind": "floor",
+      "start": [
+        3880,
+        588
+      ],
+      "end": [
+        4000,
+        588
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F05_East",
+      "kind": "floor",
+      "start": [
+        4000,
+        588
+      ],
+      "end": [
+        4096,
+        588
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S01",
+      "kind": "stair",
+      "start": [
+        776,
+        512
+      ],
+      "end": [
+        920,
+        584
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S03",
+      "kind": "stair",
+      "start": [
+        1612,
+        584
+      ],
+      "end": [
+        1756,
+        656
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S04",
+      "kind": "stair",
+      "start": [
+        2320,
+        656
+      ],
+      "end": [
+        2440,
+        588
+      ],
+      "one_way": false
+    },
+    {
+      "id": "CargoUnderpassDown",
+      "kind": "stair",
+      "start": [
+        1280,
+        584
+      ],
+      "end": [
+        1424,
+        656
+      ],
+      "one_way": false
+    },
+    {
+      "id": "CargoUnderpassUp",
+      "kind": "stair",
+      "start": [
+        1488,
+        656
+      ],
+      "end": [
+        1612,
+        584
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F07",
+      "kind": "floor",
+      "start": [
+        1112,
+        404
+      ],
+      "end": [
+        1568,
+        404
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F12_Archive",
+      "kind": "floor",
+      "start": [
+        1664,
+        452
+      ],
+      "end": [
+        1792,
+        452
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F06",
+      "kind": "floor",
+      "start": [
+        672,
+        280
+      ],
+      "end": [
+        832,
+        280
+      ],
+      "one_way": false
+    },
+    {
+      "id": "GateLowerLanding",
+      "kind": "floor",
+      "start": [
+        144,
+        360
+      ],
+      "end": [
+        416,
+        360
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S05",
+      "kind": "stair",
+      "start": [
+        1112,
+        404
+      ],
+      "end": [
+        1480,
+        584
+      ],
+      "one_way": false
+    },
+    {
+      "id": "ArchiveEntry",
+      "kind": "stair",
+      "start": [
+        1568,
+        404
+      ],
+      "end": [
+        1664,
+        452
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S02",
+      "kind": "stair",
+      "start": [
+        416,
+        360
+      ],
+      "end": [
+        672,
+        280
+      ],
+      "one_way": false
+    },
+    {
+      "id": "GateBalconyUp",
+      "kind": "stair",
+      "start": [
+        448,
+        512
+      ],
+      "end": [
+        144,
+        360
+      ],
+      "one_way": true
+    },
+    {
+      "id": "GalleryApproach",
+      "kind": "floor",
+      "start": [
+        1480,
+        584
+      ],
+      "end": [
+        1612,
+        584
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F08",
+      "kind": "floor",
+      "start": [
+        772,
+        802
+      ],
+      "end": [
+        1540,
+        802
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F09",
+      "kind": "floor",
+      "start": [
+        1716,
+        890
+      ],
+      "end": [
+        1996,
+        890
+      ],
+      "one_way": false
+    },
+    {
+      "id": "F10",
+      "kind": "floor",
+      "start": [
+        2156,
+        810
+      ],
+      "end": [
+        2256,
+        810
+      ],
+      "one_way": false
+    },
+    {
+      "id": "MaintenanceLanding",
+      "kind": "floor",
+      "start": [
+        2464,
+        656
+      ],
+      "end": [
+        2496,
+        656
+      ],
+      "one_way": true
+    },
+    {
+      "id": "PumpEntryUpper",
+      "kind": "stair",
+      "start": [
+        1240,
+        584
+      ],
+      "end": [
+        804,
+        802
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S06",
+      "kind": "stair",
+      "start": [
+        1540,
+        802
+      ],
+      "end": [
+        1716,
+        890
+      ],
+      "one_way": false
+    },
+    {
+      "id": "S07",
+      "kind": "stair",
+      "start": [
+        1996,
+        890
+      ],
+      "end": [
+        2156,
+        810
+      ],
+      "one_way": false
+    },
+    {
+      "id": "MaintenanceAscent",
+      "kind": "stair",
+      "start": [
+        2156,
+        810
+      ],
+      "end": [
+        2464,
+        656
+      ],
+      "one_way": true
+    },
+    {
+      "id": "MaintenanceExit",
+      "kind": "stair",
+      "start": [
+        2496,
+        656
+      ],
+      "end": [
+        2632,
+        588
+      ],
+      "one_way": true
+    },
+    {
+      "id": "MaintenanceCatch",
+      "kind": "floor",
+      "start": [
+        2400,
+        832
+      ],
+      "end": [
+        2640,
+        832
+      ],
+      "one_way": false
+    },
+    {
+      "id": "MaintenanceCatchReturn",
+      "kind": "stair",
+      "start": [
+        2256,
+        810
+      ],
+      "end": [
+        2400,
+        832
+      ],
+      "one_way": false
+    },
+    {
+      "id": "TowerApproach",
+      "kind": "floor",
+      "start": [
+        2440,
+        588
+      ],
+      "end": [
+        2456,
+        588
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S11",
+      "kind": "stair",
+      "start": [
+        2440,
+        588
+      ],
+      "end": [
+        2320,
+        516
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding1",
+      "kind": "floor",
+      "start": [
+        2288,
+        516
+      ],
+      "end": [
+        2320,
+        516
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S12",
+      "kind": "stair",
+      "start": [
+        2320,
+        516
+      ],
+      "end": [
+        2440,
+        444
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding2",
+      "kind": "floor",
+      "start": [
+        2440,
+        444
+      ],
+      "end": [
+        2496,
+        444
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S13",
+      "kind": "stair",
+      "start": [
+        2440,
+        444
+      ],
+      "end": [
+        2320,
+        372
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding3",
+      "kind": "floor",
+      "start": [
+        2288,
+        372
+      ],
+      "end": [
+        2320,
+        372
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S14",
+      "kind": "stair",
+      "start": [
+        2320,
+        372
+      ],
+      "end": [
+        2440,
+        300
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding4",
+      "kind": "floor",
+      "start": [
+        2440,
+        300
+      ],
+      "end": [
+        2496,
+        300
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S15",
+      "kind": "stair",
+      "start": [
+        2440,
+        300
+      ],
+      "end": [
+        2320,
+        228
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding5",
+      "kind": "floor",
+      "start": [
+        2288,
+        228
+      ],
+      "end": [
+        2320,
+        228
+      ],
+      "one_way": true
+    },
+    {
+      "id": "S16",
+      "kind": "stair",
+      "start": [
+        2320,
+        228
+      ],
+      "end": [
+        2440,
+        156
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F20_TowerLanding6",
+      "kind": "floor",
+      "start": [
+        2440,
+        156
+      ],
+      "end": [
+        2496,
+        156
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F13_BellLanding",
+      "kind": "floor",
+      "start": [
+        2288,
+        156
+      ],
+      "end": [
+        2496,
+        156
+      ],
+      "one_way": true
+    },
+    {
+      "id": "HallAltar",
+      "kind": "floor",
+      "start": [
+        3440,
+        488
+      ],
+      "end": [
+        3676,
+        488
+      ],
+      "one_way": false
+    },
+    {
+      "id": "HallAltarWest",
+      "kind": "stair",
+      "start": [
+        3240,
+        588
+      ],
+      "end": [
+        3440,
+        488
+      ],
+      "one_way": false
+    },
+    {
+      "id": "HallAltarEast",
+      "kind": "stair",
+      "start": [
+        3676,
+        488
+      ],
+      "end": [
+        3876,
+        588
+      ],
+      "one_way": false
+    },
+    {
+      "id": "HallEastDescent",
+      "kind": "stair",
+      "start": [
+        3980,
+        588
+      ],
+      "end": [
+        3692,
+        750
+      ],
+      "one_way": true
+    },
+    {
+      "id": "HallLanding",
+      "kind": "floor",
+      "start": [
+        3692,
+        750
+      ],
+      "end": [
+        3788,
+        750
+      ],
+      "one_way": true
+    },
+    {
+      "id": "HallLower",
+      "kind": "stair",
+      "start": [
+        3692,
+        750
+      ],
+      "end": [
+        3368,
+        912
+      ],
+      "one_way": true
+    },
+    {
+      "id": "F11",
+      "kind": "floor",
+      "start": [
+        2940,
+        912
+      ],
+      "end": [
+        4096,
+        912
+      ],
+      "one_way": false
+    },
+    {
+      "id": "LuggageHomeCover",
+      "kind": "floor",
+      "start": [
+        2580,
+        552
+      ],
+      "end": [
+        2636,
+        552
+      ],
+      "one_way": false
+    },
+    {
+      "id": "LuggageHomeUp",
+      "kind": "stair",
+      "start": [
+        2508,
+        588
+      ],
+      "end": [
+        2580,
+        552
+      ],
+      "one_way": false
+    },
+    {
+      "id": "LuggageHomeDown",
+      "kind": "stair",
+      "start": [
+        2636,
+        552
+      ],
+      "end": [
+        2708,
+        588
+      ],
+      "one_way": false
+    },
+    {
+      "id": "LuggageCartCover",
+      "kind": "floor",
+      "start": [
+        2740,
+        552
+      ],
+      "end": [
+        2796,
+        552
+      ],
+      "one_way": false
+    },
+    {
+      "id": "LuggageCartUp",
+      "kind": "stair",
+      "start": [
+        2668,
+        588
+      ],
+      "end": [
+        2740,
+        552
+      ],
+      "one_way": false
+    },
+    {
+      "id": "LuggageCartDown",
+      "kind": "stair",
+      "start": [
+        2796,
+        552
+      ],
+      "end": [
+        2868,
+        588
+      ],
+      "one_way": false
+    }
+  ],
+  "spaces": [
+    [
+      "04",
+      [
+        128,
+        144,
+        768,
+        272
+      ],
+      [
+        744,
+        280
+      ]
+    ],
+    [
+      "06",
+      [
+        1088,
+        320,
+        512,
+        208
+      ],
+      [
+        1144,
+        404
+      ]
+    ],
+    [
+      "13",
+      [
+        1600,
+        320,
+        208,
+        208
+      ],
+      [
+        1640,
+        440
+      ]
+    ],
+    [
+      "09",
+      [
+        2288,
+        80,
+        208,
+        496
+      ],
+      [
+        2320,
+        156
+      ]
+    ],
+    [
+      "01",
+      [
+        0,
+        416,
+        384,
+        160
+      ],
+      [
+        160,
+        512
+      ]
+    ],
+    [
+      "02",
+      [
+        384,
+        416,
+        536,
+        224
+      ],
+      [
+        728,
+        512
+      ]
+    ],
+    [
+      "03",
+      [
+        920,
+        528,
+        232,
+        184
+      ],
+      [
+        1040,
+        584
+      ]
+    ],
+    [
+      "05",
+      [
+        1152,
+        528,
+        256,
+        208
+      ],
+      [
+        1208,
+        584
+      ]
+    ],
+    [
+      "07",
+      [
+        1408,
+        528,
+        348,
+        208
+      ],
+      [
+        1584,
+        584
+      ]
+    ],
+    [
+      "08",
+      [
+        1756,
+        576,
+        564,
+        176
+      ],
+      [
+        1888,
+        656
+      ]
+    ],
+    [
+      "10",
+      [
+        756,
+        720,
+        444,
+        160
+      ],
+      [
+        1000,
+        802
+      ]
+    ],
+    [
+      "12",
+      [
+        1200,
+        720,
+        480,
+        160
+      ],
+      [
+        1312,
+        802
+      ]
+    ],
+    [
+      "11",
+      [
+        1680,
+        784,
+        584,
+        240
+      ],
+      [
+        1784,
+        890
+      ]
+    ],
+    [
+      "14",
+      [
+        2320,
+        520,
+        620,
+        232
+      ],
+      [
+        2912,
+        588
+      ]
+    ],
+    [
+      "15",
+      [
+        2940,
+        480,
+        100,
+        576
+      ],
+      [
+        2944,
+        588
+      ]
+    ],
+    [
+      "16",
+      [
+        3040,
+        480,
+        1056,
+        576
+      ],
+      [
+        3232,
+        588
+      ]
+    ]
+  ],
+  "connections": [
+    [
+      "01",
+      "02",
+      ""
+    ],
+    [
+      "02",
+      "04",
+      ""
+    ],
+    [
+      "02",
+      "03",
+      ""
+    ],
+    [
+      "03",
+      "05",
+      ""
+    ],
+    [
+      "05",
+      "07",
+      ""
+    ],
+    [
+      "05",
+      "06",
+      ""
+    ],
+    [
+      "06",
+      "13",
+      ""
+    ],
+    [
+      "13",
+      "07",
+      ""
+    ],
+    [
+      "07",
+      "08",
+      "gate_lift"
+    ],
+    [
+      "07",
+      "10",
+      ""
+    ],
+    [
+      "10",
+      "12",
+      ""
+    ],
+    [
+      "12",
+      "11",
+      ""
+    ],
+    [
+      "11",
+      "08",
+      "gate_maintenance"
+    ],
+    [
+      "08",
+      "09",
+      ""
+    ],
+    [
+      "08",
+      "14",
+      ""
+    ],
+    [
+      "14",
+      "15",
+      ""
+    ],
+    [
+      "15",
+      "16",
+      "gate_departure"
+    ],
+    [
+      "02",
+      "10",
+      "gate_entry"
+    ],
+    [
+      "04",
+      "08",
+      "gate_west"
+    ],
+    [
+      "09",
+      "14",
+      "gate_east"
+    ],
+    [
+      "16",
+      "01",
+      "gate_return"
+    ]
+  ],
+  "gates": [
+    [
+      "gate_lift",
+      1744,
+      478,
+      24,
+      180
+    ],
+    [
+      "gate_maintenance",
+      2208,
+      698,
+      24,
+      112
+    ],
+    [
+      "gate_departure",
+      3040,
+      428,
+      32,
+      160
+    ],
+    [
+      "gate_departure_back",
+      3040,
+      620,
+      32,
+      500
+    ]
+  ],
+  "edge_barriers": [
+    [
+      "PumpWestStop",
+      756,
+      754
+    ],
+    [
+      "MaintenanceStop",
+      2640,
+      784
+    ],
+    [
+      "HallLowerWestStop",
+      2924,
+      864
+    ]
+  ],
+  "encounters": [
+    [
+      1,
+      "02",
+      "shield",
+      [
+        656,
+        512
+      ],
+      [
+        560,
+        432,
+        216,
+        144
+      ],
+      150
+    ],
+    [
+      5,
+      "08",
+      "shield",
+      [
+        2096,
+        656
+      ],
+      [
+        2016,
+        576,
+        264,
+        160
+      ],
+      180
+    ],
+    [
+      5,
+      "08",
+      "rifle",
+      [
+        2264,
+        656
+      ],
+      [
+        2016,
+        576,
+        264,
+        160
+      ],
+      150
+    ],
+    [
+      6,
+      "06",
+      "rifle",
+      [
+        1280,
+        404
+      ],
+      [
+        1112,
+        320,
+        456,
+        112
+      ],
+      140
+    ],
+    [
+      10,
+      "10",
+      "shield",
+      [
+        1120,
+        802
+      ],
+      [
+        1008,
+        736,
+        400,
+        128
+      ],
+      150
+    ],
+    [
+      12,
+      "12",
+      "charger",
+      [
+        1456,
+        802
+      ],
+      [
+        1320,
+        736,
+        216,
+        128
+      ],
+      140
+    ],
+    [
+      9,
+      "09",
+      "rifle",
+      [
+        2424,
+        156
+      ],
+      [
+        2288,
+        80,
+        208,
+        480
+      ],
+      140
+    ],
+    [
+      13,
+      "13",
+      "rifle",
+      [
+        1712,
+        452
+      ],
+      [
+        1600,
+        320,
+        208,
+        208
+      ],
+      100
+    ],
+    [
+      16,
+      "16",
+      "rifle",
+      [
+        3888,
+        912
+      ],
+      [
+        3488,
+        824,
+        600,
+        192
+      ],
+      160
+    ]
+  ],
+  "shortcuts": [
+    [
+      "gate_entry",
+      [
+        [
+          728,
+          512
+        ],
+        "02"
+      ],
+      [
+        [
+          1000,
+          802
+        ],
+        "10"
+      ]
+    ],
+    [
+      "gate_west",
+      [
+        [
+          744,
+          280
+        ],
+        "04"
+      ],
+      [
+        [
+          1840,
+          656
+        ],
+        "08"
+      ]
+    ],
+    [
+      "gate_east",
+      [
+        [
+          2376,
+          156
+        ],
+        "09"
+      ],
+      [
+        [
+          2480,
+          656
+        ],
+        "14"
+      ]
+    ],
+    [
+      "gate_return",
+      [
+        [
+          4000,
+          912
+        ],
+        "16"
+      ],
+      [
+        [
+          160,
+          512
+        ],
+        "01"
+      ]
+    ]
+  ],
+  "npcs": {
+    "mara": [
+      [
+        1000,
+        584
+      ],
+      "03"
+    ],
+    "ina": [
+      [
+        1168,
+        584
+      ],
+      "05"
+    ],
+    "vira": [
+      [
+        1800,
+        656
+      ],
+      "08"
+    ],
+    "celine": [
+      [
+        1936,
+        656
+      ],
+      "08"
+    ],
+    "ruka": [
+      [
+        1824,
+        890
+      ],
+      "11"
+    ]
+  },
+  "actions": {
+    "tools": [
+      [
+        1456,
+        656
+      ],
+      "07"
+    ],
+    "records": [
+      [
+        1704,
+        452
+      ],
+      "13"
+    ],
+    "lift_repair": [
+      [
+        1672,
+        614
+      ],
+      "07"
+    ],
+    "maintenance_isolate": [
+      [
+        2176,
+        800
+      ],
+      "11"
+    ],
+    "luggage": [
+      [
+        2768,
+        552
+      ],
+      "14"
+    ],
+    "departure": [
+      [
+        2944,
+        588
+      ],
+      "15"
+    ],
+    "exit": [
+      [
+        4032,
+        588
+      ],
+      "16"
+    ]
+  },
+  "story": {
+    "elite": [
+      3016,
+      588
+    ],
+    "boss": [
+      3968,
+      588
+    ],
+    "celine_after": [
+      2984,
+      588
+    ],
+    "celine_return": [
+      1080,
+      584
+    ],
+    "vira_after": [
+      2880,
+      588
+    ],
+    "vira_departure_mid": [
+      1816,
+      656
+    ],
+    "vira_departure_end": [
+      1856,
+      656
+    ],
+    "vira_path_01": [
+      1888,
+      656
+    ],
+    "vira_path_02": [
+      2160,
+      656
+    ],
+    "vira_path_03": [
+      2320,
+      656
+    ],
+    "vira_path_04": [
+      2440,
+      588
+    ],
+    "vira_path_05": [
+      2668,
+      588
+    ],
+    "vira_path_06": [
+      2740,
+      552
+    ],
+    "vira_path_07": [
+      2796,
+      552
+    ],
+    "vira_path_08": [
+      2868,
+      588
+    ],
+    "luggage_home": [
+      2608,
+      588
+    ],
+    "luggage_cart": [
+      2768,
+      588
+    ],
+    "tutorial_jump": [
+      256,
+      512
+    ],
+    "tutorial_shoot": [
+      480,
+      512
+    ],
+    "arrival_stairs": [
+      776,
+      512
+    ]
+  },
+  "roof": {
+    "id": "ChapelRoof",
+    "kind": "roof",
+    "position": [
+      0,
+      0
+    ],
+    "size": [
+      4096,
+      1120
+    ],
+    "polygon": [
+      [
+        2940,
+        80
+      ],
+      [
+        3120,
+        80
+      ],
+      [
+        3120,
+        -38
+      ],
+      [
+        3620,
+        -278
+      ],
+      [
+        3968,
+        -38
+      ],
+      [
+        4096,
+        80
+      ],
+      [
+        4096,
+        96
+      ],
+      [
+        3968,
+        -22
+      ],
+      [
+        3620,
+        -262
+      ],
+      [
+        3136,
+        -14
+      ],
+      [
+        3136,
+        96
+      ],
+      [
+        2940,
+        96
+      ]
+    ]
+  }
+}
